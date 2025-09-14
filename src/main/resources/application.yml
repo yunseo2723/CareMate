@@ -1,0 +1,33 @@
+spring:
+    application:
+        name: CareMate-Backend
+
+    datasource:
+        url: jdbc:h2:mem:caremate;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+        driver-class-name: org.h2.Driver
+        username: sa
+        password:
+    jpa:
+        hibernate:
+            ddl-auto: update
+        show-sql: true
+    mail:
+        host: smtp.gmail.com
+        port: 587
+        username: skusofting1@gmail.com
+        password: rfewalrfgfgxidnx
+        properties:
+            mail.smtp.auth: true
+            mail.smtp.starttls.enable: true
+            mail.smtp.ssl.trust: smtp.gmail.com
+            mail.debug: true
+
+    # JWT secret ?
+    jwt:
+        secret: TrmFK2Nox5h5JtGd6IoNcuSdVCg5dX9cr8LsE7Cm+k3notiNNkSVJU8GLQ9B33I/mBwayz0MiAwdVHW6Xa/FBw==
+
+    servlet:
+        encoding:
+            charset: UTF-8
+            enabled: true
+            force: true
