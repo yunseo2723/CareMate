@@ -69,7 +69,6 @@ public class SecurityConfig {
 
         http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
-        // ★ LoginFilter에 딱 이 매니저만 주입
         var loginFilter = new LoginFilter(jwtUtil, userRepository);
         loginFilter.setAuthenticationManager(authCfg.getAuthenticationManager());
         loginFilter.setFilterProcessesUrl("/users/login");
