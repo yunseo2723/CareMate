@@ -25,12 +25,12 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
-    private final AuthenticationManager authenticationManager;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
 
     @Override
-    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
+    public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
+            throws AuthenticationException {
 
         String username = obtainUsername(request);
         String password = obtainPassword(request);
@@ -38,9 +38,9 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 추후 삭제 필요, 확인 용
         System.out.println(username + password);
 
-        UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(username, password);
+        var authToken = new UsernamePasswordAuthenticationToken(username, password);
         System.out.println(authToken);
-        return authenticationManager.authenticate(authToken);
+        return getAuthenticationManager().authenticate(authToken);
     }
 
     @Override

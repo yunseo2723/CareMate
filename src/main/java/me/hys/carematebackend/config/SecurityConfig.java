@@ -1,5 +1,6 @@
 package me.hys.carematebackend.config;
 
+import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.repository.UserRepository;
 import me.hys.carematebackend.util.JWTFilter;
 import me.hys.carematebackend.util.JWTUtil;
@@ -7,17 +8,20 @@ import me.hys.carematebackend.util.LoginFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 
@@ -31,48 +35,63 @@ public class SecurityConfig {
     private final UserRepository userRepository;
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration cfg) throws Exception {
-        return cfg.getAuthenticationManager();
-    }
-
-    @Bean
     public BCryptPasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    public UserDetailsService userDetailsService(UserRepository userRepository) {
+        return username -> userRepository.findByUsername(username)
+                .map(CustomUserDetails::new)
+                .orElseThrow(() -> new UsernameNotFoundException("user not found: " + username));
+    }
+
+    @Bean
+    public DaoAuthenticationProvider daoAuthProvider(UserDetailsService uds, BCryptPasswordEncoder pe) {
+        var p = new DaoAuthenticationProvider();
+        p.setUserDetailsService(uds);
+        p.setPasswordEncoder(pe);
+        return p;
+    }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authCfg) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .cors(c -> c.configurationSource(corsConfigurationSource()))
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        // 공개 엔드포인트 (회원가입/로그인/이메일 인증/문서)
-                        .requestMatchers(
-                                "/users/register",
-                                "/users/login",
-                                "/signup/**"
-                        ).permitAll()
-                        // 보호 엔드포인트 (JWT 필요)
-                        .requestMatchers(
-                                "/users/me/**",
-                                "/caremates/**",
-                                "/me/**",
-                                "/contacts/**",
-                                "/bookmarks/**",
-                                "/reviews/**"
-                        ).authenticated()
+                        .requestMatchers("/users/register", "/users/login", "/signup/**").permitAll()
+                        .requestMatchers("/users/me/**","/caremates/**","/me/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
                         .anyRequest().authenticated()
-                );
+                )
 
-        // JWT 인증 필터
+                .authenticationProvider(daoAuthProvider(userDetailsService(userRepository), passwordEncoder()));
+
         http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
-        // 로그인 필터 (프리픽스 없이)
-        var loginFilter = new LoginFilter(authenticationManager(authenticationConfiguration), jwtUtil, userRepository);
+        // ★ LoginFilter에 딱 이 매니저만 주입
+        var loginFilter = new LoginFilter(jwtUtil, userRepository);
+        loginFilter.setAuthenticationManager(authCfg.getAuthenticationManager());
         loginFilter.setFilterProcessesUrl("/users/login");
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
+    }
+
+    @Bean
+    public CorsFilter corsFilter() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowCredentials(true);
+        config.addExposedHeader("accessToken");
+        config.addExposedHeader("refreshToken");
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+
+        return new CorsFilter(source);
     }
 
     private UrlBasedCorsConfigurationSource corsConfigurationSource() {

@@ -23,8 +23,8 @@ public enum ResponseCode {
     SUCCESS_RETRIEVE_ALL_POLICES(HttpStatus.OK, "모든 경찰 사용자를 성공적으로 조회했습니다."),
     SUCCESS_POLICE_LOGOUT(HttpStatus.OK, "성공적으로 로그아웃했습니다."),
     SUCCESS_DELETE_POLICE(HttpStatus.OK, "경찰 유저가 성공적으로 삭제되었습니다."),
-    SUCCESS_EMAIL_POLICE_SEND(HttpStatus.OK, "경찰 이메일 인증번호를 전송했습니다."),
-    SUCCESS_EMAIL_POLICE_ACCEPT(HttpStatus.OK, "경찰 이메일 인증을 성공했습니다."),
+    SUCCESS_EMAIL_POLICE_SEND(HttpStatus.OK, "인증번호를 전송했습니다."),
+    SUCCESS_EMAIL_POLICE_ACCEPT(HttpStatus.OK, "이메일 인증을 성공했습니다."),
 
 
     /**

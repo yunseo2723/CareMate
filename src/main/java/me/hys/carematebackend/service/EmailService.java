@@ -63,29 +63,25 @@ public class EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(message, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, "utf-8");
 
             /* 1) From: Gmail 계정과 동일 + 서비스명 라벨 */
-            helper.setFrom("skusofting1@gmail.com", "오늘의 현장");   // ★ 추가
+            helper.setFrom("hayunseo14@gmail.com", "Care Mate");   // ★ 추가
 
             /* 2) To */
             helper.setTo(email);
 
             /* 3) Subject */
-            helper.setSubject("[오늘의 현장] 이메일 인증번호입니다");
+            helper.setSubject("[Care Mate] 인증번호 발송");
 
             /* 4) 본문 – HTML & Plain 동시 전송 */
             String plain = """
-                    안녕하세요, 오늘의 현장 서비스입니다.
-                    
-                    아래 인증번호를 3분 이내에 입력해 주세요.
-                    
-                    인증번호: %s
+                    CareMate 인증 코드
+                    %s
+                    3분 이내에 인증코드를 입력해 주세요.
                     """.formatted(code);
 
             String html = """
-                    <p>안녕하세요, <strong>오늘의 현장</strong> 서비스입니다.</p>
-                    <p>경찰 전용 인증번호 입니다.</p>
-                    <p>아래 <b>인증번호</b>를 <span style="color:#0066ff;">3분 이내</span>에 입력해 주세요.</p>
-                    <h2 style="letter-spacing:4px;">%s</h2>
-                    <p style="font-size:12px;color:#888;">본 메일은 발신 전용입니다.</p>
+                    <h2> CareMate 인증 코드 </h2>
+                    <h2 style="letter-spacing:6px;">%s</h2>
+                    <b>3분 이내에 인증코드를 입력해 주세요.</b>
                     """.formatted(code);
 
             helper.setText(plain, html);   // (plain, html) 순서

@@ -1,5 +1,6 @@
 package me.hys.carematebackend.controller;
 
+import jakarta.validation.Valid;
 import me.hys.carematebackend.code.ResponseCode;
 import me.hys.carematebackend.dto.response.ResponseDTO;
 import me.hys.carematebackend.dto.user.AllUserDto;
@@ -7,7 +8,6 @@ import me.hys.carematebackend.dto.user.RegisterUserDto;
 import me.hys.carematebackend.dto.user.ResponseUserDto;
 import me.hys.carematebackend.model.User;
 import me.hys.carematebackend.service.UserService;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -20,6 +20,14 @@ import org.springframework.web.bind.annotation.*;
 @Validated
 public class UserController {
     private final UserService userService;
+
+    @PostMapping("/register")
+    public ResponseEntity<ResponseDTO<?>> registerPoliceUser(@Valid @RequestBody RegisterUserDto registerUserDto) {
+        userService.registerPolice(registerUserDto);
+        return ResponseEntity
+                .status(ResponseCode.SUCCESS_POLICE_REGISTER.getStatus().value())
+                .body(new ResponseDTO<>(ResponseCode.SUCCESS_POLICE_REGISTER, null));
+    }
 
     @GetMapping
     public ResponseEntity<ResponseDTO<AllUserDto>> getAllUsers() {
