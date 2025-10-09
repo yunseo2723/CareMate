@@ -3,19 +3,33 @@ on: [push, pull_request]
 jobs:
   build-test:
     runs-on: ubuntu-latest
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_DATABASE: caremate
+          MYSQL_USER: cm
+          MYSQL_PASSWORD: cm
+          MYSQL_ROOT_PASSWORD: root
+        ports: [ "3306:3306" ]
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -proot"
+          --health-interval=10s --health-timeout=5s --health-retries=20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
         with: { distribution: 'temurin', java-version: '21' }
-      - uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('backend/**/*.gradle*','backend/**/gradle-wrapper.properties') }}
-          restore-keys: ${{ runner.os }}-gradle-
-      - name: Test & Build
+      - name: Make gradlew executable
         working-directory: backend
+        run: chmod +x gradlew
+      - name: Test & Build (MySQL)
+        working-directory: backend
+        env:
+          SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/caremate?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+          SPRING_DATASOURCE_USERNAME: cm
+          SPRING_DATASOURCE_PASSWORD: cm
+          SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT: org.hibernate.dialect.MySQL8Dialect
+          SPRING_JPA_HIBERNATE_DDL_AUTO: create-drop   # 테스트용
         run: |
           ./gradlew clean test --no-daemon
           ./gradlew bootJar --no-daemon
