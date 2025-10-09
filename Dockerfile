@@ -1,5 +1,5 @@
 # ---- Build stage ----
-FROM gradle:8.9-jdk21 as build
+FROM gradle:8.9-jdk17 as build
 WORKDIR /workspace
 COPY backend/ ./
 RUN gradle clean bootJar --no-daemon
