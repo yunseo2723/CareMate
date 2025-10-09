@@ -1,12 +1,13 @@
 {
   "name": "caremate",
   "private": true,
+  "workspaces": ["frontend"],
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint": "eslint .",
     "preview": "vite preview"
   },
   "dependencies": {
