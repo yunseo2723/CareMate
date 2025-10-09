@@ -1,4 +1,4 @@
-import { useSearch } from '../contexts/SearchContext.tsx'
+import { useSearch } from '../hooks/useSearch.ts'
 
 export function Filters(){
     const {

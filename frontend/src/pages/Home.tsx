@@ -3,7 +3,7 @@ import { ResultCard } from '../components/ResultCard'
 import { EmptyState } from '../components/EmptyState'
 import { CompareBar } from '../components/CompareBar'
 import { MapPanel } from '../components/MapPanel'
-import { useSearch } from '../contexts/SearchContext.tsx'
+import { useSearch } from '../hooks/useSearch.ts'
 
 export default function Home(){
     const { results, center, radiusKm, sort, setSort, loading, compare, toggleCompare, clearAll } = useSearch()
