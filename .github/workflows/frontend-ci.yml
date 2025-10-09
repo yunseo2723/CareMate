@@ -12,9 +12,12 @@ jobs:
           path: ~/.npm
           key: ${{ runner.os }}-node-${{ hashFiles('frontend/package-lock.json') }}
           restore-keys: ${{ runner.os }}-node-
-      - working-directory: frontend
+      - name: Install
+        working-directory: frontend
         run: npm ci
-      - working-directory: frontend
+      - name: Lint
+        working-directory: frontend
         run: npm run lint --if-present
-      - working-directory: frontend
+      - name: Build
+        working-directory: frontend
         run: npm run build
