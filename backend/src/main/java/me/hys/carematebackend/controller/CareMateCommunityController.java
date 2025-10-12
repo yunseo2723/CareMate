@@ -25,7 +25,7 @@ public class CareMateCommunityController {
 
     // 공지 등록: 관리자만
     @PostMapping("/notices")
-    @PreAuthorize("hasRole('ADMIN') and @ownership.isCareMateAdmin(authentication, #careMateId)")
+    @PreAuthorize("@ownership.isCareMateAdmin(authentication, #careMateId)")
     public NoticeDtos.Res createNotice(@PathVariable Long careMateId,
                                        @RequestBody NoticeDtos.CreateReq req,
                                        Authentication auth) {
