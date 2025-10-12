@@ -4,9 +4,13 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "caremates")
-@Getter @Setter
+@Getter
+@Setter
 public class CareMate {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,9 +27,25 @@ public class CareMate {
     // 필요하면 추가 필드
     private String address;
     private String phone;          // 전체 문자열 보관용(선택)
-    private Double lat;
-    private Double lng;
+    private Double lat;              // 위도
+    private Double lng;              // 경도
+    private Double nurseRatio;       // 간호인력 비율(예: 0.35)
     private Double rating;
     private Integer monthlyFeeMin;
     private Integer monthlyFeeMax;
+
+    @ElementCollection
+    @CollectionTable(name="caremate_specialties", joinColumns=@JoinColumn(name="caremate_id"))
+    @Column(name="specialty")
+    private List<String> specialties = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name="caremate_programs", joinColumns=@JoinColumn(name="caremate_id"))
+    @Column(name="program")
+    private List<String> programs = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name="caremate_photos", joinColumns=@JoinColumn(name="caremate_id"))
+    @Column(name="url")
+    private List<String> photos = new ArrayList<>();
 }

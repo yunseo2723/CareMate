@@ -1,6 +1,7 @@
 package me.hys.carematebackend.util;
 
 import me.hys.carematebackend.code.ErrorCode;
+import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.dto.user.TokenErrorResponse;
 import me.hys.carematebackend.model.User;
 import me.hys.carematebackend.repository.UserRepository;
@@ -60,12 +61,14 @@ public class JWTFilter extends OncePerRequestFilter {
             User user = userRepository.findByUsername(username)
                     .orElseThrow(() -> new RuntimeException("유저를 찾을 수 없습니다."));
 
-            // 권한 처리도 DB에 있는 role을 사용
+            CustomUserDetails cud = new CustomUserDetails(user);
+
             Authentication authToken = new UsernamePasswordAuthenticationToken(
-                    user,  // ✅ 실제 User 객체를 넣어야 인증 주체 정보가 유지됨
+                    cud,
                     null,
-                    Collections.emptyList()
+                    cud.getAuthorities()
             );
+
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
 
