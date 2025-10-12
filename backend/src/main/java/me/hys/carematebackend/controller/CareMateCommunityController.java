@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.community.NoticeDtos;
 import me.hys.carematebackend.dto.community.TalkDtos;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
-import me.hys.carematebackend.ownership.Ownership;
 import me.hys.carematebackend.service.NoticeService;
 import me.hys.carematebackend.service.TalkService;
 import org.springframework.data.domain.Page;
