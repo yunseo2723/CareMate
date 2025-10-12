@@ -12,8 +12,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +24,7 @@ public class AdminOnboardingService {
     private final CareMateAdminRepository adminRepo;
     private final PasswordEncoder bcrypt;
     private final TelephonyClient tel;
+    private static final SecureRandom RNG = new SecureRandom();
 
     @Transactional
     public String requestCode(Authentication auth, Long careMateId) {
@@ -54,24 +55,40 @@ public class AdminOnboardingService {
         if (otp.getExpiresAt().isBefore(Instant.now()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "인증코드 만료");
 
-        if (otp.getAttempts() >= 5)
-            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "시도 횟수 초과");
-
-        otp.incAttempts();
-
-        if (!bcrypt.matches(code, otp.getCodeHash()))
+        if (!bcrypt.matches(code, otp.getCodeHash())) {
+            if (otp.getAttempts() >= 5) {
+                throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS, "시도 횟수 초과");
+            }
+            otp.incAttempts();
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "인증코드 불일치");
+        }
 
+        //성공 처리
         otp.markVerified();
-        adminRepo.createIfNotExists(userId, careMateId);
+
+        int rows = adminRepo.insertIgnore(userId, careMateId);
     }
 
-    private static String genOtp(int n) {
-        int v = new Random().nextInt((int) Math.pow(10, n));
-        return String.format("%0" + n + "d", v);
+    private static String genOtp(int digits) {
+        int bound = (int) Math.pow(10, digits);
+        int v = RNG.nextInt(bound);
+        return String.format("%0" + digits + "d", v);
+    }
+
+    private static String normalizePhone(String a, String b, String c) {
+        if (isBlank(a) || isBlank(b) || isBlank(c)) return null;
+        String phone = (a + "-" + b + "-" + c).replaceAll("[^0-9-]", "");
+        // 기본 형태 검증(대충 2~3-2~4-3~4 자리)
+        if (!phone.matches("\\d{2,3}-\\d{2,4}-\\d{3,4}")) return null;
+        return phone;
+    }
+
+    private static boolean isBlank(String s) {
+        return s == null || s.trim().isEmpty();
     }
 
     private static String mask(String phone) {
-        return phone.replaceAll("(\\d{2,3}-\\d{2,3}-)\\d{2}(\\d+)", "$1***");
+        // 02-980-3004 -> 02-980-3***
+        return phone.replaceAll("(\\d{2,3}-\\d{2,4}-)\\d{2}(\\d+)", "$1***");
     }
 }
