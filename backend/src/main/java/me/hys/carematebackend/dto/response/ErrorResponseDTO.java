@@ -1,8 +1,8 @@
 package me.hys.carematebackend.dto.response;
 
-import me.hys.carematebackend.code.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import me.hys.carematebackend.code.ErrorCode;
 
 import java.util.Map;
 
@@ -22,22 +22,12 @@ public class ErrorResponseDTO {
     // entity 필드를 매핑해서 어떤 필드에서 오류가 났는지 응답으로 전달함.
     // 그리고 오류를 일관성 있게 전달하기 위해 DTO 사용하는 것임.
 
-
     public ErrorResponseDTO(ErrorCode errorCode) {
         this.status = errorCode.getStatus().value();
         this.error = errorCode.getStatus().name();
         this.code = errorCode.name();
         this.message = errorCode.getMessage();
     }
-
-    // 내가 따로 전달한 메시지가 있을 때는 이거
-    public ErrorResponseDTO(ErrorCode errorCode, String message) {
-        this.status = errorCode.getStatus().value();
-        this.error = errorCode.getStatus().name();
-        this.code = errorCode.name();
-        this.message = message;
-    }
-
 
     // 내가 필드마다
     public ErrorResponseDTO(ErrorCode errorCode, Map<String, String> errors) {

@@ -1,13 +1,12 @@
 package me.hys.carematebackend.config;
 
+import jakarta.mail.internet.MimeMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-
-import jakarta.mail.internet.MimeMessage;
 
 @Configuration
 public class NoopMailConfig {

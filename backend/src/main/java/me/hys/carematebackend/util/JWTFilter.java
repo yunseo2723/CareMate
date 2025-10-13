@@ -1,24 +1,22 @@
 package me.hys.carematebackend.util;
 
-import me.hys.carematebackend.code.ErrorCode;
-import me.hys.carematebackend.dto.user.CustomUserDetails;
-import me.hys.carematebackend.dto.user.TokenErrorResponse;
-import me.hys.carematebackend.model.User;
-import me.hys.carematebackend.repository.UserRepository;
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import me.hys.carematebackend.code.ErrorCode;
+import me.hys.carematebackend.dto.user.CustomUserDetails;
+import me.hys.carematebackend.dto.user.TokenErrorResponse;
+import me.hys.carematebackend.model.User;
+import me.hys.carematebackend.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Collections;
 
 @RequiredArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {

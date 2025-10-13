@@ -42,7 +42,6 @@ public class CareMateCommunityController {
 
     // 소통 등록: 로그인 사용자 누구나
     @PostMapping("/talks")
-    @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public TalkDtos.Res createTalk(@PathVariable Long careMateId,
                                    @RequestBody TalkDtos.CreateReq req,
                                    Authentication auth){

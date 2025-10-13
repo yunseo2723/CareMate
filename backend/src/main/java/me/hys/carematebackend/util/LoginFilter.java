@@ -1,5 +1,10 @@
 package me.hys.carematebackend.util;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.code.ErrorCode;
 import me.hys.carematebackend.code.ResponseCode;
 import me.hys.carematebackend.dto.response.ErrorResponseDTO;
@@ -8,12 +13,6 @@ import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.dto.user.ResponseUserDto;
 import me.hys.carematebackend.model.User;
 import me.hys.carematebackend.repository.UserRepository;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -34,9 +33,6 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
         String username = obtainUsername(request);
         String password = obtainPassword(request);
-
-        // 추후 삭제 필요, 확인 용
-        System.out.println(username + password);
 
         var authToken = new UsernamePasswordAuthenticationToken(username, password);
         System.out.println(authToken);

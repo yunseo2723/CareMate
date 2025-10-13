@@ -1,7 +1,7 @@
 package me.hys.carematebackend.dto.response;
 
-import me.hys.carematebackend.code.ResponseCode;
 import lombok.Data;
+import me.hys.carematebackend.code.ResponseCode;
 
 @Data
 public class ResponseDTO<T> {

@@ -1,9 +1,9 @@
 package me.hys.carematebackend.dto.user;
 
-import me.hys.carematebackend.model.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import me.hys.carematebackend.model.User;
 
 @Builder
 @Getter

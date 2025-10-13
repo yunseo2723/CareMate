@@ -1,9 +1,9 @@
 package me.hys.carematebackend.exception;
 
-import me.hys.carematebackend.code.ErrorCode;
-import me.hys.carematebackend.dto.response.ErrorResponseDTO;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
+import me.hys.carematebackend.code.ErrorCode;
+import me.hys.carematebackend.dto.response.ErrorResponseDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -51,13 +51,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(ErrorCode.DUPLICATE_LOGIN_ID.getStatus().value())
                 .body(new ErrorResponseDTO(ErrorCode.DUPLICATE_LOGIN_ID));
-    }
-
-    @ExceptionHandler(InvalidEmailDomainException.class)
-    protected ResponseEntity<ErrorResponseDTO> handleInvalidEmailDomainException(final InvalidEmailDomainException e) {
-        return ResponseEntity
-                .status(ErrorCode.INVALID_POLICE_EMAIL.getStatus().value())
-                .body(new ErrorResponseDTO(ErrorCode.INVALID_POLICE_EMAIL));
     }
 
     @ExceptionHandler(UnauthenticatedEmailException.class)

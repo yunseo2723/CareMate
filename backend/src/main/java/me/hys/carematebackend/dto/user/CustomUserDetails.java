@@ -1,7 +1,7 @@
 package me.hys.carematebackend.dto.user;
 
-import me.hys.carematebackend.model.User;
 import lombok.RequiredArgsConstructor;
+import me.hys.carematebackend.model.User;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 

@@ -1,11 +1,11 @@
 package me.hys.carematebackend.config;
 
+import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.repository.UserRepository;
 import me.hys.carematebackend.util.JWTFilter;
 import me.hys.carematebackend.util.JWTUtil;
 import me.hys.carematebackend.util.LoginFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/users/register", "/users/login", "/signup/**").permitAll()
-                        .requestMatchers("/users/me/**","/caremates/**","/me/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
+                        .requestMatchers("/users/me/**","/caremates/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
@@ -99,7 +99,6 @@ public class SecurityConfig {
         config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
-        // 프런트에서 읽어야 하는 헤더 노출
         config.addExposedHeader("accessToken");
         config.addExposedHeader("refreshToken");
 

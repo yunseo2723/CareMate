@@ -1,7 +1,7 @@
 package me.hys.carematebackend.exception;
 
-import me.hys.carematebackend.code.ErrorCode;
 import lombok.Getter;
+import me.hys.carematebackend.code.ErrorCode;
 
 @Getter
 public class CustomException extends RuntimeException {

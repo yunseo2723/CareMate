@@ -2,10 +2,13 @@ package me.hys.carematebackend.service;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import me.hys.carematebackend.model.*;
-import me.hys.carematebackend.repository.*;
-import me.hys.carematebackend.infra.TelephonyClient;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
+import me.hys.carematebackend.infra.TelephonyClient;
+import me.hys.carematebackend.model.AdminPhoneOtp;
+import me.hys.carematebackend.model.CareMate;
+import me.hys.carematebackend.repository.AdminPhoneOtpRepository;
+import me.hys.carematebackend.repository.CareMateAdminRepository;
+import me.hys.carematebackend.repository.CareMateRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
