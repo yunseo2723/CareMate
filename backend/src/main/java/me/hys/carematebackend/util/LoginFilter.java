@@ -12,6 +12,7 @@ import me.hys.carematebackend.dto.response.ResponseDTO;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.dto.user.ResponseUserDto;
 import me.hys.carematebackend.model.User;
+import me.hys.carematebackend.repository.CareMateAdminRepository;
 import me.hys.carematebackend.repository.UserRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,6 +27,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final CareMateAdminRepository careMateAdminRepository;
 
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
@@ -61,8 +63,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new RuntimeException("유저 정보 없음"));
 
-        // 🔹 DTO로 변환
-        ResponseUserDto userDto = ResponseUserDto.entityToDto(user);
+        // ✅ 관리자 시설 ID 조회
+        var adminIds = careMateAdminRepository.findCareMateIdsByUserId(user.getId());
+
+        // ✅ 확장된 DTO 사용
+        ResponseUserDto userDto = ResponseUserDto.of(user, adminIds);
 
         // 🔹 응답 객체 구성 (userDto 포함)
         ResponseDTO<Object> responseDTO = new ResponseDTO<>(ResponseCode.SUCCESS_LOGIN, userDto);

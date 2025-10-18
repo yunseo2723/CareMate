@@ -2,6 +2,7 @@ package me.hys.carematebackend.config;
 
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
+import me.hys.carematebackend.repository.CareMateAdminRepository;
 import me.hys.carematebackend.repository.UserRepository;
 import me.hys.carematebackend.util.JWTFilter;
 import me.hys.carematebackend.util.JWTUtil;
@@ -33,6 +34,7 @@ public class SecurityConfig {
     private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
+    private final CareMateAdminRepository careMateAdminRepository;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
@@ -61,7 +63,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/users/register", "/users/login", "/signup/**").permitAll()
-                        .requestMatchers("/users/me", "/admin/onboarding/**", "/caremates/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
+                        .requestMatchers("/users/me/**", "/admin/onboarding/**", "/caremates/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
@@ -69,7 +71,7 @@ public class SecurityConfig {
 
         http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
-        var loginFilter = new LoginFilter(jwtUtil, userRepository);
+        var loginFilter = new LoginFilter(jwtUtil, userRepository, careMateAdminRepository);
         loginFilter.setAuthenticationManager(authCfg.getAuthenticationManager());
         loginFilter.setFilterProcessesUrl("/users/login");
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);

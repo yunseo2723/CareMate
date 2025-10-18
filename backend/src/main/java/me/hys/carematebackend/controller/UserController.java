@@ -7,7 +7,8 @@ import me.hys.carematebackend.dto.response.ResponseDTO;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.dto.user.RegisterUserDto;
 import me.hys.carematebackend.dto.user.ResponseUserDto;
-import me.hys.carematebackend.model.User;
+import me.hys.carematebackend.dto.user.ProfileUpdateDto;
+import me.hys.carematebackend.dto.user.PasswordChangeDto;
 import me.hys.carematebackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -41,9 +42,32 @@ public class UserController {
      * 로그인된 현재 정보 불러오기
      */
     @GetMapping("/me")
-    public ResponseUserDto getMyUserInfo(@AuthenticationPrincipal CustomUserDetails cud) {
-        User user = cud.getUser();
-        return ResponseUserDto.entityToDto(user);
+    public ResponseEntity<ResponseDTO<ResponseUserDto>> getMyUserInfo(@AuthenticationPrincipal CustomUserDetails cud) {
+        Long userId = cud.getUser().getId(); // 또는 cud.getUserId()
+        ResponseUserDto dto = userService.getMe(userId);
+        return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS_RETRIEVE_USER, dto));
+    }
+
+    /** 🔹 내 프로필 수정 (이름/닉네임/연락처 등) */
+    @PatchMapping("/me/profile")
+    public ResponseEntity<ResponseDTO<ResponseUserDto>> updateMyProfile(
+            @AuthenticationPrincipal CustomUserDetails cud,
+            @Valid @RequestBody ProfileUpdateDto req
+    ) {
+        Long userId = cud.getUser().getId();
+        ResponseUserDto dto = userService.updateProfile(userId, req);
+        return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS_UPDATE_USER, dto));
+    }
+
+    /** 🔹 비밀번호 변경 */
+    @PatchMapping("/me/password")
+    public ResponseEntity<ResponseDTO<?>> changeMyPassword(
+            @AuthenticationPrincipal CustomUserDetails cud,
+            @Valid @RequestBody PasswordChangeDto req
+    ) {
+        Long userId = cud.getUser().getId();
+        userService.changePassword(userId, req);
+        return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS_UPDATE_USER, null));
     }
 
     /**

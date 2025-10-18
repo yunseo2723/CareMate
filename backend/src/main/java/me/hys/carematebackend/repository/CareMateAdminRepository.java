@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 public interface CareMateAdminRepository extends JpaRepository<CareMateAdmin, Long> {
     boolean existsByUserIdAndCareMateId(Long userId, Long careMateId);
 
@@ -14,5 +16,9 @@ public interface CareMateAdminRepository extends JpaRepository<CareMateAdmin, Lo
     @Query(value = "insert ignore into caremate_admins (user_id, care_mate_id, created_at) values (?1, ?2, now())",
             nativeQuery = true)
     int insertIgnore(Long userId, Long careMateId);
+
+    // ✅ 유저가 관리자인 시설 ID 목록
+    @Query("select c.careMateId from CareMateAdmin c where c.userId = :userId")
+    List<Long> findCareMateIdsByUserId(Long userId);
 }
 
