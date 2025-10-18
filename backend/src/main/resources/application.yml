@@ -28,12 +28,6 @@ spring:
     jwt:
         secret: TrmFK2Nox5h5JtGd6IoNcuSdVCg5dX9cr8LsE7Cm+k3notiNNkSVJU8GLQ9B33I/mBwayz0MiAwdVHW6Xa/FBw==
 
-    servlet:
-        encoding:
-            charset: UTF-8
-            enabled: true
-            force: true
-
     management:
         endpoints:
             web:
