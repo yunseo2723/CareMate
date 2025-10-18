@@ -10,7 +10,7 @@ import Admin from "./pages/Admin";
 import MyPageLayout from "./pages/mypage/MyPageLayout";
 import ProfilePage from "./pages/mypage/ProfilePage";
 import PasswordPage from "./pages/mypage/PasswordPage";
-// import NotificationsPage from "./pages/mypage/NotificationsPage";
+import NotificationsPage from "./pages/mypage/NotificationsPage";
 import AdminFacilityPage from "./pages/mypage/AdminFacilityPage";
 // import ReviewsPage from "./pages/mypage/ReviewsPage";
 // import PreferencesPage from "./pages/mypage/PreferencesPage";
@@ -35,7 +35,7 @@ export default function App() {
                         <Route index element={<Navigate to="profile" replace />} />
                         <Route path="profile" element={<ProfilePage />} />
                         <Route path="password" element={<PasswordPage />} />
-                        {/*<Route path="notifications" element={<NotificationsPage />} />*/}
+                        <Route path="notifications" element={<NotificationsPage />} />
                         <Route path="admin-facility" element={<AdminFacilityPage />} />
                         {/*<Route path="reviews" element={<ReviewsPage />} />*/}
                         {/*<Route path="preferences" element={<PreferencesPage />} />*/}
