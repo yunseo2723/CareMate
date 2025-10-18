@@ -1,10 +1,12 @@
-import type {PropsWithChildren} from 'react'
+import type { PropsWithChildren } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 
 export default function MainLayout({ children }: PropsWithChildren) {
     const nav = useNavigate();
     const { user, logout } = useAuth();
+
+    const displayName = user?.name ?? user?.nickname ?? user?.username;
 
     return (
         <div className="min-h-dvh flex flex-col bg-gradient-to-b from-white to-slate-50">
@@ -19,9 +21,16 @@ export default function MainLayout({ children }: PropsWithChildren) {
             요양원 추천
           </span>
 
-                    <div className="ml-auto flex items-end gap-2">
+                    {/* 오른쪽 영역: ml-auto는 한 번만 */}
+                    <div className="ml-auto flex items-center gap-2">
                         {user ? (
                             <>
+                                {/* 환영 문구 */}
+                                <span className="hidden sm:inline text-sm text-slate-700 mr-1">
+                  {displayName}님 환영합니다
+                </span>
+
+                                {/* 버튼들 */}
                                 <button
                                     className="rounded-md border bg-slate-400 px-3 py-1.5 text-sm text-white hover:opacity-90"
                                     onClick={() => nav("/admin")}

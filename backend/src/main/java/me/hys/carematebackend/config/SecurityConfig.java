@@ -61,7 +61,7 @@ public class SecurityConfig {
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/actuator/health", "/users/register", "/users/login", "/signup/**").permitAll()
-                        .requestMatchers("/users/me/**","/caremates/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
+                        .requestMatchers("/users/me", "/admin/onboarding/**", "/caremates/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
                         .anyRequest().authenticated()
                 )
 
