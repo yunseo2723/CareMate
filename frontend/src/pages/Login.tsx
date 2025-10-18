@@ -9,7 +9,7 @@ const PRIMARY_BTN = "w-full rounded-md bg-slate-900 h-11 text-base font-medium t
 
 export default function Login() {
     const nav = useNavigate();
-    const { login } = useAuth();
+    const { login /*, refreshUser*/ } = useAuth();
     const [email, setEmail] = useState("");
     const [pw, setPw] = useState("");
 
@@ -29,40 +29,34 @@ export default function Login() {
                 body: params.toString(),
             });
 
-            const msg = await res.text().catch(() => "");
-
-            if (res.ok) {
-                // ✅ 헤더에서 토큰 읽기 (백엔드가 addExposedHeader로 노출해야 함)
-                const accessToken = res.headers.get("accessToken");
-                const refreshToken = res.headers.get("refreshToken");
-
-                if (!accessToken) {
-                    alert("로그인 토큰이 누락되었습니다. 서버 응답을 확인하세요.");
-                    console.error("Missing accessToken header");
-                    return;
-                }
-
-                // (선택) 로그인 직후 /users/me로 이름/닉네임 조회
-                let name: string | undefined;
-                try {
-                    const me = await fetch("http://localhost:8080/users/me", {
-                        credentials: "include",
-                        headers: { Authorization: `${accessToken}` },
-                    });
-                    if (me.ok) {
-                        const data = await me.json();
-                        name = data.name || data.nickname || undefined;
-                    }
-                } catch {}
-
-                // ✅ 컨텍스트에 사용자 + 토큰 저장
-                login({ username: email, name }, { accessToken, refreshToken });
-
-                alert("로그인에 성공했습니다.");
-                nav("/");
-            } else {
+            if (!res.ok) {
+                const msg = await res.text().catch(() => "");
                 alert(msg || "이메일 또는 비밀번호가 올바르지 않습니다.");
+                return;
             }
+
+            // 1) 헤더에서 토큰 읽기 (서버가 "Bearer ..." 형태로 내려줌)
+            const accessToken = res.headers.get("accessToken");
+            const refreshToken = res.headers.get("refreshToken");
+
+            if (accessToken)  localStorage.setItem("cm-at", accessToken);
+            if (refreshToken) localStorage.setItem("cm-rt", refreshToken);
+
+            // 2) 응답 바디(JSON)는 한 번만 읽기
+            const json = await res.json().catch(() => null);
+            const u = json?.data ?? json ?? null;
+
+            if (!u) {
+                alert("로그인 응답을 해석하지 못했습니다.");
+                return;
+            }
+
+            login(u, { accessToken, refreshToken });
+
+            // (선택) 강하게 동기화하려면: await refreshUser?.();
+
+            alert("로그인에 성공했습니다.");
+            nav("/");
         } catch (err) {
             console.error(err);
             alert("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도하세요.");
