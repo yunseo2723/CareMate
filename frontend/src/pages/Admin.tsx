@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useAuth } from "../hooks/useAuth";
 
 const AUTH_CARD =
     "mx-auto w-full max-w-xl md:max-w-2xl rounded-2xl border bg-white p-8 shadow-sm";
 const INPUT =
     "w-full rounded-md border px-3 h-11 text-base disabled:bg-slate-50";
 
+type ErrorDTO = { status?: number; error?: string; code?: string; message?: string };
 type RequestCodeResp = { phoneMask?: string; maskedPhone?: string; message?: string };
+type VerifyResp = { success?: boolean; message?: string };
 
 // 응답 바디를 '한 번만' 읽는 헬퍼
-async function readBody<T = unknown>(res: Response): Promise<T | string> {
+async function readBody<T>(res: Response): Promise<T | string> {
     const ct = res.headers.get("content-type") || "";
     if (ct.includes("application/json")) {
         try {
@@ -23,6 +25,10 @@ async function readBody<T = unknown>(res: Response): Promise<T | string> {
     } catch {
         return "";
     }
+}
+
+function isRequestCodeResp(x: unknown): x is RequestCodeResp {
+    return !!x && typeof x === "object";
 }
 
 export default function Admin() {
@@ -71,7 +77,7 @@ export default function Admin() {
                 }
             );
 
-            const body = await readBody<RequestCodeResp>(res); // ← 한 번만 읽기
+            const body = await readBody<RequestCodeResp | ErrorDTO>(res);
             if (!res.ok) {
                 const msg =
                     typeof body === "string" ? body : body?.message || "인증번호 요청에 실패했습니다.";
@@ -80,10 +86,13 @@ export default function Admin() {
                 return;
             }
 
-            // 서버가 phoneMask 또는 maskedPhone 중 하나를 줄 수 있으므로 병합 처리
-            const masked =
-                typeof body === "string" ? "" : body.phoneMask ?? body.maskedPhone ?? "";
-            setMaskedPhone(masked);
+            if (isRequestCodeResp(body)) {
+                const mask = body.phoneMask ?? body.maskedPhone ?? null;
+                setMaskedPhone(mask);
+            } else {
+                setMaskedPhone(null);
+            }
+
             startCooldown(60);
             alert("인증번호를 전송했습니다. 휴대전화의 문자 또는 ARS를 확인하세요.");
         } catch (e) {
@@ -114,10 +123,9 @@ export default function Admin() {
                         careMateId: Number(careMateId),
                         code: code.trim(),
                     }),
-                }
-            );
+                });
 
-            const body = await readBody<any>(res); // ← 한 번만
+            const body = await readBody<VerifyResp | ErrorDTO>(res);
             if (res.ok) {
                 setVerified(true);
                 alert("관리자 인증이 완료되었습니다!");

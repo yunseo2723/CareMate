@@ -2,7 +2,7 @@ import ReactDOM from 'react-dom/client'
 import App from './App'
 import './index.css'
 import { SearchProvider } from './contexts/SearchProvider.tsx'
-import { AuthProvider } from "./contexts/AuthContext";
+import { AuthProvider } from "./contexts/AuthProvider";
 import {StrictMode} from "react";
 
 

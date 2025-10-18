@@ -1,5 +1,5 @@
 // src/components/MapPanel.tsx
-import { useEffect, useMemo, useRef } from "react";
+import {useEffect, useMemo, useRef, useState} from "react";
 import { useNavigate } from "react-router-dom";
 import { useSearch } from "../hooks/useSearch";
 
@@ -28,7 +28,7 @@ export function MapPanel() {
     const circleRef = useRef<kakao.maps.Circle | null>(null);
 
     // 중심 좌표(숫자)
-    const centerCoordRef = useRef<{ lat: number; lng: number } | null>(null);
+    const [centerCoord, setCenterCoord] = useState<{ lat: number; lng: number } | null>(null);
 
     // 0) Kakao SDK 준비 & 지도 초기화
     useEffect(() => {
@@ -137,7 +137,7 @@ export function MapPanel() {
 
             const lat = ll.getLat();
             const lng = ll.getLng();
-            centerCoordRef.current = { lat, lng };
+            setCenterCoord({ lat, lng });
 
             const map = mapRef.current!;
             map.setCenter(ll);
@@ -170,10 +170,9 @@ export function MapPanel() {
 
     // 2) 반경 내 결과만 필터링 (👉 중심/상세 변경에도 다시 계산되도록 deps 보강)
     const filtered = useMemo(() => {
-        const c = centerCoordRef.current;
-        if (!c) return results;
-        return results.filter((r) => distanceKm(c, { lat: r.lat, lng: r.lng }) <= radiusKm + 1e-6);
-    }, [results, radiusKm, center, detailCenter]);
+        if (!centerCoord) return results;
+        return results.filter(r => distanceKm(centerCoord, { lat: r.lat, lng: r.lng }) <= radiusKm + 1e-6);
+    }, [results, radiusKm, centerCoord]);
 
     // 3) 마커 + 클러스터 + 바운즈(원+마커 포함)
     useEffect(() => {
@@ -198,20 +197,24 @@ export function MapPanel() {
 
         clusterer.addMarkers(markers);
 
-        // 원 + 마커 모두 들어오도록 bounds 확장
-        const c = centerCoordRef.current;
-        if (c) {
-            const { lat, lng } = c;
-            const R = 111_320;
-            const dLat = (radiusKm * 1000) / R;
-            const dLng = (radiusKm * 1000) / (R * Math.cos((lat * Math.PI) / 180));
-            const sw = new kakao.maps.LatLng(lat - dLat, lng - dLng);
-            const ne = new kakao.maps.LatLng(lat + dLat, lng + dLng);
-            const bounds = new kakao.maps.LatLngBounds(sw, ne);
-            markers.forEach((m) => bounds.extend(m.getPosition()));
-            map.setBounds(bounds);
-        }
-    }, [filtered, radiusKm, nav]);
+        if (!centerCoord) return;
+
+        // bounds 계산
+        const { lat, lng } = centerCoord;
+        const R = 111_320;
+        const dLat = (radiusKm * 1000) / R;
+        const dLng = (radiusKm * 1000) / (R * Math.cos((lat * Math.PI) / 180));
+        const sw = new kakao.maps.LatLng(lat - dLat, lng - dLng);
+        const ne = new kakao.maps.LatLng(lat + dLat, lng + dLng);
+        const bounds = new kakao.maps.LatLngBounds(sw, ne);
+        markers.forEach((m) => bounds.extend(m.getPosition()));
+        map.setBounds(bounds);
+    }, [
+        filtered,     // 마커가 바뀌면 다시
+        radiusKm,     // 반경 바뀌면 다시
+        nav,          // 네비 콜백 캡처
+        centerCoord,
+    ]);
 
     return (
         <div className="rounded-2xl border bg-white">

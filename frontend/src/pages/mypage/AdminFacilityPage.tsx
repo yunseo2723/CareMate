@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useAuth } from "../../contexts/AuthContext";
+import { useAuth } from "../../hooks/useAuth";
 
 type Facility = {
     id: number;
@@ -73,8 +73,6 @@ type ResponseDTO<T> = {
                         throw new Error("알 수 없는 응답 형식입니다.");
                     }
                 }
-            } catch (e) {
-                if (!cancelled) setErr(e instanceof Error ? e.message : "오류가 발생했습니다.");
             } finally {
                 if (!cancelled) setLoading(false);
             }

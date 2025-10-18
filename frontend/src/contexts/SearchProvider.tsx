@@ -26,10 +26,18 @@ export function SearchProvider({ children }: { children: ReactNode }) {
         list = list.filter(v => v.monthlyCost <= budget)
         list = list.filter(v => v.rating >= minRating)
         if (onlyAvailable) list = list.filter(v => v.bedsAvailable > 0)
+
         if (ins.length) list = list.filter(v => {
             const arr = (v.insurance ?? []) as string[];
             return ins.every(i => arr.includes(i));
         });
+
+        if (amenities.length) {
+            list = list.filter(v => {
+                const arr = (v.amenities ?? []) as string[];
+                return amenities.every(a => arr.includes(a));
+            });
+        }
 
         switch (sort) {
             case '가격낮은순':   list.sort(sortByNumKey('monthlyCost', 'asc')); break;
