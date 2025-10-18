@@ -73,6 +73,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // 토큰은 state → localStorage 순으로 조회
             const at = tokens.accessToken || JSON.parse(localStorage.getItem("cm-tokens") || "null")?.accessToken || null;
 
+            if (!at) {               // ✅ 토큰 없으면 호출 안 함
+                setUser(null);
+                return;
+            }
+
             const res = await fetch("http://localhost:8080/users/me", {
                 credentials: "include",
                 headers: at ? { Authorization: `${at}` } : {},

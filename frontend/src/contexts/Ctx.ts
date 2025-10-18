@@ -4,6 +4,7 @@ import type { Facility } from '../types/facility';
 export interface SearchContextValue {
     q: string; setQ: (v: string) => void;
     center: string; setCenter: (v: string) => void;
+    detailCenter: string; setDetailCenter: (v: string) => void;
     radiusKm: number; setRadiusKm: (v: number) => void;
     budget: number; setBudget: (v: number) => void;
     careLevel: string; setCareLevel: (v: string) => void;

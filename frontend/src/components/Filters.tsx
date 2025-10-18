@@ -4,6 +4,7 @@ export function Filters(){
     const {
         q, setQ,
         center, setCenter,
+        detailCenter, setDetailCenter,
         radiusKm, setRadiusKm,
         budget, setBudget,
         careLevel, setCareLevel,
@@ -35,9 +36,21 @@ export function Filters(){
     <label className="text-sm font-medium">중심 위치</label>
     <input className="w-full rounded-md border px-3 py-2 text-sm" value={center} onChange={e=>setCenter(e.target.value)} placeholder="예: 서울 강남구"/>
     <div className="pt-3 text-xs">검색 반경: {radiusKm}km</div>
-    <input type="range" min={1} max={50} step={1} value={radiusKm} onChange={e=>setRadiusKm(Number(e.target.value))} className="w-full"/>
+    <input type="range" min={0.5} max={50} step={0.5} value={radiusKm} onChange={e=>setRadiusKm(Number(e.target.value))} className="w-full"/>
 </div>
 
+<div>
+    <label className="block text-sm mb-1">상세 위치 (선택)</label>
+    <input
+        className="w-full rounded-md border px-3 h-10"
+        placeholder="상세 입력"
+        value={detailCenter}
+        onChange={(e) => setDetailCenter(e.target.value)}
+    />
+    <p className="mt-1 text-xs text-slate-500">
+        입력하면 상세 위치를 중심으로 지도를 맞춥니다. 비워두면 ‘중심 위치’ 기준으로 표시돼요.
+    </p>
+</div>
 
 <div className="space-y-2">
     <label className="text-sm font-medium">월 예산 상한: ₩{budget.toLocaleString('ko-KR')}</label>

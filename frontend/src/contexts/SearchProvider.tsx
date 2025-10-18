@@ -7,7 +7,8 @@ import type { Facility } from '../types/facility';
 export function SearchProvider({ children }: { children: ReactNode }) {
     const [q, setQ] = useState('')
     const [center, setCenter] = useState('서울 강남구')
-    const [radiusKm, setRadiusKm] = useState(20)
+    const [detailCenter, setDetailCenter] = useState('')
+    const [radiusKm, setRadiusKm] = useState(10)
     const [budget, setBudget] = useState(2000000)
     const [careLevel, setCareLevel] = useState('all')
     const [minRating, setMinRating] = useState(0)
@@ -54,7 +55,7 @@ export function SearchProvider({ children }: { children: ReactNode }) {
     }
 
     const value: SearchContextValue = {
-        q, setQ, center, setCenter, radiusKm, setRadiusKm, budget, setBudget,
+        q, setQ, center, setCenter, detailCenter, setDetailCenter, radiusKm, setRadiusKm, budget, setBudget,
         careLevel, setCareLevel, minRating, setMinRating, onlyAvailable, setOnlyAvailable,
         ins, setIns, amenities, setAmenities, sort, setSort,
         loading, setLoading, results, compare, setCompare,

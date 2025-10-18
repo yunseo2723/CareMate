@@ -10,9 +10,12 @@ declare namespace kakao {
 
         class LatLng {
             constructor(lat: number, lng: number);
+            getLat(): number;
+            getLng(): number;
         }
 
         class LatLngBounds {
+            constructor(sw?: LatLng, ne?: LatLng);
             extend(latlng: LatLng): void;
         }
 
@@ -61,8 +64,13 @@ declare namespace kakao {
         }
 
         const event: {
-            addListener(target: Marker, type: "mouseover" | "mouseout", handler: () => void): void;
+            addListener(
+                target: Marker,
+                type: "click" | "mouseover" | "mouseout",
+                handler: () => void
+            ): void;
         };
+
         namespace services {
             type Status = "OK" | "ZERO_RESULT" | "ERROR";
 
@@ -70,6 +78,28 @@ declare namespace kakao {
                 x: string;
                 y: string
             }
+
+            interface Place {
+                id: string;
+                place_name: string;
+                x: string; // lng
+                y: string; // lat
+            }
+            type PlacesSearchResult = Place[];
+
+            interface PlacesSearchOptions {
+                location?: kakao.maps.LatLng;
+                radius?: number; // (m)
+            }
+
+            class Places {
+                keywordSearch(
+                    keyword: string,
+                    callback: (result: PlacesSearchResult, status: Status) => void,
+                    options?: PlacesSearchOptions
+                ): void;
+            }
+        }
 
             class Geocoder {
                 addressSearch(
@@ -79,7 +109,6 @@ declare namespace kakao {
             }
         }
     }
-}
 }
 
 export {};
