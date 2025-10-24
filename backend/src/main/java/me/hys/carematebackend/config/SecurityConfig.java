@@ -62,7 +62,7 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/users/register", "/users/login", "/signup/**", "/facilities/**").permitAll()
+                        .requestMatchers("/actuator/health", "/users/register", "/users/login", "/signup/**", "/facilities/**","/ltc/**").permitAll()
                         .requestMatchers("/users/me/**", "/admin/onboarding/**", "/caremates/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
                         .anyRequest().authenticated()
                 )
