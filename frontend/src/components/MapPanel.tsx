@@ -1,5 +1,5 @@
 // src/components/MapPanel.tsx
-import {useEffect, useMemo, useRef, useState} from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSearch } from "../hooks/useSearch";
 
@@ -7,7 +7,7 @@ type KakaoLoader = {
     kakao?: { maps?: { load?: (cb: () => void) => void } };
 };
 
-// 거리(km) 계산 (하버사인)
+// 거리(km)
 function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
     const R = 6371;
     const dLat = ((b.lat - a.lat) * Math.PI) / 180;
@@ -27,10 +27,9 @@ export function MapPanel() {
     const clustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
     const circleRef = useRef<kakao.maps.Circle | null>(null);
 
-    // 중심 좌표(숫자)
     const [centerCoord, setCenterCoord] = useState<{ lat: number; lng: number } | null>(null);
 
-    // 0) Kakao SDK 준비 & 지도 초기화
+    // 지도 초기화
     useEffect(() => {
         if (!containerRef.current) return;
         let cancelled = false;
@@ -42,7 +41,6 @@ export function MapPanel() {
                 center: new kakao.maps.LatLng(37.5665, 126.978),
                 level: 6,
             });
-            // ✅ clusterer 라이브러리 필요
             const clusterer = new kakao.maps.MarkerClusterer({
                 map,
                 averageCenter: true,
@@ -59,12 +57,10 @@ export function MapPanel() {
         };
         tick();
 
-        return () => {
-            cancelled = true;
-        };
+        return () => { cancelled = true; };
     }, []);
 
-    // 👇 주소 지오코딩 Promise 래퍼
+    // 주소 지오코딩
     const geocode = (q: string) =>
         new Promise<kakao.maps.LatLng | null>((resolve) => {
             const { kakao } = window;
@@ -80,7 +76,7 @@ export function MapPanel() {
             );
         });
 
-    // 👇 상세위치 → Places 검색
+    // 상세위치 Place 검색
     const searchPlace = (keyword: string, near?: kakao.maps.LatLng, radiusM?: number) =>
         new Promise<kakao.maps.LatLng | null>((resolve) => {
             const { kakao } = window;
@@ -88,14 +84,11 @@ export function MapPanel() {
             const opt: kakao.maps.services.PlacesSearchOptions = {};
             if (near) {
                 opt.location = near;
-                opt.radius = Math.max(1000, radiusM ?? 0); // 최소 1km
+                opt.radius = Math.max(1000, radiusM ?? 0);
             }
             places.keywordSearch(
                 keyword,
-                (
-                    data: kakao.maps.services.PlacesSearchResult,
-                    status: kakao.maps.services.Status
-                ) => {
+                (data: kakao.maps.services.PlacesSearchResult, status: kakao.maps.services.Status) => {
                     if (status === kakao.maps.services.Status.OK && data.length) {
                         const d0 = data[0];
                         resolve(new kakao.maps.LatLng(Number(d0.y), Number(d0.x)));
@@ -105,12 +98,10 @@ export function MapPanel() {
             );
         });
 
-    // 1) 중심 좌표 결정 → 반경 원 & 화면 맞춤
+    // 중심 좌표 계산 + 원/바운즈
     useEffect(() => {
         const base = (center ?? "").trim();
         const detail = (detailCenter ?? "").trim();
-
-        // 둘 다 비었으면 동작 안 함
         if (!base && !detail) return;
 
         const run = async () => {
@@ -118,21 +109,13 @@ export function MapPanel() {
             if (!kakao?.maps || !mapRef.current) return;
 
             let ll: kakao.maps.LatLng | null = null;
-
-            // 우선 지역(중심) 좌표
             const baseLL = base ? await geocode(base) : null;
 
             if (detail) {
-                // 1) 상세명은 Places로 시도 (지역 근처 반경)
                 ll = await searchPlace(detail, baseLL ?? undefined, radiusKm * 1000);
-                // 2) 실패하면 "지역 상세"로 주소 지오코딩
                 if (!ll && base) ll = await geocode(`${base} ${detail}`);
             }
-
-            // 3) 그래도 없으면 지역만 지오코딩
             if (!ll && base) ll = baseLL;
-
-            // 4) 끝까지 못 구하면 포기
             if (!ll) return;
 
             const lat = ll.getLat();
@@ -142,7 +125,6 @@ export function MapPanel() {
             const map = mapRef.current!;
             map.setCenter(ll);
 
-            // 반경 원 갱신
             if (circleRef.current) circleRef.current.setMap(null);
             const circle = new kakao.maps.Circle({
                 center: ll,
@@ -156,8 +138,7 @@ export function MapPanel() {
             circle.setMap(map);
             circleRef.current = circle;
 
-            // 원이 보이도록 bounds
-            const R = 111_320; // 위도 1도 ≈ m
+            const R = 111_320;
             const dLat = (radiusKm * 1000) / R;
             const dLng = (radiusKm * 1000) / (R * Math.cos((lat * Math.PI) / 180));
             const sw = new kakao.maps.LatLng(lat - dLat, lng - dLng);
@@ -168,13 +149,13 @@ export function MapPanel() {
         run();
     }, [center, detailCenter, radiusKm]);
 
-    // 2) 반경 내 결과만 필터링 (👉 중심/상세 변경에도 다시 계산되도록 deps 보강)
+    // 반경 내 필터링 (Facility[] 이므로 lat/lng는 이미 number)
     const filtered = useMemo(() => {
         if (!centerCoord) return results;
-        return results.filter(r => distanceKm(centerCoord, { lat: r.lat, lng: r.lng }) <= radiusKm + 1e-6);
+        return results.filter((r) => distanceKm(centerCoord, { lat: r.lat, lng: r.lng }) <= radiusKm + 1e-6);
     }, [results, radiusKm, centerCoord]);
 
-    // 3) 마커 + 클러스터 + 바운즈(원+마커 포함)
+    // 마커 렌더링 + 바운즈
     useEffect(() => {
         const { kakao } = window;
         if (!kakao?.maps || !mapRef.current || !clustererRef.current) return;
@@ -184,9 +165,16 @@ export function MapPanel() {
 
         clusterer.clear();
 
+        // 🔎 디버깅
+        console.log("[MAP] filtered count:", filtered.length);
+        console.table(filtered.slice(0, 10));
+
         const markers = filtered.map((f) => {
             const m = new kakao.maps.Marker({ position: new kakao.maps.LatLng(f.lat, f.lng) });
+
+            // ✅ 상세 경로는 /caremates/:id (너의 라우팅에 맞춤!)
             kakao.maps.event.addListener(m, "click", () => nav(`/caremates/${f.id}`));
+
             const iw = new kakao.maps.InfoWindow({
                 content: `<div style="padding:8px 10px;font-size:12px;">${f.name}</div>`,
             });
@@ -199,7 +187,6 @@ export function MapPanel() {
 
         if (!centerCoord) return;
 
-        // bounds 계산
         const { lat, lng } = centerCoord;
         const R = 111_320;
         const dLat = (radiusKm * 1000) / R;
@@ -209,12 +196,7 @@ export function MapPanel() {
         const bounds = new kakao.maps.LatLngBounds(sw, ne);
         markers.forEach((m) => bounds.extend(m.getPosition()));
         map.setBounds(bounds);
-    }, [
-        filtered,     // 마커가 바뀌면 다시
-        radiusKm,     // 반경 바뀌면 다시
-        nav,          // 네비 콜백 캡처
-        centerCoord,
-    ]);
+    }, [filtered, radiusKm, nav, centerCoord]);
 
     return (
         <div className="rounded-2xl border bg-white">
