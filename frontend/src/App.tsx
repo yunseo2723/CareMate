@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Admin from "./pages/Admin";
+import FacilityDetail from "./pages/FacilityDetail";
 
 // MyPage 묶음
 import MyPageLayout from "./pages/mypage/MyPageLayout";
@@ -28,7 +29,7 @@ export default function App() {
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<Signup />} />
                     <Route path="admin" element={<Admin />} />
-
+                    <Route path="/caremates/:id" element={<FacilityDetail />} />
                     {/* ✅ 마이페이지 라우트와 하위 라우트들 */}
                     <Route path="mypage" element={<MyPageLayout />}>
                         {/* /mypage 접근 시 기본 탭을 profile로 리다이렉트 */}
