@@ -1,7 +1,12 @@
 package me.hys.carematebackend.service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
+import me.hys.carematebackend.dto.ltc.ApiEnvelope;
+import me.hys.carematebackend.dto.ltc.items.*;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -12,86 +17,100 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+// LtcClient.java
 @Service
 @RequiredArgsConstructor
 public class LtcClient {
-
-    // 필요하면 @Bean으로 주입받아도 OK
     private final WebClient webClient = WebClient.builder().build();
 
-    /** 예: https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02 */
-    @Value("${ltc.api.base}")
-    String baseUrl;
+    @Value("${ltc.api.base2}")       String baseUrl2;     // 예: https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02
+    @Value("${ltc.api.serviceKey}") String serviceKey;  // ★ 디코딩된 원문 키(= % 안붙은) 그대로
 
-    /** ★ Decoding 키 그대로 (+= 포함) */
-    @Value("${ltc.api.serviceKey}")
-    String serviceKey;
-
-    /** 공통: URL 조립 */
-    private URI buildUri(String path, Map<String, String> q) {
-        UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(baseUrl + path);
-        if (q != null) q.forEach(b::queryParam);      // Map<String,String> 그대로
-        return b.build(true).toUri();                // 🔸 자동 인코딩(Decoding 키 사용 시 권장)
+    private URI buildUri(String path, Map<String,String> params) {
+        UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(baseUrl2 + path);
+        if (params != null) params.forEach(b::queryParam);
+        return b.build(true).toUri(); // ★ 이미 인코딩된 값 보존
     }
 
-    /** 공통 호출: XML String으로 */
-    private Mono<String> call(String path, Map<String, String> params) {
-        Map<String, String> q = new LinkedHashMap<>();
-        q.put("serviceKey", serviceKey);              // 공통 파라미터
-        if (params != null) q.putAll(params);         // 개별 파라미터 병합
+    private Mono<String> call(String path, Map<String,String> params) {
+        Map<String,String> q = new LinkedHashMap<>();
 
+        if (params != null) q.putAll(params);
+
+        q.put("serviceKey", serviceKey);           // ★ 무조건 포함
         URI uri = buildUri(path, q);
+        System.out.println("[LtcClient] CALL " + uri);
 
         return webClient.get()
                 .uri(uri)
                 .accept(MediaType.APPLICATION_XML)
                 .retrieve()
-                .bodyToMono(String.class);
+                .onStatus(
+                        HttpStatusCode::isError,
+                        resp -> resp.bodyToMono(String.class).flatMap(body ->
+                                Mono.error(new IllegalStateException(
+                                        "API " + path + " -> " + resp.statusCode() + "\n" +
+                                                "BODY: " + body.substring(0, Math.min(400, body.length()))
+                                ))
+                        )
+                )
+                .bodyToMono(String.class)
+                .doOnNext(body -> {
+                    String head = body.substring(0, Math.min(200, body.length())).replaceAll("[\\r\\n]+", " ");
+                    System.out.println("[LtcClient] " + path + " OK head: " + head);
+                });
     }
 
-    /** 1) 일반현황 */
+    // ★★★ 반드시 ‘02’ 접미사 포함한 정확한 경로 사용 ★★★
     public Mono<String> general(String instCode, String kindCode) {
-        Map<String, String> p = Map.of(
-                "longTermAdminSym", instCode,   // 기관코드
-                "adminPttnCd",      kindCode    // 기관유형코드
-        );
-        return call("/getGeneralSttusDetailInfoItem02", p);
+        return call("/getGeneralSttusDetailInfoItem02", Map.of(
+
+                "adminPttnCd", kindCode,
+                "longTermAdminSym", instCode
+        ));
     }
 
-    /** 2) 종사자현황 */
     public Mono<String> staff(String instCode, String kindCode) {
-        Map<String, String> p = Map.of(
+        return call("/getStaffSttusDetailInfoItem02", Map.of(
                 "longTermAdminSym", instCode,
-                "adminPttnCd",      kindCode
-        );
-        return call("/getStaffSttusDetailInfoItem02", p);
+                "adminPttnCd", kindCode
+        ));
     }
 
-    /** 3) 시설개요 */
     public Mono<String> instt(String instCode, String kindCode) {
-        Map<String, String> p = Map.of(
+        return call("/getInsttSttusDetailInfoItem02", Map.of(
                 "longTermAdminSym", instCode,
-                "adminPttnCd",      kindCode
-        );
-        return call("/getInsttSttusDetailInfoItem02", p);
+                "adminPttnCd", kindCode
+        ));
     }
 
-    /** 4) 수용가능인원 */
-    public Mono<String> aceptncNmpr(String instCode, String kindCode) {
-        Map<String, String> p = Map.of(
+    public Mono<String> aceptnc(String instCode, String kindCode) {
+        return call("/getAceptncNmprDetailInfoItem02", Map.of(
                 "longTermAdminSym", instCode,
-                "adminPttnCd",      kindCode
-        );
-        return call("/getAceptncNmprDetailInfoItem02", p);
+                "adminPttnCd", kindCode
+        ));
     }
 
-    /** 5) 비급여 목록(페이징) */
-    public Mono<String> nonBenefitList(String instCode, int pageNo, int size) {
-        Map<String, String> p = new LinkedHashMap<>();
+    public Mono<String> programList(String instCode, int pageNo, int numOfRows) {
+        Map<String,String> p = new LinkedHashMap<>();
         p.put("longTermAdminSym", instCode);
-        p.put("pageNo",          String.valueOf(pageNo));
-        p.put("numOfRows",       String.valueOf(size));
-        // 필요 시 기관유형코드가 문서에 요구되면 p.put("adminPttnCd", kindCode) 추가
-        return call("/getNonBenefitSttusDetailInfoList02", p);
+        p.put("pageNo", String.valueOf(pageNo <= 0 ? 1 : pageNo));
+        p.put("numOfRows", String.valueOf(numOfRows <= 0 ? 10 : numOfRows));
+        return call("/getProgramSttusDetailInfoList02", p);
+    }
+
+    public Mono<String> convList(String instCode, int pageNo, int numOfRows) {
+        Map<String,String> p = new LinkedHashMap<>();
+        p.put("longTermAdminSym", instCode);
+        p.put("pageNo", String.valueOf(pageNo <= 0 ? 1 : pageNo));
+        p.put("numOfRows", String.valueOf(numOfRows <= 0 ? 10 : numOfRows));
+        return call("/getConvInsttDetailInfoList02", p);
+    }
+
+    public Mono<String> etc(String instCode, String kindCode) {
+        return call("/getInsttEtcDetailInfoItem02", Map.of(
+                "longTermAdminSym", instCode,
+                "adminPttnCd", kindCode
+        ));
     }
 }
