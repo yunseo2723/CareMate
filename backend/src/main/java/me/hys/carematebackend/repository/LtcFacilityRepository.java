@@ -9,12 +9,8 @@ import org.springframework.stereotype.Repository;
 public interface LtcFacilityRepository extends JpaRepository<LtcFacility, String> {
     @Query("""
     SELECT f FROM LtcFacility f
-    WHERE (:sido IS NULL OR f.sido = :sido)
-      AND (:sgg IS NULL OR f.sgg = :sgg)
-      AND (:type IS NULL OR f.type = :type)
-      AND (:q IS NULL OR
-           LOWER(f.name) LIKE LOWER(CONCAT('%',:q,'%')) OR
-           LOWER(f.address) LIKE LOWER(CONCAT('%',:q,'%')))
+    WHERE (:sido IS NULL OR f.siDoCd = :sido)
+      AND (:sgg IS NULL OR f.siGunGuCd = :sgg)
   """)
     Page<LtcFacility> search(String sido, String sgg, String type, String q, Pageable pageable);
 }

@@ -46,4 +46,5 @@ ltc:
         base2: "https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02"
         # 공공데이터포털 '일반인증키(Decoding)'를 환경변수로 넣어 사용 권장
         # (인코딩된 키를 쓸 땐 아래 client에서 build(true) 사용이 중요)
-        serviceKey: "lxJPQ%2FP1q%2Fsro4sozw4HkyJ8PwGue6dfq1wnXE65DgDmGLMX0xniLt%2B7bj2cLy2ki7ANnDoC74NVXettBd6aag%3D%3D"
+        # serviceKey: "lxJPQ%2FP1q%2Fsro4sozw4HkyJ8PwGue6dfq1wnXE65DgDmGLMX0xniLt%2B7bj2cLy2ki7ANnDoC74NVXettBd6aag%3D%3D"
+        serviceKey: "4b4656be576582ffcf2998862cd759faf9352dc841639c60c790cc336e160bbc"

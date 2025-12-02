@@ -29,23 +29,14 @@ public class LtcSimilarService {
     }
 
     // 실시간: 조건으로 필터링
-    public List<Map<String, Object>> search(String siDo, String kindCode, int topN) {
+    public List<Map<String, Object>> search(int topN) {
         return facilityById.values().stream()
-                .filter(f -> {
-                    if (kindCode != null && !kindCode.isBlank()) {
-                        return kindCode.equals(f.get("kindCode"));
-                    }
-                    return true;
-                })
-                .filter(f -> {
-                    if (siDo != null && !siDo.isBlank()) {
-                        String addr = (String) f.getOrDefault("address", "");
-                        return addr.contains(siDo);
-                    }
-                    return true;
-                })
                 .limit(topN)
                 .collect(Collectors.toList());
+    }
+
+    public List<Map<String, Object>> findAll() {
+        return new ArrayList<>(facilityById.values());
     }
 
     // “비슷한 요양원” 뿌리기

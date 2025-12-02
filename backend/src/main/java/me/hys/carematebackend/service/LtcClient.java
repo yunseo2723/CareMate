@@ -1,10 +1,6 @@
 package me.hys.carematebackend.service;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.RequiredArgsConstructor;
-import me.hys.carematebackend.dto.ltc.ApiEnvelope;
-import me.hys.carematebackend.dto.ltc.items.*;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;

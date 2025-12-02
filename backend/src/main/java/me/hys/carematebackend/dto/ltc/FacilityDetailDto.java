@@ -11,7 +11,7 @@ public class FacilityDetailDto {
     private String instCode;     // longTermAdminSym
     private String kindCode;     // adminPttnCd
     private String name;         // adminNm
-    private String address;      // (우편번호+상세주소)
+    private String post;      // 우편번호
     private String phone;        // 지역-국번-번호 합침
     private String designatedAt; // longTermPeribRgtDt
 

@@ -34,13 +34,6 @@ public class LtcSearchClient {
         return b.build(true).toUri();
     }
 
-    /**
-     * 장기요양기관 검색 목록 (getLtcInsttSearchList01)
-     * 샘플(요청 예):
-     *   .../getLtcInsttSearchList01?siDoCd=11&siGunGuCd=320&adminPttnCd=C04
-     *   &startRgtDt=20130301&endRgtDt=20130301&startStpRptDt=20130301&endStpRptDt=20130301
-     *   &adminNm=선한요양원1호점&serviceKey=...
-     */
     public Mono<String> list(
             String siDoCd,
             String siGunGuCd,

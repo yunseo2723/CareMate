@@ -5,10 +5,24 @@ import lombok.Data;
 @Data
 public class GeneralDto {
     private String longTermAdminSym;   // 기관기호
-    private String adminPttnCd;
+    private String adminPttnCd;        // 기관유형코드
+    private String roadNmCd;           // 도로명코드
     private String adminNm;            // 기관이름
     private String hmPostNo;           // 행망우편번호
-    private String detailAddr;         // 상세주소
-    private String locTelNo;           // "02-123-4567"로 합친 전화
+    private String locTelNo_1;           // 010-
+    private String locTelNo_2;           // 1234-
+    private String locTelNo_3;           // 5678-
+    private String fullTel;
     private String longTermPeribRgtDt; // 지정일
+    public String getFullTel() {
+        if (locTelNo_1 == null || locTelNo_1.isBlank()) return null;
+
+        String p2 = (locTelNo_2 != null ? locTelNo_2 : "");
+        String p3 = (locTelNo_3 != null ? locTelNo_3 : "");
+
+        return locTelNo_1 + "-" + p2 + "-" + p3;
+    }
+    public void buildFullTel() {
+        this.fullTel = getFullTel();
+    }
 }

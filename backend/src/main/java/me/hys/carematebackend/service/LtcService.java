@@ -82,9 +82,10 @@ public class LtcService {
         d.setAdminPttnCd(txt(it, "adminPttnCd"));
         d.setAdminNm(txt(it, "adminNm"));
         d.setHmPostNo(txt(it, "hmPostNo"));
-        d.setDetailAddr(txt(it, "detailAddr"));
-        String p1 = txt(it, "locTelNo_1"), p2 = txt(it, "locTelNo_2"), p3 = txt(it, "locTelNo_3");
-        d.setLocTelNo((p1!=null && p2!=null && p3!=null) ? (p1 + "-" + p2 + "-" + p3) : null);
+        d.setLocTelNo_1(txt(it, "locTelNo_1"));
+        d.setLocTelNo_2(txt(it, "locTelNo_2"));
+        d.setLocTelNo_3(txt(it, "locTelNo_3"));
+        d.buildFullTel();
         d.setLongTermPeribRgtDt(txt(it, "longTermPeribRgtDt"));
         return d;
     }
@@ -241,10 +242,8 @@ public class LtcService {
                 out.setInstCode(g.getLongTermAdminSym());
                 out.setKindCode(g.getAdminPttnCd());
                 out.setName(g.getAdminNm());
-                String post = g.getHmPostNo();
-                String addr = g.getDetailAddr();
-                out.setAddress((post != null ? "(" + post + ") " : "") + (addr != null ? addr : ""));
-                out.setPhone(g.getLocTelNo());
+                out.setPost(g.getHmPostNo());
+                out.setPhone(g.getFullTel());
                 out.setDesignatedAt(g.getLongTermPeribRgtDt());
             }
 
