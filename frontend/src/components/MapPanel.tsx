@@ -1,209 +1,521 @@
 // src/components/MapPanel.tsx
-import { useEffect, useMemo, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSearch } from "../hooks/useSearch";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+    useEffect,
+    useMemo,
+    useRef,
+    useState,
+    useContext,
+} from "react";
+import { Ctx } from "../contexts/Ctx";
+import {
+    fetchFacilitiesLiteAll,
+    type FacilityLite,
+} from "../api/ltc";
+import { SimilarModal } from "./SimilarModal";
 
 type KakaoLoader = {
-    kakao?: { maps?: { load?: (cb: () => void) => void } };
+    kakao?: {
+        maps?: { load?: (cb: () => void) => void };
+        services?: any;
+    };
 };
 
-// 거리(km)
-function distanceKm(a: { lat: number; lng: number }, b: { lat: number; lng: number }) {
-    const R = 6371;
-    const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-    const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-    const lat1 = (a.lat * Math.PI) / 180;
-    const lat2 = (b.lat * Math.PI) / 180;
-    const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
-    return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+type Coord = { lat: number; lng: number };
+
+const SEOUL_CENTER: Coord = { lat: 37.5665, lng: 126.9780 };
+
+function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
+    const R = 6371; // km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+        Math.sin(dLat / 2) ** 2 +
+        Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
+function sleep(ms: number) {
+    return new Promise((r) => setTimeout(r, ms));
+}
+
+/** 이름 + 지역 + 우편번호 조합으로 검색 쿼리 구성 */
+function buildQueries(f: FacilityLite): string[] {
+    const base = (f.name?.trim() || "") + " 요양원";
+    const region = [f.sgg, f.sido].filter(Boolean).join(" ").trim();
+    const q1 = region ? `${base} ${region}` : base;
+    const q2 = f.name?.trim() || "";
+    const qs: string[] = [];
+    if (q1 && q1 !== q2) qs.push(q1);
+    if (q2) qs.push(q2);
+    if (f.address) qs.push(f.address);
+    if (f.postNo) qs.push(f.postNo);
+    return Array.from(new Set(qs));
+}
+
+/* ---------- LocalStorage 캐시 ---------- */
+const LS_VER = "v1";
+const LS_COORDS = `cm:coords:${LS_VER}`;
+const LS_RESOLVED = `cm:resolved:${LS_VER}`;
+
+function loadJSON<T>(key: string, fallback: T): T {
+    try {
+        const raw = localStorage.getItem(key);
+        return raw ? (JSON.parse(raw) as T) : fallback;
+    } catch {
+        return fallback;
+    }
+}
+
+function saveJSON(key: string, value: unknown) {
+    try {
+        localStorage.setItem(key, JSON.stringify(value));
+    } catch {
+        // ignore
+    }
+}
+
+function useDebouncedSave<T>(value: T, key: string, delay = 300) {
+    const v = JSON.stringify(value);
+    useEffect(() => {
+        const t = setTimeout(() => {
+            saveJSON(key, JSON.parse(v));
+        }, delay);
+        return () => clearTimeout(t);
+    }, [v, key, delay]);
+}
+
+function waitKakaoReady(): Promise<any> {
+    return new Promise((resolve) => {
+        const check = () => {
+            const w = window as any;
+            if (w.kakao && w.kakao.maps && typeof w.kakao.maps.load === "function") {
+                w.kakao.maps.load(() => resolve(w.kakao));
+            } else {
+                setTimeout(check, 50);
+            }
+        };
+        check();
+    });
 }
 
 export function MapPanel() {
-    const { results, center, detailCenter, radiusKm } = useSearch();
-    const nav = useNavigate();
+    const {
+        center,
+        detailCenter,
+        radiusKm,
+        setCircleFacilities,
+    } = useContext(Ctx);
 
     const containerRef = useRef<HTMLDivElement | null>(null);
-    const mapRef = useRef<kakao.maps.Map | null>(null);
-    const clustererRef = useRef<kakao.maps.MarkerClusterer | null>(null);
-    const circleRef = useRef<kakao.maps.Circle | null>(null);
+    const mapRef = useRef<any | null>(null);
+    const clustererRef = useRef<any | null>(null);
+    const circleRef = useRef<any | null>(null);
 
-    const [centerCoord, setCenterCoord] = useState<{ lat: number; lng: number } | null>(null);
+    const [rows, setRows] = useState<FacilityLite[]>([]);
+    const [coords, setCoords] = useState<Record<string, Coord>>(
+        () => loadJSON<Record<string, Coord>>(LS_COORDS, {}),
+    );
+    const [resolved, setResolved] = useState<Record<string, boolean>>(
+        () => loadJSON<Record<string, boolean>>(LS_RESOLVED, {}),
+    );
+    const [progress, setProgress] = useState({ done: 0, total: 0 });
 
-    // 지도 초기화
+    // 🔵 반경 원의 중심 좌표 (거리 계산용, kakao 객체 X)
+    const [circleCenter, setCircleCenter] = useState<Coord>(SEOUL_CENTER);
+
+    useDebouncedSave(coords, LS_COORDS, 250);
+    useDebouncedSave(resolved, LS_RESOLVED, 250);
+
+    const regionCenterRef = useRef<Record<string, Coord>>({});
+
+    const [selectedInst, setSelectedInst] = useState<string | null>(null);
+    const [selectedKindCode, setSelectedKindCode] =
+        useState<string | null>(null);
+
+    /** 0) Kakao SDK init — ★처음 한 번만 실행 */
     useEffect(() => {
         if (!containerRef.current) return;
-        let cancelled = false;
 
         const init = () => {
-            if (cancelled || !containerRef.current) return;
-            const { kakao } = window;
-            const map = new kakao.maps.Map(containerRef.current, {
-                center: new kakao.maps.LatLng(37.5665, 126.978),
-                level: 6,
+            const kakao = (window as any).kakao;
+
+            const initialCenter = new kakao.maps.LatLng(
+                SEOUL_CENTER.lat,
+                SEOUL_CENTER.lng,
+            );
+
+            const map = new kakao.maps.Map(containerRef.current!, {
+                center: initialCenter,
+                level: 8,
             });
+
             const clusterer = new kakao.maps.MarkerClusterer({
                 map,
-                averageCenter: true,
-                minLevel: 6,
+                averageCenter: false, // 🌟 지도 중심 자동 이동 방지
+                minLevel: 3,
             });
+
             mapRef.current = map;
             clustererRef.current = clusterer;
+
+            // 기본 반경 원 (초기 10km 같은 값, radiusKm 읽어도 상관 없음)
+            if (circleRef.current) {
+                circleRef.current.setMap(null);
+            }
+
+            const defaultCircle = new kakao.maps.Circle({
+                center: initialCenter,
+                radius: radiusKm * 1000,
+                strokeWeight: 3,
+                strokeColor: "#0055ff",
+                strokeOpacity: 0.9,
+                strokeStyle: "solid",
+                fillColor: "#99ccff",
+                fillOpacity: 0.3,
+            });
+
+            defaultCircle.setMap(map);
+            circleRef.current = defaultCircle;
+            setCircleCenter(SEOUL_CENTER);
         };
 
         const tick = () => {
             const w = window as unknown as KakaoLoader;
             if (w.kakao?.maps?.load) w.kakao.maps.load(init);
-            else setTimeout(tick, 50);
+            else setTimeout(tick, 60);
         };
-        tick();
 
-        return () => { cancelled = true; };
+        tick();
+        // 🔥 radiusKm 절대 넣지 말 것 (반경 바꿀 때마다 지도 리셋됨)
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    // 주소 지오코딩
-    const geocode = (q: string) =>
-        new Promise<kakao.maps.LatLng | null>((resolve) => {
-            const { kakao } = window;
-            const geocoder = new kakao.maps.services.Geocoder();
-            geocoder.addressSearch(
-                q,
-                (res: kakao.maps.services.GeocoderResult[], status: kakao.maps.services.Status) => {
-                    if (status === kakao.maps.services.Status.OK && res.length) {
-                        const { x, y } = res[0];
-                        resolve(new kakao.maps.LatLng(Number(y), Number(x)));
-                    } else resolve(null);
-                }
-            );
-        });
-
-    // 상세위치 Place 검색
-    const searchPlace = (keyword: string, near?: kakao.maps.LatLng, radiusM?: number) =>
-        new Promise<kakao.maps.LatLng | null>((resolve) => {
-            const { kakao } = window;
-            const places = new kakao.maps.services.Places();
-            const opt: kakao.maps.services.PlacesSearchOptions = {};
-            if (near) {
-                opt.location = near;
-                opt.radius = Math.max(1000, radiusM ?? 0);
-            }
-            places.keywordSearch(
-                keyword,
-                (data: kakao.maps.services.PlacesSearchResult, status: kakao.maps.services.Status) => {
-                    if (status === kakao.maps.services.Status.OK && data.length) {
-                        const d0 = data[0];
-                        resolve(new kakao.maps.LatLng(Number(d0.y), Number(d0.x)));
-                    } else resolve(null);
-                },
-                opt
-            );
-        });
-
-    // 중심 좌표 계산 + 원/바운즈
+    /** 1) 전국 목록 가져오기 */
     useEffect(() => {
-        const base = (center ?? "").trim();
-        const detail = (detailCenter ?? "").trim();
-        if (!base && !detail) return;
-
-        const run = async () => {
-            const { kakao } = window;
-            if (!kakao?.maps || !mapRef.current) return;
-
-            let ll: kakao.maps.LatLng | null = null;
-            const baseLL = base ? await geocode(base) : null;
-
-            if (detail) {
-                ll = await searchPlace(detail, baseLL ?? undefined, radiusKm * 1000);
-                if (!ll && base) ll = await geocode(`${base} ${detail}`);
-            }
-            if (!ll && base) ll = baseLL;
-            if (!ll) return;
-
-            const lat = ll.getLat();
-            const lng = ll.getLng();
-            setCenterCoord({ lat, lng });
-
-            const map = mapRef.current!;
-            map.setCenter(ll);
-
-            if (circleRef.current) circleRef.current.setMap(null);
-            const circle = new kakao.maps.Circle({
-                center: ll,
-                radius: radiusKm * 1000,
-                strokeWeight: 1,
-                strokeColor: "#64748b",
-                strokeOpacity: 0.8,
-                fillColor: "#94a3b8",
-                fillOpacity: 0.15,
-            });
-            circle.setMap(map);
-            circleRef.current = circle;
-
-            const R = 111_320;
-            const dLat = (radiusKm * 1000) / R;
-            const dLng = (radiusKm * 1000) / (R * Math.cos((lat * Math.PI) / 180));
-            const sw = new kakao.maps.LatLng(lat - dLat, lng - dLng);
-            const ne = new kakao.maps.LatLng(lat + dLat, lng + dLng);
-            map.setBounds(new kakao.maps.LatLngBounds(sw, ne));
+        let alive = true;
+        (async () => {
+            const list = await fetchFacilitiesLiteAll();
+            if (!alive) return;
+            setRows(list);
+            const already = list.filter(
+                (r) => coords[r.id] || resolved[r.id],
+            ).length;
+            setProgress({ done: already, total: list.length });
+        })();
+        return () => {
+            alive = false;
         };
+    }, []);
 
-        run();
-    }, [center, detailCenter, radiusKm]);
-
-    // 반경 내 필터링 (Facility[] 이므로 lat/lng는 이미 number)
-    const filtered = useMemo(() => {
-        if (!centerCoord) return results;
-        return results.filter((r) => distanceKm(centerCoord, { lat: r.lat, lng: r.lng }) <= radiusKm + 1e-6);
-    }, [results, radiusKm, centerCoord]);
-
-    // 마커 렌더링 + 바운즈
+    /** 2) 좌표 해소 (카카오 Places/Geocoder 이용) */
     useEffect(() => {
-        const { kakao } = window;
-        if (!kakao?.maps || !mapRef.current || !clustererRef.current) return;
+        let cancelled = false;
+
+        async function resolveAll() {
+            const kakao = await waitKakaoReady();
+            if (cancelled) return;
+
+            const geocoder = new kakao.maps.services.Geocoder();
+
+            async function getRegionCenter(
+                sgg?: string,
+                sido?: string,
+            ): Promise<Coord | null> {
+                const key = [sgg, sido].filter(Boolean).join(" ");
+                if (!key) return null;
+                if (regionCenterRef.current[key])
+                    return regionCenterRef.current[key];
+
+                return new Promise<Coord | null>((resolve) => {
+                    geocoder.addressSearch(
+                        key,
+                        (res: any[], status: any) => {
+                            if (
+                                status ===
+                                kakao.maps.services.Status.OK &&
+                                res.length
+                            ) {
+                                const y = Number(res[0].y);
+                                const x = Number(res[0].x);
+                                const c = { lat: y, lng: x };
+                                regionCenterRef.current[key] = c;
+                                resolve(c);
+                            } else resolve(null);
+                        },
+                    );
+                });
+            }
+
+            const pending = rows.filter(
+                (r) => !resolved[r.id] && !coords[r.id],
+            );
+            const batchSize = 8;
+
+            for (let i = 0; i < pending.length; i += batchSize) {
+                if (cancelled) return;
+                const slice = pending.slice(i, i + batchSize);
+
+                await Promise.all(
+                    slice.map(
+                        (item) =>
+                            new Promise<void>((resolve) => {
+                                (async () => {
+                                    const kakao = (window as any).kakao;
+                                    const geocoder = new kakao.maps.services.Geocoder();
+                                    const places = new kakao.maps.services.Places();
+
+                                    const centerRegion = await getRegionCenter(
+                                        item.sgg,
+                                        item.sido,
+                                    );
+                                    const queries = buildQueries(item);
+
+                                    const finish = () => {
+                                        setResolved((prev) => ({
+                                            ...prev,
+                                            [item.id]: true,
+                                        }));
+                                        setProgress((p) => ({
+                                            ...p,
+                                            done: p.done + 1,
+                                        }));
+                                        resolve(); // <-- done() 대신 resolve()
+                                    };
+
+                                    const tryKeyword = (idx: number) => {
+                                        if (idx >= queries.length) {
+                                            if (item.postNo) {
+                                                geocoder.addressSearch(
+                                                    item.postNo,
+                                                    (res: any[], status: any) => {
+                                                        if (
+                                                            status === kakao.maps.services.Status.OK &&
+                                                            res.length
+                                                        ) {
+                                                            const y = Number(res[0].y);
+                                                            const x = Number(res[0].x);
+                                                            setCoords((prev) => ({
+                                                                ...prev,
+                                                                [item.id]: {
+                                                                    lat: y,
+                                                                    lng: x,
+                                                                },
+                                                            }));
+                                                        }
+                                                        finish();
+                                                    },
+                                                );
+                                            } else {
+                                                finish();
+                                            }
+                                            return;
+                                        }
+
+                                        const q = queries[idx];
+                                        const opt: any = {};
+                                        if (centerRegion) {
+                                            opt.location = new kakao.maps.LatLng(
+                                                centerRegion.lat,
+                                                centerRegion.lng,
+                                            );
+                                            opt.radius = 20000;
+                                        }
+
+                                        places.keywordSearch(
+                                            q,
+                                            (data: any[], status: any) => {
+                                                if (
+                                                    status === kakao.maps.services.Status.OK &&
+                                                    data.length
+                                                ) {
+                                                    const d0 = data[0];
+                                                    const y = Number(d0.y);
+                                                    const x = Number(d0.x);
+
+                                                    setCoords((prev) => ({
+                                                        ...prev,
+                                                        [item.id]: {
+                                                            lat: y,
+                                                            lng: x,
+                                                        },
+                                                    }));
+
+                                                    finish();
+                                                } else {
+                                                    tryKeyword(idx + 1);
+                                                }
+                                            },
+                                            opt,
+                                        );
+                                    };
+                                    tryKeyword(0);
+                                })();
+                            }),
+                    ),
+                );
+
+
+                await sleep(300);
+            }
+        }
+
+        if (rows.length) resolveAll();
+        return () => {
+            cancelled = true;
+        };
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [rows]);
+
+    /** 3) 좌표가 있는 시설만 렌더링 대상 */
+    const renderable = useMemo(
+        () =>
+            rows
+                .map((r) =>
+                    coords[r.id]
+                        ? { ...r, ...coords[r.id] }
+                        : null,
+                )
+                .filter(Boolean) as Array<FacilityLite & Coord>,
+        [rows, coords],
+    );
+
+    /** 4) 마커 + 클러스터링 (원 안만 표시) */
+    useEffect(() => {
+        const kakao = (window as any).kakao;
+        if (
+            !kakao?.maps ||
+            !mapRef.current ||
+            !clustererRef.current
+        ) {
+            return;
+        }
 
         const map = mapRef.current;
         const clusterer = clustererRef.current;
-
         clusterer.clear();
 
-        // 🔎 디버깅
-        console.log("[MAP] filtered count:", filtered.length);
-        console.table(filtered.slice(0, 10));
+        const { lat: clat, lng: clng } = circleCenter;
 
-        const markers = filtered.map((f) => {
-            const m = new kakao.maps.Marker({ position: new kakao.maps.LatLng(f.lat, f.lng) });
+        const markers = renderable
+            .filter((f) => {
+                const d = haversine(clat, clng, f.lat, f.lng);
+                return d <= radiusKm;
+            })
+            .map((f) => {
+                const m = new kakao.maps.Marker({
+                    position: new kakao.maps.LatLng(f.lat, f.lng),
+                });
 
-            // ✅ 상세 경로는 /caremates/:id (너의 라우팅에 맞춤!)
-            kakao.maps.event.addListener(m, "click", () => nav(`/caremates/${f.id}`));
+                kakao.maps.event.addListener(m, "click", () => {
+                    setSelectedInst(f.id);
+                    setSelectedKindCode(f.kindCode ?? "A03");
+                });
 
-            const iw = new kakao.maps.InfoWindow({
-                content: `<div style="padding:8px 10px;font-size:12px;">${f.name}</div>`,
+                return m;
             });
-            kakao.maps.event.addListener(m, "mouseover", () => iw.open(map, m));
-            kakao.maps.event.addListener(m, "mouseout", () => iw.close());
-            return m;
-        });
 
         clusterer.addMarkers(markers);
+    }, [renderable, radiusKm, circleCenter]);
 
-        if (!centerCoord) return;
+    /** 5) 중심 위치 주소 → 지도 중심 + 반경 원 중심 갱신 (줌 레벨 유지) */
+    useEffect(() => {
+        const kakao = (window as any).kakao;
+        if (!kakao?.maps || !mapRef.current) return;
 
-        const { lat, lng } = centerCoord;
-        const R = 111_320;
-        const dLat = (radiusKm * 1000) / R;
-        const dLng = (radiusKm * 1000) / (R * Math.cos((lat * Math.PI) / 180));
-        const sw = new kakao.maps.LatLng(lat - dLat, lng - dLng);
-        const ne = new kakao.maps.LatLng(lat + dLat, lng + dLng);
-        const bounds = new kakao.maps.LatLngBounds(sw, ne);
-        markers.forEach((m) => bounds.extend(m.getPosition()));
-        map.setBounds(bounds);
-    }, [filtered, radiusKm, nav, centerCoord]);
+        const map = mapRef.current;
+        const geocoder = new kakao.maps.services.Geocoder();
+        const addr = detailCenter || center;
+
+        if (!addr) return;
+
+        geocoder.addressSearch(addr, (res: any[], status: any) => {
+            if (status !== kakao.maps.services.Status.OK || !res.length) return;
+
+            const y = Number(res[0].y);
+            const x = Number(res[0].x);
+            const pos = new kakao.maps.LatLng(y, x);
+
+            // 주소 변경 시에만 지도 중심 변경
+            map.setCenter(pos);
+
+            // 원 재생성 (지도의 줌레벨은 그대로)
+            if (circleRef.current && circleRef.current.setMap) {
+                circleRef.current.setMap(null);
+            }
+
+            const circle = new kakao.maps.Circle({
+                center: pos,
+                radius: radiusKm * 1000,
+                strokeWeight: 3,
+                strokeColor: "#0055ff",
+                strokeOpacity: 0.9,
+                strokeStyle: "solid",
+                fillColor: "#99ccff",
+                fillOpacity: 0.3,
+            });
+
+            circle.setMap(map);
+            circleRef.current = circle;
+            setCircleCenter({ lat: y, lng: x });
+        });
+        // radiusKm 넣지 않음 → 슬라이더만 바꿀 때는 중심/줌 고정
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [center, detailCenter]);
+
+    /** 6) 반경 변경 시, 원 반경만 수정 (지도 중심/줌 그대로) */
+    useEffect(() => {
+        if (!circleRef.current) return;
+        circleRef.current.setRadius(radiusKm * 1000);
+    }, [radiusKm]);
+
+    /** 7) 반경 내 시설만 SearchProvider 결과에 반영 */
+    useEffect(() => {
+        const { lat: clat, lng: clng } = circleCenter;
+
+        const within = renderable.filter((f) => {
+            const d = haversine(clat, clng, f.lat, f.lng);
+            return d <= radiusKm;
+        });
+
+        setCircleFacilities(
+            within.map((f) => ({
+                id: f.id,
+                name: f.name,
+                address: f.address ?? "",
+                careLevel: f.kindCode ?? "A03",
+                monthlyCost: 0,
+                rating: 0,
+                bedsAvailable: 1,
+                insurance: [],
+            })),
+        );
+    }, [renderable, radiusKm, circleCenter, setCircleFacilities]);
 
     return (
         <div className="rounded-2xl border bg-white">
-            <div className="border-b p-4 text-base font-medium">지도</div>
-            <div className="p-4">
-                <div ref={containerRef} className="h-[70vh] w-full rounded-2xl border" />
+            <div className="flex items-center gap-3 border-b p-4 text-base font-medium">
+                지도
+                <span className="text-xs text-slate-500">
+                    해결 {progress.done} / 총 {progress.total} · 반경 {radiusKm}km
+                </span>
             </div>
+            <div className="p-4">
+                <div
+                    ref={containerRef}
+                    className="h-[70vh] w-full rounded-2xl border"
+                />
+            </div>
+
+            {selectedInst && (
+                <SimilarModal
+                    instCode={selectedInst}
+                    kindCode={selectedKindCode ?? "A03"}
+                    onClose={() => setSelectedInst(null)}
+                />
+            )}
         </div>
     );
 }

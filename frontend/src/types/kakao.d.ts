@@ -1,9 +1,14 @@
+// kakao.d.ts
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+export {};
+
 declare global {
     interface Window {
-        kakao: any; // 런타임 접근용; 실제 상세 타입은 아래 kakao namespace에서 제공
+        kakao: typeof kakao;
     }
+}
 
-// 기존 kakao 네임스페이스(클래스/타입 선언)는 그대로 유지
 declare namespace kakao {
     namespace maps {
         function load(cb: () => void): void;
@@ -21,23 +26,20 @@ declare namespace kakao {
 
         class Map {
             constructor(container: HTMLElement, options: { center: LatLng; level?: number });
-
             setCenter(latlng: LatLng): void;
-
             setBounds(bounds: LatLngBounds): void;
+            getLevel(): number;
+            setLevel(level: number): void;
         }
 
         class Marker {
             constructor(options: { position: LatLng });
-
             getPosition(): LatLng;
         }
 
         class InfoWindow {
             constructor(options: { content: string });
-
             open(map: Map, marker: Marker): void;
-
             close(): void;
         }
 
@@ -53,13 +55,18 @@ declare namespace kakao {
             });
 
             setMap(map: Map | null): void;
+            getCenter(): LatLng;
+            getRadius(): number;
         }
 
         class MarkerClusterer {
-            constructor(options: { map: Map; averageCenter?: boolean; minLevel?: number });
+            constructor(options: {
+                map: Map;
+                averageCenter?: boolean;
+                minLevel?: number;
+            });
 
             addMarkers(markers: Marker[]): void;
-
             clear(): void;
         }
 
@@ -76,20 +83,28 @@ declare namespace kakao {
 
             interface GeocoderResult {
                 x: string;
-                y: string
+                y: string;
+            }
+
+            class Geocoder {
+                addressSearch(
+                    query: string,
+                    callback: (result: GeocoderResult[], status: Status) => void
+                ): void;
             }
 
             interface Place {
                 id: string;
                 place_name: string;
-                x: string; // lng
-                y: string; // lat
+                x: string;
+                y: string;
             }
+
             type PlacesSearchResult = Place[];
 
             interface PlacesSearchOptions {
                 location?: kakao.maps.LatLng;
-                radius?: number; // (m)
+                radius?: number;
             }
 
             class Places {
@@ -100,15 +115,5 @@ declare namespace kakao {
                 ): void;
             }
         }
-
-            class Geocoder {
-                addressSearch(
-                    query: string,
-                    callback: (result: GeocoderResult[], status: Status) => void
-                ): void;
-            }
-        }
     }
 }
-
-export {};

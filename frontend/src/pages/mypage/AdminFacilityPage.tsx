@@ -98,7 +98,12 @@ type ResponseDTO<T> = {
                     value={String(selectedId)}
                     onChange={(e) => {
                         const v = e.target.value;
-                        setSelectedId(v === "" ? "" : Number(v));
+                        const id = v === "" ? "" : Number(v);
+                        setSelectedId(id);
+
+                        if (id) {
+                            window.location.href = `/caremates/${id}?kindCode=A03`;
+                        }
                     }}
                 >
                     {adminIds.map((id) => (

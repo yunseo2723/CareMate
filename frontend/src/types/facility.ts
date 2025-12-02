@@ -1,15 +1,10 @@
-// src/types/facility.ts
 export type Facility = {
-    id: string;               // "cm-001" 등
+    id: string;              // instCode
     name: string;
     address: string;
-    phone?: string;
-    lat: number;
-    lng: number;
-    rating?: number;
-    monthlyCost?: number;
-    careLevel?: string;
-    bedsAvailable?: number;
-    insurance?: string[];
-    distanceKm?: number;
+    careLevel: string;       // kindCode (A03 등)
+    monthlyCost?: number;    // 없으면 0 취급
+    rating?: number;         // 없으면 0 취급
+    bedsAvailable?: number;  // 0 이상
+    insurance?: string[];    // 나중에 쓰일 수 있으니 유지
 };
