@@ -1,31 +1,32 @@
+# 03_dump_for_spring.py
 import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-FAC_PATH = ROOT / "input" / "facilities.json"          # 원본 22,000개
-SIM_PATH = ROOT / "output" / "facility_sim_top10.json" # 2단계 결과
-OUT_PATH = ROOT / "output" / "facilities_with_sim.json"
+SRC = ROOT / "output" / "ltc_from_mysql.json"
+SIM = ROOT / "output" / "facilities_with_sim.json"
+OUT = ROOT / "output" / "facilities_final.json"
+
 
 def main():
-    with FAC_PATH.open("r", encoding="utf-8") as f:
-        facilities = json.load(f)
+    with open(SRC, "r", encoding="utf-8") as f:
+        base = {x["instCode"]: x for x in json.load(f)}
 
-    with SIM_PATH.open("r", encoding="utf-8") as f:
+    with open(SIM, "r", encoding="utf-8") as f:
         sim = json.load(f)
 
-    # instCode -> facility 로 바꾸기
-    fac_map = {f["instCode"]: f for f in facilities}
+    for s in sim:
+        inst = s["instCode"]
+        if inst in base:
+            base[inst]["similar"] = s["similar"]
 
-    merged = []
-    for inst, fac in fac_map.items():
-        item = fac.copy()
-        item["similar"] = sim.get(inst, [])
-        merged.append(item)
+    final = list(base.values())
 
-    with OUT_PATH.open("w", encoding="utf-8") as f:
-        json.dump(merged, f, ensure_ascii=False, indent=2)
+    with open(OUT, "w", encoding="utf-8") as f:
+        json.dump(final, f, ensure_ascii=False, indent=2)
 
-    print(f"[DONE] merged saved to {OUT_PATH} (rows={len(merged)})")
+    print("🔥 Spring 제공용 JSON 생성 완료:", OUT)
+
 
 if __name__ == "__main__":
     main()

@@ -1,72 +1,99 @@
-import json
+# 02_build_similarity.py (region weight version)
+import numpy as np
 from pathlib import Path
-import math
+from sklearn.metrics.pairwise import cosine_similarity
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
-VEC_PATH = ROOT / "output" / "facility_vectors.jsonl"
-OUT_PATH = ROOT / "output" / "facility_sim_top10.json"
+VEC_FILE = ROOT / "output" / "facilities_vectors.npz"
+META_FILE = ROOT / "output" / "facilities_meta.json"  # ⬅ 여기에 instCode → sido, sgg 저장
+OUT_FILE = ROOT / "output" / "facilities_with_sim.json"
 
-TOPK = 10
 
-def cosine(a, b):
-    num = 0.0
-    da = 0.0
-    db = 0.0
-    for k, va in a.items():
-        vb = b.get(k, 0.0)
-        num += va * vb
-        da += va * va
-    for vb in b.values():
-        db += vb * vb
-    if da == 0 or db == 0:
+def load_meta():
+    """instCode → {sido, sgg} 맵핑"""
+    if META_FILE.exists():
+        with open(META_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+
+def region_weight(a, b):
+    """행정구역 가중치 함수"""
+
+    # 둘 다 메타정보가 없으면 가중치 없음
+    if a is None or b is None:
         return 0.0
-    return num / (math.sqrt(da) * math.sqrt(db))
 
-def load_vectors():
-    vecs = []
-    with VEC_PATH.open("r", encoding="utf-8") as f:
-        for line in f:
-            obj = json.loads(line)
-            vecs.append(obj)
-    return vecs
+    # 시군구 동일 (가장 강함)
+    if a.get("sgg") and a.get("sgg") == b.get("sgg"):
+        return 0.15
+
+    # 시도 동일
+    if a.get("sido") and a.get("sido") == b.get("sido"):
+        return 0.05
+
+    return 0.0
+
 
 def main():
-    vecs = load_vectors()
-    print(f"[INFO] loaded vectors: {len(vecs)}")
+    # 1) 벡터, 시설 메타 로드
+    npz = np.load(VEC_FILE, allow_pickle=True)
+    vectors = npz["vectors"]
+    instCodes = npz["instCodes"].tolist()
+    kindCodes = npz["kindCodes"].tolist()
 
-    # 단순 O(n^2)은 22k면 살짝 무거울 수 있어서
-    # 여기선 "앞쪽 n만 비교" 하는 식으로 적당히 타협.
-    # 진짜로 full 비교하고 싶으면 이중 for 다 돌리면 됨.
-    sims = {}  # instCode -> [ {instCode, score}, ... ]
-    for i, v in enumerate(vecs):
-        base_id = v["instCode"]
-        base_feat = v["features"]
+    meta = load_meta()   # instCode → {sido, sgg}
 
-        # 여기에 후보를 다 넣을 건데
-        scores = []
-        for j, w in enumerate(vecs):
-            if i == j:
+    # 2) 코사인 유사도 계산
+    sims = cosine_similarity(vectors)
+
+    results = []
+
+    for idx, inst in enumerate(instCodes):
+
+        row = {
+            "instCode": inst,
+            "kindCode": str(kindCodes[idx]),
+            "similar": []
+        }
+
+        # 자기 포함 정렬 목록
+        sim_indices = sims[idx].argsort()[::-1]
+
+        refined = []
+
+        for j in sim_indices:
+            if j == idx:
                 continue
-            other_id = w["instCode"]
-            sc = cosine(base_feat, w["features"])
-            if sc <= 0:
-                continue
-            scores.append((other_id, sc))
 
-        # 점수 높은 순으로 10개만
-        scores.sort(key=lambda x: x[1], reverse=True)
-        top = scores[:TOPK]
-        sims[base_id] = [
-            {"instCode": oid, "score": float(sc)} for oid, sc in top
-        ]
+            base_score = float(sims[idx][j])
 
-        if (i + 1) % 500 == 0:
-            print(f"[PROGRESS] {i+1}/{len(vecs)}")
+            # 행정구역 가중치 적용
+            w = region_weight(meta.get(inst), meta.get(instCodes[j]))
 
-    with OUT_PATH.open("w", encoding="utf-8") as f:
-        json.dump(sims, f, ensure_ascii=False, indent=2)
+            score = base_score + w
 
-    print(f"[DONE] similarity saved to {OUT_PATH}")
+            refined.append({
+                "instCode": instCodes[j],
+                "score": round(score, 6)  # 반올림
+            })
+
+            if len(refined) == 30:  # 일단 30개만 계산해서 그 안에서 TOP 5 선택
+                break
+
+        # 최종 상위 5개만
+        refined.sort(key=lambda x: x["score"], reverse=True)
+        row["similar"] = refined[:5]
+
+        results.append(row)
+
+    # 저장
+    with open(OUT_FILE, "w", encoding="utf-8") as f:
+        json.dump(results, f, ensure_ascii=False, indent=2)
+
+    print("🔥 유사도 계산 + 지역 가중치 적용 완료:", OUT_FILE)
+
 
 if __name__ == "__main__":
     main()
