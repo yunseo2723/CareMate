@@ -2,44 +2,36 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export type FacilityLite = {
-    id: string;
+    instCode: string;
+    kindCode: string;
     name: string;
-    kindCode?: string;
-    sido?: string;
-    sgg?: string;
-    postNo?: string;
-    address?: string;
-    phone?: string;
-};
-
-/** 지도/검색용 전체 리스트 */
-export async function fetchFacilitiesLiteAll(): Promise<FacilityLite[]> {
-    const url = "http://localhost:8080/ltc/list/lite";
-
-    const res = await fetch(url, { credentials: "include" });
-    if (!res.ok) return [];
-
-    const data = await res.json();
-    if (!Array.isArray(data)) return [];
-
-    return data;
-}
-
-/* ----------------------------------------------------
- * 상세 DTO
- * ---------------------------------------------------- */
-
-export type FacilityDetailSummary = {
-    id: string;
-    name: string;
-    address?: string;
-    phone?: string;
+    roadCode?: string;
+    fullRoadAddr?: string;
     lat?: number;
     lng?: number;
+    postNo?: string;
+    phone?: string;
+    grade?: string;
 };
 
 export type FacilityDetailDTO = {
-    summary: FacilityDetailSummary;
+    instCode?: string;
+    kindCode?: string;
+    name?: string;
+    roadCode?: string;      // DB 원값
+    fullRoadAddr?: string;  // 변환된 전체 주소
+    lat?: string;
+    lng?: string;
+    postNo?: string;
+    phone?: string;
+
+    grade?: string;
+    totalScore?: number;
+    opScore?: number;
+    safetyScore?: number;
+    rightsScore?: number;
+    processScore?: number;
+    resultScore?: number;
 
     capacityTotal?: number;
     residentMale?: number;
@@ -77,6 +69,16 @@ export type FacilityDetailDTO = {
     contracts?: Array<any>;
 };
 
+/** 지도/검색용 전체 리스트 */
+export async function fetchFacilitiesLiteAll(): Promise<FacilityLite[]> {
+    const url = "http://localhost:8080/ltc/list/lite";
+
+    const res = await fetch(url, { credentials: "include" });
+    if (!res.ok) return [];
+
+    return await res.json();
+}
+
 /** 상세 조회 */
 export async function fetchFacilityDetailByInst(
     instCode: string,
@@ -91,17 +93,17 @@ export async function fetchFacilityDetailByInst(
 
     const s = await res.json();
 
-    const summary: FacilityDetailSummary = {
-        id: s.instCode,
-        name: s.name,
-        address: s.address ?? s.roadAddr ?? s.addr,
-        phone: s.phone,
-        lat: s.lat,
-        lng: s.lon,
-    };
-
     return {
-        summary,
+        instCode: s.instCode,
+        kindCode: s.kindCode,
+        name: s.name,
+        roadCode: s.roadCode,
+        fullRoadAddr: s.fullRoadAddr,
+        lat: s.lat,
+        lng: s.lng,
+        postNo: s.postNo,
+        phone: s.phone,
+
         capacityTotal: s.capacityTotal,
         residentMale: s.residentMale,
         residentFemale: s.residentFemale,
@@ -140,42 +142,39 @@ export async function fetchFacilityDetailByInst(
     };
 }
 
-/* ----------------------------------------------------
- * 유사 추천
- * ---------------------------------------------------- */
-
+/** 유사도 조회 */
 export type SimilarFacility = {
-    id: string;
+    instCode: string;
+    kindCode: string;
     name: string;
-    address?: string;
-    careLevel?: string;
-    similarity?: number;
+    fullRoadAddr?: string;
+    score?: number;
 };
 
 export async function fetchSimilarFacilities(
     instCode: string,
     size = 5,
 ): Promise<SimilarFacility[]> {
+
     const url = new URL(
-        `http://localhost:8080/ltc/similar/${encodeURIComponent(instCode)}`,
+        `http://localhost:8080/ltc/similar/${encodeURIComponent(instCode)}`
     );
     url.searchParams.set("size", String(size));
 
     const res = await fetch(url.toString(), { credentials: "include" });
     if (!res.ok) return [];
 
-    const raw = await res.json().catch(() => []);
+    const raw = await res.json();
 
     return raw.map((r: any) => ({
-        id: r.instCode,
+        instCode: r.instCode,
+        kindCode: r.kindCode,
         name: r.name,
-        address: r.address ?? r.addr ?? r.roadAddr,
-        careLevel: r.kindCode,
-        similarity:
-            typeof r.similarity === "number"
-                ? r.similarity
-                : typeof r.score === "number"
-                    ? r.score
-                    : undefined,
+        fullRoadAddr: r.fullRoadAddr || "-",   // 🔥 핵심
+        score: (Array.isArray(r.similar) && typeof r.similar[0]?.score === "number")
+            ? r.similar[0].score
+            : 0
     }));
 }
+
+

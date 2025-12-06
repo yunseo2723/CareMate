@@ -1,19 +1,11 @@
-// src/providers/Ctx.ts
+// src/contexts/Ctx.ts (혹은 providers/Ctx.ts – 실제 경로 맞춰줘)
 
 import { createContext } from "react";
 import type { Facility } from "../types/facility";
 
 export type SearchContextValue = {
-    q: string;
-    setQ: (s: string) => void;
-
     center: string;
     setCenter: (s: string) => void;
-
-    detailCenter: string;
-    setDetailCenter: (s: string) => void;
-
-    setCircleFacilities: (rows: Facility[]) => void;
 
     radiusKm: number;
     setRadiusKm: (n: number) => void;
@@ -24,8 +16,8 @@ export type SearchContextValue = {
     careLevel: string;
     setCareLevel: (s: string) => void;
 
-    minRating: number;
-    setMinRating: (n: number) => void;
+    gradeFilter: string;
+    setGradeFilter: (s: string) => void;
 
     onlyAvailable: boolean;
     setOnlyAvailable: (b: boolean) => void;
@@ -44,25 +36,18 @@ export type SearchContextValue = {
 
     results: Facility[];
 
+    setCircleFacilities: (rows: Facility[]) => void;
+
     compare: Facility[];
     setCompare: (v: Facility[]) => void;
-
     toggleCompare: (f: Facility) => void;
 
     clearAll: () => void;
 };
 
 export const Ctx = createContext<SearchContextValue>({
-    q: "",
-    setQ: () => {},
-
     center: "",
     setCenter: () => {},
-
-    setCircleFacilities: () => {},
-
-    detailCenter: "",
-    setDetailCenter: () => {},
 
     radiusKm: 10,
     setRadiusKm: () => {},
@@ -70,11 +55,12 @@ export const Ctx = createContext<SearchContextValue>({
     budget: 2_000_000,
     setBudget: () => {},
 
-    careLevel: "all",
+    careLevel: "전체",
     setCareLevel: () => {},
 
-    minRating: 0,
-    setMinRating: () => {},
+    gradeFilter: "전체",
+    setGradeFilter: () => {},
+
 
     onlyAvailable: true,
     setOnlyAvailable: () => {},
@@ -93,9 +79,10 @@ export const Ctx = createContext<SearchContextValue>({
 
     results: [],
 
+    setCircleFacilities: () => {},
+
     compare: [],
     setCompare: () => {},
-
     toggleCompare: () => {},
 
     clearAll: () => {},

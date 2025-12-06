@@ -1,139 +1,109 @@
-// src/contexts/SearchProvider.tsx
+// src/providers/SearchProvider.tsx
 
-import { useState, type ReactNode, useMemo } from "react";
-import { Ctx, type SearchContextValue } from "./Ctx";
+import { useState, useCallback, useMemo } from "react";
+import { Ctx } from "../contexts/Ctx"; // 경로 맞춰줘
 import type { Facility } from "../types/facility";
 
-export function SearchProvider({ children }: { children: ReactNode }) {
-    const [q, setQ] = useState("");
-
-    const [center, setCenter] = useState("서울특별시");
-    const [detailCenter, setDetailCenter] = useState("");
-
+export function SearchProvider({ children }: { children: React.ReactNode }) {
+    const [center, setCenter] = useState("");         // 위치 검색
     const [radiusKm, setRadiusKm] = useState(10);
-    const [budget, setBudget] = useState(2_000_000);
-    const [careLevel, setCareLevel] = useState("all");
-    const [minRating, setMinRating] = useState(0);
 
+    const [budget, setBudget] = useState(2_000_000);
+    const [careLevel, setCareLevel] = useState("전체");
+    const [gradeFilter, setGradeFilter] = useState("전체");
     const [onlyAvailable, setOnlyAvailable] = useState(true);
+
     const [ins, setIns] = useState<string[]>([]);
     const [amenities, setAmenities] = useState<string[]>([]);
-    const [sort, setSort] = useState("추천순");
 
+    const [sort, setSort] = useState("추천순");
     const [loading, setLoading] = useState(false);
 
-    // 👉 지도에서 들어온 "반경 내 시설"
+    const [results] = useState<Facility[]>([]);
     const [circleFacilities, setCircleFacilities] = useState<Facility[]>([]);
 
-    // 👉 리스트에서 비교하기 위한 배열
     const [compare, setCompare] = useState<Facility[]>([]);
 
-    const toggleCompare = (f: Facility) => {
+    const toggleCompare = useCallback((f: Facility) => {
         setCompare((prev) => {
-            const exist = prev.find((p) => p.id === f.id);
-            if (exist) return prev.filter((p) => p.id !== f.id);
-            return [...prev.slice(0, 3), f];
+            const exists = prev.some((x) => x.instCode === f.instCode);
+            return exists ? prev.filter((x) => x.instCode !== f.instCode) : [...prev, f];
         });
-    };
+    }, []);
 
-    /** 🔥 검색 + 필터 + 정렬 적용한 결과 */
-    const results = useMemo(() => {
-        let list = [...circleFacilities];
-
-        if (q) {
-            list = list.filter(
-                (v) => v.name.includes(q) || v.address?.includes(q),
-            );
-        }
-
-        if (careLevel !== "all") {
-            list = list.filter((v) => v.careLevel === careLevel);
-        }
-
-        if (minRating > 0) {
-            list = list.filter((v) => (v.rating ?? 0) >= minRating);
-        }
-
-        if (onlyAvailable) {
-            list = list.filter((v) => (v.bedsAvailable ?? 1) > 0);
-        }
-
-        // 정렬
-        switch (sort) {
-            case "가격낮은순":
-                list.sort((a, b) => (a.monthlyCost ?? 0) - (b.monthlyCost ?? 0));
-                break;
-            case "평점높은순":
-                list.sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
-                break;
-        }
-
-        return list;
-    }, [
-        q,
-        careLevel,
-        minRating,
-        onlyAvailable,
-        sort,
-        circleFacilities,
-    ]);
-
-    const clearAll = () => {
-        setQ("");
-        setCareLevel("all");
-        setMinRating(0);
+    const clearAll = useCallback(() => {
+        setCenter("");
+        setRadiusKm(10);
+        setBudget(2_000_000);
+        setCareLevel("전체");
+        setGradeFilter("전체")
         setOnlyAvailable(true);
         setIns([]);
         setAmenities([]);
         setSort("추천순");
-    };
+        // results / circleFacilities 는 그대로 둬도 되고, 같이 초기화해도 됨
+    }, []);
 
-    const value: SearchContextValue = {
-        q,
-        setQ,
+    const value = useMemo(
+        () => ({
+            center,
+            setCenter,
 
-        center,
-        setCenter,
+            radiusKm,
+            setRadiusKm,
 
-        detailCenter,
-        setDetailCenter,
+            budget,
+            setBudget,
 
-        setCircleFacilities,
+            careLevel,
+            setCareLevel,
 
-        radiusKm,
-        setRadiusKm,
+            gradeFilter,
+            setGradeFilter,
 
-        budget,
-        setBudget,
+            onlyAvailable,
+            setOnlyAvailable,
 
-        careLevel,
-        setCareLevel,
+            ins,
+            setIns,
 
-        minRating,
-        setMinRating,
+            amenities,
+            setAmenities,
 
-        onlyAvailable,
-        setOnlyAvailable,
+            sort,
+            setSort,
 
-        ins,
-        setIns,
+            loading,
+            setLoading,
 
-        amenities,
-        setAmenities,
+            results: circleFacilities.length ? circleFacilities : results,
 
-        sort,
-        setSort,
+            setCircleFacilities,
 
-        loading,
-        setLoading,
+            compare,
+            setCompare,
+            toggleCompare,
 
-        results,
-
-        compare,
-        setCompare,
-        toggleCompare,
-        clearAll,
-    };
+            clearAll,
+        }),
+        [
+            center,
+            radiusKm,
+            budget,
+            careLevel,
+            gradeFilter,
+            onlyAvailable,
+            ins,
+            amenities,
+            sort,
+            loading,
+            results,
+            circleFacilities,
+            compare,
+            toggleCompare,
+            clearAll,
+        ],
+    );
 
     return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

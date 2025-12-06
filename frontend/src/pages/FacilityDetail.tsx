@@ -1,4 +1,3 @@
-// src/pages/FacilityDetail.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     useEffect,
@@ -14,17 +13,18 @@ import {
 
 const CARD = "rounded-2xl border bg-white p-6";
 
+// URL 쿼리 파싱용
 function useQuery() {
     const { search } = useLocation();
     return useMemo(() => new URLSearchParams(search), [search]);
 }
 
 export default function FacilityDetail() {
-    const { instCode: pInstCode, kindCode: pKindCode } = useParams();
+    const { instCode: instCodeParam } = useParams();
     const q = useQuery();
 
-    const instCode = pInstCode ?? q.get("instCode") ?? "";
-    const kindCode = pKindCode ?? q.get("kindCode") ?? "A03";
+    const instCode = instCodeParam ?? "";
+    const kindCode = q.get("kindCode") ?? "";
 
     const [data, setData] = useState<FacilityDetailDTO | null>(null);
     const [loading, setLoading] = useState(true);
@@ -50,12 +50,10 @@ export default function FacilityDetail() {
         };
     }, [instCode, kindCode]);
 
-    const sum = data?.summary;
-    const canMap = sum?.lat && sum?.lng;
-
     return (
         <div className="space-y-4">
-            {/* 헤더 */}
+
+            {/* HEADER */}
             <section className={CARD}>
                 {loading ? (
                     <div>Loading...</div>
@@ -63,16 +61,17 @@ export default function FacilityDetail() {
                     <div className="text-red-600">{err}</div>
                 ) : (
                     <div>
-                        <h2 className="text-2xl font-semibold">{sum?.name}</h2>
+                        <h2 className="text-2xl font-semibold">{data?.name}</h2>
                         <div className="text-sm text-gray-600">
-                            {sum?.address ?? "-"}
+                            {data?.fullRoadAddr ?? "-"}
                         </div>
-                        {sum?.phone && (
+
+                        {data?.phone && (
                             <a
-                                href={`tel:${sum.phone}`}
+                                href={`tel:${data.phone}`}
                                 className="text-blue-600 underline"
                             >
-                                {sum.phone}
+                                {data.phone}
                             </a>
                         )}
                     </div>
@@ -81,11 +80,10 @@ export default function FacilityDetail() {
 
             {/* 지도 */}
             <section className={`${CARD} h-80`}>
-                {canMap ? (
-                    <MiniMap lat={sum!.lat!} lng={sum!.lng!} name={sum!.name} />
-                ) : (
-                    <div className="text-sm text-gray-500">좌표 정보 없음</div>
-                )}
+                <MiniMap
+                    lat={data?.lat ? Number(data.lat) : undefined}
+                    lng={data?.lng ? Number(data.lng) : undefined}
+                />
             </section>
 
             {/* 정원 */}
@@ -105,16 +103,8 @@ export default function FacilityDetail() {
                     <KPI label="의사" value={data?.doctor} unit="명" />
                     <KPI label="간호사" value={data?.nurse} unit="명" />
                     <KPI label="요양보호사" value={data?.caregiver} unit="명" />
-                    <KPI
-                        label="사회복지사"
-                        value={data?.socialWorker}
-                        unit="명"
-                    />
-                    <KPI
-                        label="간호조무사"
-                        value={data?.nurseAide}
-                        unit="명"
-                    />
+                    <KPI label="사회복지사" value={data?.socialWorker} unit="명" />
+                    <KPI label="간호조무사" value={data?.nurseAide} unit="명" />
                 </div>
             </section>
 
@@ -149,7 +139,7 @@ function KPI({
                  unit,
              }: {
     label: string;
-    value?: number;
+    value?: number | null;
     unit?: string;
 }) {
     return (
@@ -164,11 +154,10 @@ function KPI({
 
 function MiniMap({
                      lat,
-                     lng,
+                     lng
                  }: {
-    lat: number;
-    lng: number;
-    name: string;
+    lat?: number;
+    lng?: number;
 }) {
     const ref = useRef<HTMLDivElement>(null);
 
@@ -177,47 +166,47 @@ function MiniMap({
 
         if (!ref.current) return;
 
-        const wait = () => {
-            if (!w.kakao || !w.kakao.maps || !w.kakao.maps.Map) {
-                setTimeout(wait, 50);
-                return;
+        // ⬇⬇⬇ Kakao SDK 로드를 100% 보장하는 함수
+        const waitForKakao = () => {
+            if (w.kakao?.maps?.load) {
+                w.kakao.maps.load(() => initMap()); // SDK가 완전히 준비된 후 실행
+            } else {
+                setTimeout(waitForKakao, 80);
             }
-            load();
         };
 
-        const load = () => {
+        const initMap = () => {
             const kakao = w.kakao;
 
-            kakao.maps.load(() => {
-                const center = new kakao.maps.LatLng(lat, lng);
+            try {
+                const pos = new kakao.maps.LatLng(lat, lng);
 
                 const map = new kakao.maps.Map(ref.current!, {
-                    center,
+                    center: pos,
                     level: 3,
                 });
 
-                const marker = new kakao.maps.Marker({
-                    position: center,
-                });
-                marker.setMap(map);
-
-                const circle = new kakao.maps.Circle({
-                    center,
-                    radius: 500,
-                    strokeWeight: 2,
-                    strokeColor: "#0066FF",
-                    strokeOpacity: 0.9,
-                    strokeStyle: "solid",
-                    fillColor: "#99CCFF",
-                    fillOpacity: 0.4,
+                new kakao.maps.Marker({
+                    position: pos,
+                    map,
                 });
 
-                circle.setMap(map);
-            });
+            } catch (e) {
+                console.error("❌ 지도 초기화 오류:", e);
+            }
         };
 
-        wait();
+        waitForKakao();
     }, [lat, lng]);
 
-    return <div ref={ref} className="w-full h-full rounded border" />;
+    return (
+        <div
+            ref={ref}
+            className="w-full h-full rounded border flex items-center justify-center"
+        >
+            {!lat || !lng ? (
+                <span className="text-gray-500 text-sm">지도 좌표 정보가 없습니다.</span>
+            ) : null}
+        </div>
+    );
 }

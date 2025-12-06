@@ -1,1 +1,0 @@
-export const KRW = (v: number) => Number(v).toLocaleString('ko-KR')

@@ -29,7 +29,7 @@ export default function App() {
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<Signup />} />
                     <Route path="admin" element={<Admin />} />
-                    <Route path="/caremates/:id" element={<FacilityDetail />} />
+                    <Route path="/facility/:instCode" element={<FacilityDetail />} />
                     {/* ✅ 마이페이지 라우트와 하위 라우트들 */}
                     <Route path="mypage" element={<MyPageLayout />}>
                         {/* /mypage 접근 시 기본 탭을 profile로 리다이렉트 */}
