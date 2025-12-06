@@ -12,19 +12,25 @@ public class LtcFacility {
     @Id
     @Column(name = "inst_code")
     private String instCode;           // 기관 코드 (PK)
-
     private String kindCode;           // adminPttnCd
     private String name;               // adminNm
-//    private String addr;
-    private String roadAddr;
+    private String roadNmCd;        //도로명주소코드
+    private String roadNm;          //도로명주소
+    private String fullRoadNm;      //전체 도로명주소
+    private Double lat;
+    private Double lng;
     private String postNo;
     private String phone;
 
-    private String siDoCd;
-    private String siGunGuCd;
+    // ----- 평가점수 -----
+    private String grade;
+    private Float totalScore;
+    private Float opScore;
+    private Float safetyScore;
+    private Float rightsScore;
+    private Float processScore;
+    private Float resultScore;
 
-    private Double lat;
-    private Double lon;
     private String longTermPeribRgtDt;
     // ----- 정원/입소 -----
     private Integer capacityTotal;
@@ -68,6 +74,12 @@ public class LtcFacility {
     private String transport;
     @Column(columnDefinition = "TEXT")
     private String parking;
+
+    @Column(columnDefinition = "TEXT")
+    private String programsJson;   // JSON 문자열
+
+    @Column(columnDefinition = "TEXT")
+    private String contractsJson;
 
     @Column(name="last_update")
     private LocalDate lastUpdate;

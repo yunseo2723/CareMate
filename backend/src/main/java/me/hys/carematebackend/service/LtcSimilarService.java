@@ -17,7 +17,7 @@ public class LtcSimilarService {
 
     @PostConstruct
     public void load() throws Exception {
-        Path p = Path.of("data/output/facilities_with_sim.json");
+        Path p = Path.of("data/output/facilities_final.json");
         String json = Files.readString(p);
         ObjectMapper om = new ObjectMapper();
         List<Map<String, Object>> list = om.readValue(json, new TypeReference<>() {});
@@ -40,12 +40,13 @@ public class LtcSimilarService {
     }
 
     // “비슷한 요양원” 뿌리기
-    public List<Map<String, Object>> similar(String instCode, int topN) {
+    public List<Map<String, Object>> similar(String instCode) {
         Map<String, Object> fac = facilityById.get(instCode);
         if (fac == null) return Collections.emptyList();
+
         List<Map<String, Object>> sim = (List<Map<String, Object>>) fac.getOrDefault("similar", List.of());
         List<Map<String, Object>> result = new ArrayList<>();
-        for (Map<String, Object> s : sim.stream().limit(topN).toList()) {
+        for (Map<String, Object> s : sim) {
             String otherId = (String) s.get("instCode");
             Map<String, Object> other = facilityById.get(otherId);
             if (other != null) {

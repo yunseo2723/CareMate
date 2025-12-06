@@ -1,48 +1,35 @@
 package me.hys.carematebackend.ltc;
 
+import lombok.Builder;
 import lombok.Data;
 import me.hys.carematebackend.model.LtcFacility;
 
 @Data
+@Builder
 public class FacilityLiteRes {
-    private String id;       // instCode
+    private String instCode;
+    private String kindCode;
     private String name;
-    private String sido;     // siDoCd
-    private String sgg;      // siGunGuCd
+    private String roadCode;
+    private String fullRoadAddr;
+    private Double lat;
+    private Double lng;
     private String postNo;
-    private String address;
     private String phone;
+    private String grade;
 
     public static FacilityLiteRes from(LtcFacility f) {
-        FacilityLiteRes r = new FacilityLiteRes();
-
-        // 시설 고유 ID
-        r.id = f.getInstCode();
-
-        // 시설명
-        r.name = (f.getName() != null && !f.getName().isBlank())
-                ? f.getName()
-                : f.getInstCode();   // 이름 없으면 시설코드라도 표시
-
-        // 시/도
-        r.sido = f.getSiDoCd();
-
-        // 시/군/구
-        r.sgg = f.getSiGunGuCd();
-
-        // 우편번호
-        r.postNo = f.getPostNo();
-
-        // 도로명주소 → 지번주소 순서
-//        if (f.getRoadAddr() != null && !f.getRoadAddr().isBlank()) {
-            r.address = f.getRoadAddr();
-//        } else {
-//            r.address = f.getAddr();
-//        }
-
-        // 전화번호
-        r.phone = f.getPhone();
-
-        return r;
+        return FacilityLiteRes.builder()
+                .instCode(f.getInstCode())
+                .kindCode(f.getKindCode())
+                .name(f.getName())
+                .roadCode(f.getRoadNmCd())
+                .fullRoadAddr(f.getFullRoadNm())
+                .lat(f.getLat())
+                .lng(f.getLng())
+                .postNo(f.getPostNo())
+                .phone(f.getPhone())
+                .grade(f.getGrade())
+                .build();
     }
 }

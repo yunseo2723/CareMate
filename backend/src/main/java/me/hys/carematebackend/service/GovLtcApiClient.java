@@ -24,7 +24,7 @@ public class GovLtcApiClient {
     private final RestTemplate restTemplate = new RestTemplate();
 
     /**
-     * Fetch all LTC facilities in a sido region
+     * 개별 시도 조회
      */
     public List<GovLtcItem> fetchFacilitiesBySido(String sidoCd) {
 
@@ -36,7 +36,7 @@ public class GovLtcApiClient {
                 .queryParam("_type", "json");
 
         URI url = b.build(true).toUri();
-        log.info("Calling Gov LTC API: {}", url);
+        log.info("📡 Gov API 호출 (sido={}) → {}", sidoCd, url);
 
         GovLtcResponse response = restTemplate.getForObject(url, GovLtcResponse.class);
 
@@ -45,18 +45,18 @@ public class GovLtcApiClient {
                 response.getResponse().getBody() == null ||
                 response.getResponse().getBody().getItems() == null) {
 
-            log.error("❌ Invalid or null response from Gov API (sido={})", sidoCd);
+            log.error("❌ Invalid response for sido={}", sidoCd);
             return Collections.emptyList();
         }
 
         List<GovLtcItem> items = response.getResponse().getBody().getItems().getItem();
 
-        if (items == null) {
-            log.warn("⚠ Gov API returned empty list for sido={}", sidoCd);
+        if (items == null || items.isEmpty()) {
+            log.warn("⚠ Empty list for sido={}", sidoCd);
             return Collections.emptyList();
         }
 
-        log.info("✔ Gov API returned {} facilities for sido={}", items.size(), sidoCd);
+        log.info("✔ sido={} 시설 {}개", sidoCd, items.size());
         return items;
     }
 }

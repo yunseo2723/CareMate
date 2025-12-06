@@ -3,13 +3,6 @@ package me.hys.carematebackend.dto.ltc;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.dataformat.xml.XmlMapper;
 import lombok.extern.slf4j.Slf4j;
-import me.hys.carematebackend.dto.ltc.AceptncDto;
-import me.hys.carematebackend.dto.ltc.ContractDto;
-import me.hys.carematebackend.dto.ltc.EtcDto;
-import me.hys.carematebackend.dto.ltc.GeneralDto;
-import me.hys.carematebackend.dto.ltc.ProgramDto;
-import me.hys.carematebackend.dto.ltc.RoomsDto;
-import me.hys.carematebackend.dto.ltc.StaffDto;
 
 import java.util.Collections;
 import java.util.List;

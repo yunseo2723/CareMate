@@ -19,8 +19,8 @@ import java.util.Map;
 public class LtcClient {
     private final WebClient webClient = WebClient.builder().build();
 
-    @Value("${ltc.api.base2}")       String baseUrl2;     // 예: https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02
-    @Value("${ltc.api.serviceKey}") String serviceKey;  // ★ 디코딩된 원문 키(= % 안붙은) 그대로
+    @Value("${ltc.api.base2}")       String baseUrl2;
+    @Value("${ltc.api.serviceKey}") String serviceKey;
 
     private URI buildUri(String path, Map<String,String> params) {
         UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(baseUrl2 + path);
@@ -60,7 +60,6 @@ public class LtcClient {
     // ★★★ 반드시 ‘02’ 접미사 포함한 정확한 경로 사용 ★★★
     public Mono<String> general(String instCode, String kindCode) {
         return call("/getGeneralSttusDetailInfoItem02", Map.of(
-
                 "adminPttnCd", kindCode,
                 "longTermAdminSym", instCode
         ));
@@ -87,19 +86,15 @@ public class LtcClient {
         ));
     }
 
-    public Mono<String> programList(String instCode, int pageNo, int numOfRows) {
+    public Mono<String> programList(String instCode) {
         Map<String,String> p = new LinkedHashMap<>();
         p.put("longTermAdminSym", instCode);
-        p.put("pageNo", String.valueOf(pageNo <= 0 ? 1 : pageNo));
-        p.put("numOfRows", String.valueOf(numOfRows <= 0 ? 10 : numOfRows));
         return call("/getProgramSttusDetailInfoList02", p);
     }
 
-    public Mono<String> convList(String instCode, int pageNo, int numOfRows) {
+    public Mono<String> convList(String instCode) {
         Map<String,String> p = new LinkedHashMap<>();
         p.put("longTermAdminSym", instCode);
-        p.put("pageNo", String.valueOf(pageNo <= 0 ? 1 : pageNo));
-        p.put("numOfRows", String.valueOf(numOfRows <= 0 ? 10 : numOfRows));
         return call("/getConvInsttDetailInfoList02", p);
     }
 
