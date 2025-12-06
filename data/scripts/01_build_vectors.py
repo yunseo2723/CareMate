@@ -23,7 +23,7 @@ def build_facility_text(f):
     parts = []
 
     parts.append(build_text(f.get("name")))
-    parts.append(build_text(f.get("address")))
+    parts.append(build_text(f.get("fullRoadAddr")))
     parts.append(build_text(f.get("phone")))
 
     # 프로그램 텍스트

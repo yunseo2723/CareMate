@@ -37,25 +37,15 @@ def fetch_all_facilities():
 def convert_addresses(rows):
     """도로명코드 기반으로 주소 변환"""
 
-    road = RoadnameMapper()
     converted = []
 
     for r in rows:
-        road_code = r.get("road_addr")
-        post = r.get("post_no")
-
-        # 도로명 주소 매핑 (시도 + 시군구 + 도로명)
-        road_addr = road.get_full_road_address(road_code)
-
-        # 주소 결정
-        final_addr = road_addr if road_addr else ""
-
         converted.append({
             "instCode": r.get("inst_code"),
             "kindCode": r.get("kind_code"),
             "name": r.get("name"),
-            "postNo": post,
-            "address": final_addr,
+            "postNo": r.get("post_no"),
+            "fullRoadAddr": r.get("full_road_nm"),
             "phone": r.get("phone"),
 
             # 상세 정보
