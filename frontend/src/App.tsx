@@ -6,6 +6,9 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ManagerVerify from "./pages/ManagerVerify.tsx";
 import FacilityDetail from "./pages/FacilityDetail";
+import CommunityHome from "./pages/community/CommunityHome";
+import PostWrite from "./pages/community/PostWrite";
+import PostDetail from "./pages/community/PostDetail";
 
 // MyPage 묶음
 import MyPageLayout from "./pages/mypage/MyPageLayout";
@@ -30,6 +33,9 @@ export default function App() {
                     <Route path="signup" element={<Signup />} />
                     <Route path="admin" element={<ManagerVerify />} />
                     <Route path="/facility/:instCode" element={<FacilityDetail />} />
+                    <Route path="/facility/:instCode/community" element={<CommunityHome />} />
+                    <Route path="/facility/:instCode/community/write" element={<PostWrite />} />
+                    <Route path="/facility/:instCode/community/post/:postId" element={<PostDetail />} />
                     {/* ✅ 마이페이지 라우트와 하위 라우트들 */}
                     <Route path="mypage" element={<MyPageLayout />}>
                         {/* /mypage 접근 시 기본 탭을 profile로 리다이렉트 */}

@@ -65,7 +65,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/users/register", "/users/login",
                                 "/signup/**", "/facilities/**", "/ltc/**").permitAll()
                         .requestMatchers("/users/me/**", "/admin/verify/**",
-                                "/contacts/**","/bookmarks/**", "/reviews/**").authenticated()
+                                "/contacts/**","/bookmarks/**", "/reviews/**, /facility/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(daoAuthProvider(userDetailsService(userRepository), passwordEncoder()));

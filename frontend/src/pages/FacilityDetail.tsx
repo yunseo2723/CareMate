@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import { fetchFacilityDetailByInst, type FacilityDetailDTO } from "../api/ltc";
-import { useLocation, useParams } from "react-router-dom";
+import {Link, useLocation, useParams} from "react-router-dom";
 
 export default function FacilityDetail() {
     const { instCode: instCodeParam } = useParams();
@@ -27,7 +27,7 @@ export default function FacilityDetail() {
     return (
         <div className="max-w-6xl mx-auto p-4 space-y-6">
             {/* 상단 기본 정보 + 지도 */}
-            <TopSection data={data} />
+            <TopSection data={data} instCode={instCode} />
 
             {/* 평가 점수 */}
             <ScoreSection data={data} />
@@ -50,25 +50,39 @@ export default function FacilityDetail() {
     );
 }
 
-function TopSection({ data }: { data: FacilityDetailDTO }) {
+function TopSection({ data, instCode }: { data: FacilityDetailDTO, instCode: string }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 왼쪽: 기본 정보 */}
-            <div className="space-y-2">
+            <div className="space-y-3">
                 <h1 className="text-3xl font-bold">{data.name}</h1>
+
                 <p className="text-gray-600">{data.fullRoadAddr}</p>
-                문의 : {data.phone && (
-                    <a href={`tel:${data.phone}`} className="text-blue-600 underline">
-                        {data.phone}
-                    </a>
+
+                {/* 전화번호 */}
+                {data.phone && (
+                    <div className="text-sm">
+                        문의 :{" "}
+                        <a href={`tel:${data.phone}`} className="text-blue-600 underline">
+                            {data.phone}
+                        </a>
+                    </div>
                 )}
 
-                {/* 등급 */}
+                {/* 평가 등급 */}
                 {data.grade && (
-                    <div className="mt-3 inline-block rounded bg-yellow-200 px-3 py-1 font-semibold ml-3">
+                    <div className="inline-block rounded bg-yellow-200 px-3 py-1 font-semibold text-sm">
                         평가등급 {data.grade} 등급
                     </div>
                 )}
+
+                {/* 🔥 커뮤니티로 이동 버튼 (예쁘게 배치) */}
+                <Link
+                    to={`/facility/${instCode}/community`}
+                    className="inline-block mt-2 px-4 py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
+                >
+                    커뮤니티로 이동
+                </Link>
             </div>
 
             {/* 오른쪽: 지도 */}
@@ -79,6 +93,7 @@ function TopSection({ data }: { data: FacilityDetailDTO }) {
         </div>
     );
 }
+
 
 
 function MiniMap({
