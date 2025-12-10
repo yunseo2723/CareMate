@@ -4,7 +4,7 @@ import MainLayout from "./layouts/MainLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-import Admin from "./pages/Admin";
+import ManagerVerify from "./pages/ManagerVerify.tsx";
 import FacilityDetail from "./pages/FacilityDetail";
 
 // MyPage 묶음
@@ -28,7 +28,7 @@ export default function App() {
                     <Route index element={<Home />} />
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<Signup />} />
-                    <Route path="admin" element={<Admin />} />
+                    <Route path="admin" element={<ManagerVerify />} />
                     <Route path="/facility/:instCode" element={<FacilityDetail />} />
                     {/* ✅ 마이페이지 라우트와 하위 라우트들 */}
                     <Route path="mypage" element={<MyPageLayout />}>
