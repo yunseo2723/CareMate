@@ -8,7 +8,7 @@ export default function PasswordPage(){
     const onChange = async ()=>{
         if(n1!==n2) return alert("새 비밀번호가 일치하지 않습니다.");
         const res = await authFetch("http://localhost:8080/users/me/password",{
-            method:"POST", headers:{ "Content-Type":"application/json" },
+            method:"PATCH", headers:{ "Content-Type":"application/json" },
             body: JSON.stringify({ currentPassword:cur, newPassword:n1 })
         });
         if(res.ok) alert("변경되었습니다."); else alert(await res.text());

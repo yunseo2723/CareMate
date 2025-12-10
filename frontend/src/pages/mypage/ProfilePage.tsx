@@ -14,7 +14,7 @@ export default function ProfilePage(){
     }, [user]);
 
     const onSave = async () => {
-        const res = await authFetch("http://localhost:8080/users/me", {
+        const res = await authFetch("http://localhost:8080/users/me/profile", {
             method:"PATCH",
             headers:{ "Content-Type":"application/json" },
             body: JSON.stringify({ name, nickname, phone }),

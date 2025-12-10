@@ -9,11 +9,11 @@ import me.hys.carematebackend.util.JWTUtil;
 import me.hys.carematebackend.util.LoginFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -22,7 +22,6 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.filter.CorsFilter;
 
 import java.util.Arrays;
 
@@ -31,7 +30,6 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final AuthenticationConfiguration authenticationConfiguration;
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
     private final CareMateAdminRepository careMateAdminRepository;
@@ -56,21 +54,26 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authCfg) throws Exception {
-        http.csrf(AbstractHttpConfigurer::disable)
-                .cors(c -> c.configurationSource(corsConfigurationSource()))
-                .formLogin(AbstractHttpConfigurer::disable)
-                .httpBasic(AbstractHttpConfigurer::disable)
+
+        http.csrf(csrf -> csrf.disable())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .formLogin(f -> f.disable())
+                .httpBasic(h -> h.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/actuator/health", "/users/register", "/users/login", "/signup/**", "/facilities/**","/ltc/**").permitAll()
-                        .requestMatchers("/users/me/**", "/admin/onboarding/**", "/caremates/**","/contacts/**","/bookmarks/**","/reviews/**").authenticated()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()                 // ⭐ Preflight 허용
+                        .requestMatchers("/actuator/health", "/users/register", "/users/login",
+                                "/signup/**", "/facilities/**", "/ltc/**").permitAll()
+                        .requestMatchers("/users/me/**", "/admin/verify/**",
+                                "/contacts/**","/bookmarks/**", "/reviews/**").authenticated()
                         .anyRequest().authenticated()
                 )
-
                 .authenticationProvider(daoAuthProvider(userDetailsService(userRepository), passwordEncoder()));
 
+        // JWTFilter 추가
         http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
+        // LoginFilter 추가
         var loginFilter = new LoginFilter(jwtUtil, userRepository, careMateAdminRepository);
         loginFilter.setAuthenticationManager(authCfg.getAuthenticationManager());
         loginFilter.setFilterProcessesUrl("/users/login");
@@ -79,26 +82,12 @@ public class SecurityConfig {
         return http.build();
     }
 
+    /** 공식 CORS 설정 (단 하나만 유지) */
     @Bean
-    public CorsFilter corsFilter() {
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        config.setAllowedHeaders(Arrays.asList("*"));
-        config.setAllowCredentials(true);
-        config.addExposedHeader("accessToken");
-        config.addExposedHeader("refreshToken");
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", config);
-
-        return new CorsFilter(source);
-    }
-
-    private UrlBasedCorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // ⭐ PATCH 반드시 포함
         config.setAllowedHeaders(Arrays.asList("*"));
         config.setAllowCredentials(true);
         config.addExposedHeader("accessToken");
@@ -109,4 +98,3 @@ public class SecurityConfig {
         return source;
     }
 }
-
