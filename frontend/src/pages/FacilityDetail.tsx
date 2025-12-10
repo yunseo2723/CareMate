@@ -1,156 +1,85 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-    useEffect,
-    useMemo,
-    useRef,
-    useState,
-} from "react";
+import { useEffect, useRef, useState } from "react";
+import { fetchFacilityDetailByInst, type FacilityDetailDTO } from "../api/ltc";
 import { useLocation, useParams } from "react-router-dom";
-import {
-    fetchFacilityDetailByInst,
-    type FacilityDetailDTO,
-} from "../api/ltc";
-
-const CARD = "rounded-2xl border bg-white p-6";
-
-// URL 쿼리 파싱용
-function useQuery() {
-    const { search } = useLocation();
-    return useMemo(() => new URLSearchParams(search), [search]);
-}
 
 export default function FacilityDetail() {
     const { instCode: instCodeParam } = useParams();
-    const q = useQuery();
+    const q = new URLSearchParams(useLocation().search);
 
     const instCode = instCodeParam ?? "";
     const kindCode = q.get("kindCode") ?? "";
 
     const [data, setData] = useState<FacilityDetailDTO | null>(null);
     const [loading, setLoading] = useState(true);
-    const [err, setErr] = useState<string | null>(null);
 
     useEffect(() => {
-        let alive = true;
         (async () => {
             setLoading(true);
-            try {
-                const d = await fetchFacilityDetailByInst(instCode, kindCode);
-                if (alive) setData(d);
-            } catch (e) {
-                console.error(e);
-                if (alive) setErr("불러오기에 실패했습니다.");
-            } finally {
-                if (alive) setLoading(false);
-            }
+            const d = await fetchFacilityDetailByInst(instCode, kindCode);
+            setData(d);
+            setLoading(false);
         })();
-
-        return () => {
-            alive = false;
-        };
     }, [instCode, kindCode]);
 
+    if (loading || !data) return <div className="p-10">불러오는 중...</div>;
+
     return (
-        <div className="space-y-4">
+        <div className="max-w-6xl mx-auto p-4 space-y-6">
+            {/* 상단 기본 정보 + 지도 */}
+            <TopSection data={data} />
 
-            {/* HEADER */}
-            <section className={CARD}>
-                {loading ? (
-                    <div>Loading...</div>
-                ) : err ? (
-                    <div className="text-red-600">{err}</div>
-                ) : (
-                    <div>
-                        <h2 className="text-2xl font-semibold">{data?.name}</h2>
-                        <div className="text-sm text-gray-600">
-                            {data?.fullRoadAddr ?? "-"}
-                        </div>
-
-                        {data?.phone && (
-                            <a
-                                href={`tel:${data.phone}`}
-                                className="text-blue-600 underline"
-                            >
-                                {data.phone}
-                            </a>
-                        )}
-                    </div>
-                )}
-            </section>
-
-            {/* 지도 */}
-            <section className={`${CARD} h-80`}>
-                <MiniMap
-                    lat={data?.lat ? Number(data.lat) : undefined}
-                    lng={data?.lng ? Number(data.lng) : undefined}
-                />
-            </section>
+            {/* 평가 점수 */}
+            <ScoreSection data={data} />
 
             {/* 정원 */}
-            <section className={CARD}>
-                <h3 className="mb-2 text-lg font-semibold">정원/입소</h3>
-                <div className="grid grid-cols-3 gap-3">
-                    <KPI label="정원" value={data?.capacityTotal} unit="명" />
-                    <KPI label="남성" value={data?.residentMale} unit="명" />
-                    <KPI label="여성" value={data?.residentFemale} unit="명" />
-                </div>
-            </section>
+            <CapacitySection data={data} />
 
             {/* 인력 */}
-            <section className={CARD}>
-                <h3 className="mb-2 text-lg font-semibold">인력 현황</h3>
-                <div className="grid grid-cols-3 gap-3">
-                    <KPI label="의사" value={data?.doctor} unit="명" />
-                    <KPI label="간호사" value={data?.nurse} unit="명" />
-                    <KPI label="요양보호사" value={data?.caregiver} unit="명" />
-                    <KPI label="사회복지사" value={data?.socialWorker} unit="명" />
-                    <KPI label="간호조무사" value={data?.nurseAide} unit="명" />
-                </div>
-            </section>
+            <StaffSection data={data} />
 
-            {/* 병실 */}
-            <section className={CARD}>
-                <h3 className="mb-2 text-lg font-semibold">병실/시설</h3>
-                <div className="grid grid-cols-3 gap-3">
-                    <KPI label="1인실" value={data?.singleRm} unit="실" />
-                    <KPI label="2인실" value={data?.doubleRm} unit="실" />
-                    <KPI label="3인실" value={data?.tripleRm} unit="실" />
-                    <KPI label="4인실" value={data?.quadrupleRm} unit="실" />
-                    <KPI label="특수침실" value={data?.specialRm} unit="실" />
-                </div>
-            </section>
+            {/* 병실 / 시설 */}
+            <RoomSection data={data} />
 
-            {/* 기타 */}
-            <section className={CARD}>
-                <h3 className="mb-2 text-lg font-semibold">기타 정보</h3>
-                <div className="text-sm">
-                    <div>홈페이지: {data?.homepage ?? "-"}</div>
-                    <div>교통편: {data?.transport ?? "-"}</div>
-                    <div>주차시설: {data?.parking ?? "-"}</div>
-                </div>
-            </section>
+            {/* 프로그램 */}
+            <ProgramSection data={data} />
+
+            {/* 기타 정보 */}
+            <ExtraInfoSection data={data} />
         </div>
     );
 }
 
-function KPI({
-                 label,
-                 value,
-                 unit,
-             }: {
-    label: string;
-    value?: number | null;
-    unit?: string;
-}) {
+function TopSection({ data }: { data: FacilityDetailDTO }) {
     return (
-        <div className="rounded border p-3 text-center">
-            <div className="text-xs text-gray-500">{label}</div>
-            <div className="text-lg font-semibold">
-                {value != null ? `${value}${unit ?? ""}` : "-"}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* 왼쪽: 기본 정보 */}
+            <div className="space-y-2">
+                <h1 className="text-3xl font-bold">{data.name}</h1>
+                <p className="text-gray-600">{data.fullRoadAddr}</p>
+                문의 : {data.phone && (
+                    <a href={`tel:${data.phone}`} className="text-blue-600 underline">
+                        {data.phone}
+                    </a>
+                )}
+
+                {/* 등급 */}
+                {data.grade && (
+                    <div className="mt-3 inline-block rounded bg-yellow-200 px-3 py-1 font-semibold ml-3">
+                        평가등급 {data.grade} 등급
+                    </div>
+                )}
             </div>
+
+            {/* 오른쪽: 지도 */}
+            <MiniMap
+                lat={data.lat ? Number(data.lat) : undefined}
+                lng={data.lng ? Number(data.lng) : undefined}
+            />
         </div>
     );
 }
+
 
 function MiniMap({
                      lat,
@@ -207,6 +136,135 @@ function MiniMap({
             {!lat || !lng ? (
                 <span className="text-gray-500 text-sm">지도 좌표 정보가 없습니다.</span>
             ) : null}
+        </div>
+    );
+}
+function ScoreSection({ data }: { data: FacilityDetailDTO }) {
+    const items = [
+        { label: "총점", value: data.totalScore },
+        { label: "운영", value: data.opScore },
+        { label: "안전", value: data.safetyScore },
+        { label: "권리보장", value: data.rightsScore },
+        { label: "제공과정", value: data.processScore },
+        { label: "제공결과", value: data.resultScore },
+    ];
+
+    return (
+        <Section title="평가 점수">
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+                {items.map((i) => (
+                    <Card key={i.label} label={i.label} value={i.value} unit="점" />
+                ))}
+            </div>
+        </Section>
+    );
+}
+
+function CapacitySection({ data }: { data: FacilityDetailDTO }) {
+    return (
+        <Section title="정원 / 입소">
+            <div className="grid grid-cols-3 gap-3">
+                <Card label="정원" value={data.capacityTotal} unit="명" />
+                <Card label="남성" value={data.residentMale} unit="명" />
+                <Card label="여성" value={data.residentFemale} unit="명" />
+            </div>
+        </Section>
+    );
+}
+function StaffSection({ data }: { data: FacilityDetailDTO }) {
+    const items = [
+        { label: "의사", value: data.doctor },
+        { label: "간호사", value: data.nurse },
+        { label: "간호조무사", value: data.nurseAide },
+        { label: "요양보호사", value: data.caregiver },
+        { label: "사회복지사", value: data.socialWorker },
+        { label: "영양사", value: data.nutritionist },
+        { label: "물리치료사", value: data.physicalTher },
+        { label: "작업치료사", value: data.occupTher },
+        { label: "조리원", value: data.cook },
+        { label: "사무원", value: data.manager },
+        { label: "보조원", value: data.assistant },
+    ];
+
+    return (
+        <Section title="인력 현황">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                {items.map((i) => (
+                    <Card key={i.label} label={i.label} value={i.value} unit="명" />
+                ))}
+            </div>
+        </Section>
+    );
+}
+function RoomSection({ data }: { data: FacilityDetailDTO }) {
+    const items = [
+        { label: "1인실", value: data.singleRm },
+        { label: "2인실", value: data.doubleRm },
+        { label: "3인실", value: data.tripleRm },
+        { label: "4인실", value: data.quadrupleRm },
+        { label: "특수침실", value: data.specialRm },
+        { label: "프로그램실", value: data.programRoom },
+        { label: "식당/주방", value: data.diningKitchen },
+        { label: "화장실", value: data.toilet },
+        { label: "목욕실", value: data.bath },
+        { label: "세탁실", value: data.laundry },
+    ];
+
+    return (
+        <Section title="병실 / 시설">
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+                {items.map((i) => (
+                    <Card key={i.label} label={i.label} value={i.value} unit="실" />
+                ))}
+            </div>
+        </Section>
+    );
+}
+function ProgramSection({ data }: { data: FacilityDetailDTO }) {
+    if (!data.programs || data.programs.length === 0) return null;
+
+    return (
+        <Section title="프로그램 목록">
+            <div className="space-y-3">
+                {data.programs.map((p, idx) => (
+                    <div key={idx} className="p-3 border rounded-md bg-gray-50">
+                        <div className="font-medium">{p.pgmNm}</div>
+                        <div className="text-xs text-gray-600">
+                            유형 {p.pgmType} · 대상 {p.tgtNop}명 · {p.runPlc}
+                        </div>
+                    </div>
+                ))}
+            </div>
+        </Section>
+    );
+}
+function ExtraInfoSection({ data }: { data: FacilityDetailDTO }) {
+    return (
+        <Section title="기타 정보">
+            <div className="text-sm space-y-1">
+                <div>홈페이지: {data.homepage ?? "-"}</div>
+                <div>교통편: {data.transport ?? "-"}</div>
+                <div>주차시설: {data.parking ?? "-"}</div>
+            </div>
+        </Section>
+    );
+}
+function Card({ label, value, unit }: { label: string; value?: any; unit?: string }) {
+    return (
+        <div className="border rounded-lg p-3 text-center bg-white shadow-sm">
+            <div className="text-xs text-gray-500">{label}</div>
+            <div className="text-lg font-semibold">
+                {value != null ? `${value}${unit ?? ""}` : "-"}
+            </div>
+        </div>
+    );
+}
+
+function Section({ title, children }: any) {
+    return (
+        <div className="border rounded-xl p-5 bg-white shadow-sm">
+            <h2 className="text-xl font-semibold mb-3">{title}</h2>
+            {children}
         </div>
     );
 }

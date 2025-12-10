@@ -12,6 +12,19 @@ export type FacilityLite = {
     postNo?: string;
     phone?: string;
     grade?: string;
+    caregiver?: number;
+    doctor?: number;
+    nurse?: number;
+    socialWorker?: number;
+    singleRm?: number;
+    doubleRm?: number;
+    tripleRm?: number;
+    quadrupleRm?: number;
+    programRoom?: number;
+    diningKitchen?: number;
+    bath?: number;
+
+    programs?: Array<any>;
 };
 
 export type FacilityDetailDTO = {
@@ -103,6 +116,14 @@ export async function fetchFacilityDetailByInst(
         lng: s.lng,
         postNo: s.postNo,
         phone: s.phone,
+
+        grade: s.grade,
+        totalScore: s.totalScore,
+        opScore: s.opScore,
+        safetyScore: s.safetyScore,
+        rightsScore: s.rightsScore,
+        processScore: s.processScore,
+        resultScore: s.resultScore,
 
         capacityTotal: s.capacityTotal,
         residentMale: s.residentMale,

@@ -75,15 +75,18 @@ export function SimilarModal({
 
                 {/* 선택된 시설 정보 표시 */}
                 {base && (
-                    <div className="mt-3 rounded border p-3 bg-gray-50">
+                    <a
+                        href={`/facility/${base.instCode}?kindCode=${base.kindCode}`}
+                        className="block mt-3 rounded border p-3 bg-gray-50 hover:bg-gray-100"
+                    >
                         <div className="text-sm font-semibold">{base.name}</div>
                         <div className="text-xs text-gray-600">{base.fullRoadAddr}</div>
                         {base.phone && (
-                            <a href={`tel:${base.phone}`} className="text-blue-600 underline text-xs">
+                            <div className="text-blue-600 underline text-xs mt-1">
                                 {base.phone}
-                            </a>
+                            </div>
                         )}
-                    </div>
+                    </a>
                 )}
 
                 {/* 유사 요양원 추천 리스트 */}

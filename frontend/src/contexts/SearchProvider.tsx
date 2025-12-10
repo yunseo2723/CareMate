@@ -1,29 +1,28 @@
 // src/providers/SearchProvider.tsx
 
 import { useState, useCallback, useMemo } from "react";
-import { Ctx } from "../contexts/Ctx"; // 경로 맞춰줘
+import { Ctx } from "./Ctx.ts";
 import type { Facility } from "../types/facility";
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {
     const [center, setCenter] = useState("");         // 위치 검색
     const [radiusKm, setRadiusKm] = useState(10);
 
-    const [budget, setBudget] = useState(2_000_000);
     const [careLevel, setCareLevel] = useState("전체");
     const [gradeFilter, setGradeFilter] = useState("전체");
-    const [onlyAvailable, setOnlyAvailable] = useState(true);
 
-    const [ins, setIns] = useState<string[]>([]);
-    const [amenities, setAmenities] = useState<string[]>([]);
+    const [minCaregiver, setMinCaregiver] = useState(0);
+    const [hasNurse, setHasNurse] = useState(false);
+    const [hasDoctor, setHasDoctor] = useState(false);
+    const [hasSocial, setHasSocial] = useState(false);
 
-    const [sort, setSort] = useState("추천순");
+    const [roomTypes, setRoomTypes] = useState<string[]>([]);
+    const [programTypes, setProgramTypes] = useState<string[]>([]);
+
     const [loading, setLoading] = useState(false);
-
     const [results] = useState<Facility[]>([]);
     const [circleFacilities, setCircleFacilities] = useState<Facility[]>([]);
-
     const [compare, setCompare] = useState<Facility[]>([]);
-
     const toggleCompare = useCallback((f: Facility) => {
         setCompare((prev) => {
             const exists = prev.some((x) => x.instCode === f.instCode);
@@ -34,14 +33,14 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     const clearAll = useCallback(() => {
         setCenter("");
         setRadiusKm(10);
-        setBudget(2_000_000);
         setCareLevel("전체");
-        setGradeFilter("전체")
-        setOnlyAvailable(true);
-        setIns([]);
-        setAmenities([]);
-        setSort("추천순");
-        // results / circleFacilities 는 그대로 둬도 되고, 같이 초기화해도 됨
+        setGradeFilter("전체");
+        setMinCaregiver(0);
+        setHasNurse(false);
+        setHasDoctor(false);
+        setHasSocial(false);
+        setRoomTypes([]);
+        setProgramTypes([]);
     }, []);
 
     const value = useMemo(
@@ -52,26 +51,26 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
             radiusKm,
             setRadiusKm,
 
-            budget,
-            setBudget,
-
             careLevel,
             setCareLevel,
 
             gradeFilter,
             setGradeFilter,
 
-            onlyAvailable,
-            setOnlyAvailable,
+            minCaregiver,
+            setMinCaregiver,
+            hasNurse,
+            setHasNurse,
+            hasDoctor,
+            setHasDoctor,
+            hasSocial,
+            setHasSocial,
 
-            ins,
-            setIns,
+            roomTypes,
+            setRoomTypes,
 
-            amenities,
-            setAmenities,
-
-            sort,
-            setSort,
+            programTypes,
+            setProgramTypes,
 
             loading,
             setLoading,
@@ -89,13 +88,14 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
         [
             center,
             radiusKm,
-            budget,
             careLevel,
             gradeFilter,
-            onlyAvailable,
-            ins,
-            amenities,
-            sort,
+            minCaregiver,
+            hasNurse,
+            hasDoctor,
+            hasSocial,
+            roomTypes,
+            programTypes,
             loading,
             results,
             circleFacilities,

@@ -10,26 +10,29 @@ export type SearchContextValue = {
     radiusKm: number;
     setRadiusKm: (n: number) => void;
 
-    budget: number;
-    setBudget: (n: number) => void;
-
     careLevel: string;
     setCareLevel: (s: string) => void;
 
     gradeFilter: string;
     setGradeFilter: (s: string) => void;
 
-    onlyAvailable: boolean;
-    setOnlyAvailable: (b: boolean) => void;
+    /** ⭐ 인력 필터 */
+    minCaregiver: number;
+    setMinCaregiver: (n: number) => void;
+    hasNurse: boolean;
+    setHasNurse: (b: boolean) => void;
+    hasDoctor: boolean;
+    setHasDoctor: (b: boolean) => void;
+    hasSocial: boolean;
+    setHasSocial: (b: boolean) => void;
 
-    ins: string[];
-    setIns: (v: string[]) => void;
+    /** ⭐ 병실 필터 */
+    roomTypes: string[];
+    setRoomTypes: (v: string[]) => void;
 
-    amenities: string[];
-    setAmenities: (v: string[]) => void;
-
-    sort: string;
-    setSort: (s: string) => void;
+    /** ⭐ 프로그램 필터 */
+    programTypes: string[];
+    setProgramTypes: (v: string[]) => void;
 
     loading: boolean;
     setLoading: (v: boolean) => void;
@@ -52,27 +55,26 @@ export const Ctx = createContext<SearchContextValue>({
     radiusKm: 10,
     setRadiusKm: () => {},
 
-    budget: 2_000_000,
-    setBudget: () => {},
-
     careLevel: "전체",
     setCareLevel: () => {},
 
     gradeFilter: "전체",
     setGradeFilter: () => {},
 
+    minCaregiver: 0,
+    setMinCaregiver: () => {},
+    hasNurse: false,
+    setHasNurse: () => {},
+    hasDoctor: false,
+    setHasDoctor: () => {},
+    hasSocial: false,
+    setHasSocial: () => {},
 
-    onlyAvailable: true,
-    setOnlyAvailable: () => {},
+    roomTypes: [],
+    setRoomTypes: () => {},
 
-    ins: [],
-    setIns: () => {},
-
-    amenities: [],
-    setAmenities: () => {},
-
-    sort: "추천순",
-    setSort: () => {},
+    programTypes: [],
+    setProgramTypes: () => {},
 
     loading: false,
     setLoading: () => {},

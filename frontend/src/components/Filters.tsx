@@ -1,22 +1,21 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useSearch } from "../hooks/useSearch";
-import {useState} from "react";
 
 export function Filters() {
     const {
         center, setCenter,
         radiusKm, setRadiusKm,
-        budget, setBudget,
         careLevel, setCareLevel,
         gradeFilter, setGradeFilter,
-        onlyAvailable, setOnlyAvailable,
-        ins, setIns,
-        amenities, setAmenities,
-        clearAll,
-    } = useSearch();
+        minCaregiver, setMinCaregiver, // ⭐ 요양보호사 최소 수
 
-    // 검색창 하나만 사용
-    const [locationInput] = useState(center);
+        hasNurse, setHasNurse,
+        hasDoctor, setHasDoctor,
+        hasSocial, setHasSocial,
+
+        roomTypes, setRoomTypes,
+
+        programTypes, setProgramTypes
+    } = useSearch();
 
     const toggle = (arr: string[], set: (v: string[]) => void, v: string) => {
         if (arr.includes(v)) set(arr.filter(x => x !== v));
@@ -33,7 +32,7 @@ export function Filters() {
                     className="w-full rounded-md border px-3 py-2 text-sm"
                     value={center}
                     onChange={(e) => setCenter(e.target.value)}   // 🔥 바로 context state 수정
-                    placeholder="예: 부천종합운동장"
+                    placeholder="예: 강남구청"
                 />
                 <p className="text-xs text-slate-500">
                     입력한 위치를 중심으로 반경 내 요양원을 보여드립니다.
@@ -52,22 +51,6 @@ export function Filters() {
                     step={0.5}
                     value={radiusKm}
                     onChange={(e) => setRadiusKm(Number(e.target.value))}  // 🔥 radiusKm 업데이트
-                    className="w-full"
-                />
-            </div>
-
-            {/* 예산 */}
-            <div className="space-y-2">
-                <label className="text-sm font-medium">
-                    월 예산 상한: ₩{budget.toLocaleString("ko-KR")}
-                </label>
-                <input
-                    type="range"
-                    min={500000}
-                    max={5000000}
-                    step={50000}
-                    value={budget}
-                    onChange={(e) => setBudget(Number(e.target.value))}
                     className="w-full"
                 />
             </div>
@@ -109,81 +92,74 @@ export function Filters() {
             </div>
 
 
-            {/* 입소 가능 */}
-            <label className="flex items-center gap-2 text-sm">
-                <input
-                    type="checkbox"
-                    checked={onlyAvailable}
-                    onChange={(e) => setOnlyAvailable(e.target.checked)}
-                />
-                빈침대(입소 가능)만 보기
-            </label>
-
-            {/* 보험 */}
+            {/* 인력 필터 */}
             <div className="space-y-2">
-                <label className="text-sm font-medium">보험/급여</label>
+                <label className="text-sm font-medium">요양보호사 최소 인원: {minCaregiver}명</label>
+                <input
+                    type="range"
+                    min={0}
+                    max={20}
+                    step={1}
+                    value={minCaregiver}
+                    onChange={(e) => setMinCaregiver(Number(e.target.value))}
+                    className="w-full"
+                />
+            </div>
+
+            <div className="space-y-2">
+                <label className="text-sm font-medium">인력 구성</label>
+                <div className="flex flex-col gap-1 text-sm">
+                    <label><input type="checkbox" checked={hasNurse} onChange={e => setHasNurse(e.target.checked)} /> 간호 인력 있음</label>
+                    <label><input type="checkbox" checked={hasDoctor} onChange={e => setHasDoctor(e.target.checked)} /> 의사 있음</label>
+                    <label><input type="checkbox" checked={hasSocial} onChange={e => setHasSocial(e.target.checked)} /> 사회복지사 있음</label>
+                </div>
+            </div>
+
+            {/* 병실 / 시설 필터 */}
+            <div className="space-y-2">
+                <label className="text-sm font-medium">병실 / 시설</label>
                 <div className="flex flex-wrap gap-2">
-                    {["장기요양", "건보", "비급여"].map((i) => (
+                    {["1인실","2인실","3인실","4인실","프로그램실","식당","목욕실"].map((rt) => (
                         <button
-                            key={i}
-                            className={`rounded-md border px-3 py-1 text-sm ${
-                                ins.includes(i)
-                                    ? "bg-slate-900 text-white"
-                                    : "bg-white"
+                            key={rt}
+                            onClick={() => toggle(roomTypes, setRoomTypes, rt)}
+                            className={`px-3 py-1 rounded-md border text-sm ${
+                                roomTypes.includes(rt) ? "bg-slate-900 text-white" : "bg-white"
                             }`}
-                            onClick={() => toggle(ins, setIns, i)}
                         >
-                            {i}
+                            {rt}
                         </button>
                     ))}
                 </div>
             </div>
 
-            {/* 프로그램 */}
+            {/* 프로그램 필터 */}
             <div className="space-y-2">
-                <label className="text-sm font-medium">프로그램/편의</label>
+                <label className="text-sm font-medium">프로그램</label>
                 <div className="flex flex-wrap gap-2">
                     {[
-                        "물리치료",
-                        "인지프로그램",
-                        "영양식단",
-                        "송영서비스",
-                        "24시간간호",
-                        "재활치료",
-                    ].map((a) => (
-                        <span
-                            key={a}
-                            onClick={() =>
-                                toggle(amenities, setAmenities, a)
-                            }
-                            className={`cursor-pointer rounded-md border px-2 py-1 text-xs ${
-                                amenities.includes(a)
+                        {code:"1", name:"인지기능향상"},
+                        {code:"2", name:"운동보조"},
+                        {code:"4", name:"현실인식훈련"},
+                        {code:"5", name:"운동요법"},
+                        {code:"6", name:"가족참여"},
+                        {code:"7", name:"인지자극활동"},
+                        {code:"8", name:"음악활동"},
+                        {code:"기타", name:"기타 프로그램"},
+                    ].map((p) => (
+                        <button
+                            key={p.code}
+                            onClick={() => toggle(programTypes, setProgramTypes, p.code)}
+                            className={`px-3 py-1 rounded-md border text-sm ${
+                                programTypes.includes(p.code)
                                     ? "bg-slate-900 text-white"
                                     : "bg-white"
                             }`}
                         >
-                            {a}
-                        </span>
+                            {p.name}
+                        </button>
                     ))}
                 </div>
-            </div>
-
-            {/* 버튼 */}
-            <div className="flex gap-2 pt-2">
-                <button
-                    className="rounded-md bg-slate-900 px-3 py-2 text-sm text-white"
-                    onClick={() => {
-                        setCenter(locationInput.trim());
-                    }}
-                >
-                    적용
-                </button>
-                <button
-                    className="rounded-md border px-3 py-2 text-sm"
-                    onClick={clearAll}
-                >
-                    초기화
-                </button>
             </div>
         </div>
     );

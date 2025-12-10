@@ -3,7 +3,6 @@ package me.hys.carematebackend.controller;
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.ltc.FacilityDetailRes;
 import me.hys.carematebackend.ltc.FacilityLiteRes;
-import me.hys.carematebackend.model.LtcFacility;
 import me.hys.carematebackend.repository.LtcFacilityRepository;
 import me.hys.carematebackend.service.LtcDetailDbService;
 import me.hys.carematebackend.service.LtcSimilarService;
@@ -24,10 +23,8 @@ public class LtcController {
     // 전국 Lite 리스트
     @GetMapping("/list/lite")
     public List<FacilityLiteRes> listLite() {
-        List<LtcFacility> all;
-        all = repo.findAll();
-        return all.stream()
-                .map(FacilityLiteRes::from)
+        return repo.findAll().stream()
+                .map(FacilityLiteRes::from)   // ← 이제 정상 작동!
                 .toList();
     }
 

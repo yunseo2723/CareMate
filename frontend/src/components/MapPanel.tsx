@@ -46,13 +46,64 @@ export function MapPanel() {
         radiusKm,
         setCircleFacilities,
         careLevel,
-        gradeFilter
+        gradeFilter,
+        minCaregiver,
+        hasNurse,
+        hasDoctor,
+        hasSocial,
+        roomTypes,
+        programTypes
     } = useContext(Ctx);
 
     const matchesType = (item: FacilityLite): boolean => {
         if (careLevel === "전체") return true;
         return mapFacilityType(item.kindCode) === careLevel;
     };
+
+    function matchesGrade(f: FacilityLite): boolean {
+        if (gradeFilter === "전체") return true;
+        return f.grade === gradeFilter;
+    }
+    function matchesCaregiver(f: FacilityLite) {
+        return f.caregiver ?? 0 >= minCaregiver;
+    }
+    function matchesNurse(f: FacilityLite) {
+        if (!hasNurse) return true;
+        return (f.nurse ?? 0) > 0;
+    }
+    function matchesDoctor(f: FacilityLite) {
+        if (!hasDoctor) return true;
+        return (f.doctor ?? 0) > 0;
+    }
+    function matchesSocial(f: FacilityLite) {
+        if (!hasSocial) return true;
+        return (f.socialWorker ?? 0) > 0;
+    }
+    function matchesRoom(f: FacilityLite): boolean {
+        for (const rt of roomTypes) {
+            if (rt === "1인실" && (f.singleRm ?? 0) > 0) return true;
+            if (rt === "2인실" && (f.doubleRm ?? 0) > 0) return true;
+            if (rt === "3인실" && (f.tripleRm ?? 0) > 0) return true;
+            if (rt === "4인실" && (f.quadrupleRm ?? 0) > 0) return true;
+
+            if (rt === "프로그램실" && (f.programRoom ?? 0) > 0) return true;
+            if (rt === "식당" && (f.diningKitchen ?? 0) > 0) return true;
+            if (rt === "목욕실" && (f.bath ?? 0) > 0) return true;
+        }
+        return roomTypes.length === 0;
+    }
+    function matchesProgram(f: FacilityLite): boolean {
+        if (programTypes.length === 0) return true;
+
+        if (!f.programs || f.programs.length === 0) return false;
+
+        return f.programs.some(p => {
+            if (programTypes.includes("기타")) {
+                if (["3","9"].includes(p.pgmType)) return true;
+            }
+            return programTypes.includes(String(p.pgmType));
+        });
+    }
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any | null>(null);
@@ -127,20 +178,24 @@ export function MapPanel() {
         };
     }, []);
 
-    function matchesGrade(f: FacilityLite): boolean {
-        if (gradeFilter === "전체") return true;
-        return f.grade === gradeFilter;
-    }
-
     /** 2) DB에서 lat/lng 있는 시설만 필터링 */
-    const renderable = useMemo(
-        () =>
+    const renderable = useMemo(() =>
             rows
                 .filter(r => r.lat != null && r.lng != null)
-                .filter(r => matchesType(r))
-                .filter(r => matchesGrade(r)),
-        [rows, careLevel, gradeFilter]
-    );
+                .filter(matchesType)
+                .filter(matchesGrade)
+                .filter(matchesCaregiver)
+                .filter(matchesNurse)
+                .filter(matchesDoctor)
+                .filter(matchesSocial)
+                .filter(matchesRoom)
+                .filter(matchesProgram)
+        , [
+            rows, careLevel, gradeFilter,
+            minCaregiver, hasNurse, hasDoctor, hasSocial,
+            roomTypes, programTypes
+        ]);
+
 
     /** 3) 마커 & 클러스터링 갱신 */
     useEffect(() => {
