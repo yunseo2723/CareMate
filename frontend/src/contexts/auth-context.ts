@@ -6,7 +6,11 @@ export type User = {
     nickname?: string;
     name?: string;
     phone?: string;
-    adminCareMateIds?: number[];
+    // 요양원 관리자 InstCode 목록
+    adminFacilities?: {
+        instCode: string;
+        name: string;
+    }[];
 };
 
 export type Tokens = { accessToken: string | null; refreshToken: string | null };
