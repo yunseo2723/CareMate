@@ -19,16 +19,23 @@ public class ResponseUserDto {
     /** 👇 프런트 환영문구용 */
     private String name;
 
-    /** 👇 이 유저가 관리자인 CareMate(시설) ID 목록 */
-    private List<Long> adminCareMateIds;
+    /** 👇 이 유저가 관리자인 CareMate(시설) ID, 이름 목록 */
+    private List<FacilityInfo> adminFacilities;
 
-    public static ResponseUserDto of(User user, List<Long> adminCareMateIds) {
+    @Getter
+    @AllArgsConstructor
+    public static class FacilityInfo {
+        private String instCode;
+        private String name;
+    }
+
+    public static ResponseUserDto of(User user, List<FacilityInfo> adminFacilities) {
         return ResponseUserDto.builder()
                 .id(user.getId())
                 .username(user.getUsername())
                 .nickname(user.getNickname())
                 .name(user.getName())
-                .adminCareMateIds(adminCareMateIds)
+                .adminFacilities(adminFacilities)
                 .build();
     }
 }

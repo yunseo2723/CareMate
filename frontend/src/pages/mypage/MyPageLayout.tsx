@@ -6,7 +6,7 @@ const CARD = "rounded-2xl border bg-white p-6";
 export default function MyPageLayout(){
     const { user } = useAuth();
     console.log('[HEADER user]', user);
-    const isAdmin = (user?.adminCareMateIds?.length ?? 0) > 0;
+    const isAdmin = (user?.adminFacilities?.length ?? 0) > 0;
 
     const link = (to:string, label:string) => (
         <NavLink
@@ -50,7 +50,6 @@ export default function MyPageLayout(){
                 <div>
                     <div className="text-xs font-semibold text-slate-500 mb-2">요양원 필터</div>
                     <div className="space-y-1">
-                        {link("preferences","맞춤 추천 설정")}
                         {link("saved-filters","검색/필터 저장")}
                     </div>
                 </div>
