@@ -1,8 +1,7 @@
 // src/providers/SearchProvider.tsx
 
-import { useState, useCallback, useMemo } from "react";
-import { Ctx } from "./Ctx.ts";
-import type { Facility } from "../types/facility";
+import { useState } from "react";
+import {Ctx, type SearchFilter} from "./Ctx.ts";
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {
     const [center, setCenter] = useState("");         // 위치 검색
@@ -19,91 +18,83 @@ export function SearchProvider({ children }: { children: React.ReactNode }) {
     const [roomTypes, setRoomTypes] = useState<string[]>([]);
     const [programTypes, setProgramTypes] = useState<string[]>([]);
 
-    const [loading, setLoading] = useState(false);
-    const [results] = useState<Facility[]>([]);
-    const [circleFacilities, setCircleFacilities] = useState<Facility[]>([]);
-    const [compare, setCompare] = useState<Facility[]>([]);
-    const toggleCompare = useCallback((f: Facility) => {
-        setCompare((prev) => {
-            const exists = prev.some((x) => x.instCode === f.instCode);
-            return exists ? prev.filter((x) => x.instCode !== f.instCode) : [...prev, f];
-        });
-    }, []);
+    const [editingFilterId, setEditingFilterId] = useState<number | null>(null);
+    const [_initialized, setInitialized] = useState(false);
 
-    const clearAll = useCallback(() => {
+    const [aiPrompt, setAiPrompt] = useState("");
+    const [aiResult, setAiResult] = useState(null);
+
+    const applyFilter = (f: SearchFilter) => {
+        if (f.center !== undefined) setCenter(f.center);
+        if (f.radiusKm !== undefined) setRadiusKm(f.radiusKm);
+        if (f.careLevel !== undefined) setCareLevel(f.careLevel);
+        if (f.gradeFilter !== undefined) setGradeFilter(f.gradeFilter);
+
+        if (f.minCaregiver !== undefined) setMinCaregiver(f.minCaregiver);
+        if (f.hasNurse !== undefined) setHasNurse(f.hasNurse);
+        if (f.hasDoctor !== undefined) setHasDoctor(f.hasDoctor);
+        if (f.hasSocial !== undefined) setHasSocial(f.hasSocial);
+
+        if (f.roomTypes !== undefined) setRoomTypes(f.roomTypes);
+        if (f.programTypes !== undefined) setProgramTypes(f.programTypes);
+    };
+
+    const clearAll = () => {
         setCenter("");
         setRadiusKm(10);
+
         setCareLevel("전체");
         setGradeFilter("전체");
+
         setMinCaregiver(0);
         setHasNurse(false);
         setHasDoctor(false);
         setHasSocial(false);
+
         setRoomTypes([]);
         setProgramTypes([]);
-    }, []);
+    };
 
-    const value = useMemo(
-        () => ({
-            center,
-            setCenter,
+    return (
+        <Ctx.Provider
+            value={{
+                center, setCenter,
+                radiusKm, setRadiusKm,
+                careLevel, setCareLevel,
+                gradeFilter, setGradeFilter,
 
-            radiusKm,
-            setRadiusKm,
+                minCaregiver, setMinCaregiver,
+                hasNurse, setHasNurse,
+                hasDoctor, setHasDoctor,
+                hasSocial, setHasSocial,
 
-            careLevel,
-            setCareLevel,
+                roomTypes, setRoomTypes,
+                programTypes, setProgramTypes,
 
-            gradeFilter,
-            setGradeFilter,
+                applyFilter,
+                editingFilterId, setEditingFilterId,
 
-            minCaregiver,
-            setMinCaregiver,
-            hasNurse,
-            setHasNurse,
-            hasDoctor,
-            setHasDoctor,
-            hasSocial,
-            setHasSocial,
+                aiPrompt, setAiPrompt,
+                aiResult, setAiResult,
 
-            roomTypes,
-            setRoomTypes,
+                clearAll,
 
-            programTypes,
-            setProgramTypes,
+                loading: false,
+                setLoading: () => {},
 
-            loading,
-            setLoading,
+                results: [],
+                setCircleFacilities: () => {},
 
-            results: circleFacilities.length ? circleFacilities : results,
+                _initialized,
+                setInitialized,
 
-            setCircleFacilities,
 
-            compare,
-            setCompare,
-            toggleCompare,
-
-            clearAll,
-        }),
-        [
-            center,
-            radiusKm,
-            careLevel,
-            gradeFilter,
-            minCaregiver,
-            hasNurse,
-            hasDoctor,
-            hasSocial,
-            roomTypes,
-            programTypes,
-            loading,
-            results,
-            circleFacilities,
-            compare,
-            toggleCompare,
-            clearAll,
-        ],
+                compare: [],
+                setCompare: () => {},
+                toggleCompare: () => {}
+            }}
+        >
+            {children}
+        </Ctx.Provider>
     );
-
-    return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }

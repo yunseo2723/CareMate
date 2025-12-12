@@ -49,3 +49,7 @@ ltc:
         # serviceKey: "lxJPQ%2FP1q%2Fsro4sozw4HkyJ8PwGue6dfq1wnXE65DgDmGLMX0xniLt%2B7bj2cLy2ki7ANnDoC74NVXettBd6aag%3D%3D"
         serviceKey: "4b4656be576582ffcf2998862cd759faf9352dc841639c60c790cc336e160bbc"
         rest-api-key: "8ade036e254dad1d6e5f2a93e73eee45"
+
+openai:
+    api-key: ${OPENAI_API_KEY}
+    model: gpt-5.0

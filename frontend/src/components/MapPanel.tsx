@@ -15,6 +15,7 @@ import {
 } from "../api/ltc";
 import { SimilarModal } from "./SimilarModal";
 import { mapFacilityType } from "../utils/facilityType";
+import {PROGRAM_MAP} from "../utils/programMap.ts";
 
 type KakaoLoader = {
     kakao?: {
@@ -95,15 +96,19 @@ export function MapPanel() {
     function matchesProgram(f: FacilityLite): boolean {
         if (programTypes.length === 0) return true;
 
-        if (!f.programs || f.programs.length === 0) return false;
+        const programs = f.programs;
+        if (!programs || programs.length === 0) return false;
 
-        return f.programs.some(p => {
-            if (programTypes.includes("기타")) {
-                if (["3","9"].includes(p.pgmType)) return true;
-            }
-            return programTypes.includes(String(p.pgmType));
+        return programTypes.some((name) => {
+            const codes = PROGRAM_MAP[name];
+            if (!codes) return false;
+
+            return programs.some(p =>
+                codes.includes(String(p.pgmType))
+            );
         });
     }
+
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any | null>(null);
@@ -115,6 +120,8 @@ export function MapPanel() {
 
     const [selectedInst, setSelectedInst] = useState<string | null>(null);
     const [selectedKindCode, setSelectedKindCode] = useState<string | null>(null);
+
+    const [mapReady, setMapReady] = useState(false);
 
     /** 0) Kakao Map 초기화 */
     useEffect(() => {
@@ -152,6 +159,7 @@ export function MapPanel() {
             circle.setMap(map);
             circleRef.current = circle;
             setCircleCenter(SEOUL_CENTER);
+            setMapReady(true);
         };
 
         const wait = () => {
@@ -238,14 +246,19 @@ export function MapPanel() {
     /** 4) 주소 변경 시 원과 중심 이동 */
     useEffect(() => {
         const kakao = (window as any).kakao;
-        if (!kakao?.maps || !mapRef.current) return;
+
+        if (
+            !mapReady ||
+            !kakao?.maps?.services ||
+            !mapRef.current
+        ) return;
 
         const keyword = center.trim();
         if (!keyword) return;
 
+        const map = mapRef.current;
         const places = new kakao.maps.services.Places();
         const geocoder = new kakao.maps.services.Geocoder();
-        const map = mapRef.current;
 
         // ① 장소명(POI) 검색 먼저 시도
         places.keywordSearch(keyword, (res: any[], status: any) => {
@@ -297,7 +310,7 @@ export function MapPanel() {
 
             setCircleCenter({ lat: pos.getLat(), lng: pos.getLng() });
         }
-    }, [center, radiusKm]);
+    }, [center, radiusKm, mapReady]);
 
 
 

@@ -1,7 +1,30 @@
 // src/contexts/Ctx.ts (혹은 providers/Ctx.ts – 실제 경로 맞춰줘)
-
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { createContext } from "react";
 import type { Facility } from "../types/facility";
+
+type AiRecommendItem = {
+    instCode: string;
+    kindCode: string;
+    name: string;
+    address: string;
+    reason: string;
+};
+
+export type SearchFilter = {
+    center?: string;
+    radiusKm?: number;
+    careLevel?: string;
+    gradeFilter?: string;
+
+    minCaregiver?: number;
+    hasNurse?: boolean;
+    hasDoctor?: boolean;
+    hasSocial?: boolean;
+
+    roomTypes?: string[];
+    programTypes?: string[];
+};
 
 export type SearchContextValue = {
     center: string;
@@ -34,6 +57,8 @@ export type SearchContextValue = {
     programTypes: string[];
     setProgramTypes: (v: string[]) => void;
 
+    applyFilter: (f: SearchFilter) => void;
+
     loading: boolean;
     setLoading: (v: boolean) => void;
 
@@ -44,6 +69,21 @@ export type SearchContextValue = {
     compare: Facility[];
     setCompare: (v: Facility[]) => void;
     toggleCompare: (f: Facility) => void;
+
+    editingFilterId: number | null;
+    setEditingFilterId: (id: number | null) => void;
+
+    _initialized: boolean;
+    setInitialized: (v: boolean) => void;
+
+    aiPrompt: string;
+    setAiPrompt: (v: string) => void;
+
+    aiResult: {
+        normalizedNeed: string;
+        items: AiRecommendItem[];
+    } | null;
+    setAiResult: (v: any) => void;
 
     clearAll: () => void;
 };
@@ -76,6 +116,8 @@ export const Ctx = createContext<SearchContextValue>({
     programTypes: [],
     setProgramTypes: () => {},
 
+    applyFilter: () => {},
+
     loading: false,
     setLoading: () => {},
 
@@ -86,6 +128,18 @@ export const Ctx = createContext<SearchContextValue>({
     compare: [],
     setCompare: () => {},
     toggleCompare: () => {},
+
+    editingFilterId: null,
+    setEditingFilterId: () => {},
+
+    _initialized: false,
+    setInitialized: () => {},
+
+    aiPrompt: "",
+    setAiPrompt: () => {},
+
+    aiResult: null,
+    setAiResult: () => {},
 
     clearAll: () => {},
 });

@@ -54,6 +54,9 @@ dependencies {
 
     // XML <-> POJO (Jackson XML)
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-xml'
+
+    // env
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
 }
 
 tasks.named('test') {
