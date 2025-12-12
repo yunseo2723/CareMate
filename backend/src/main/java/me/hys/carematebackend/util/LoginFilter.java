@@ -12,8 +12,8 @@ import me.hys.carematebackend.dto.response.ResponseDTO;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.dto.user.ResponseUserDto;
 import me.hys.carematebackend.model.User;
-import me.hys.carematebackend.repository.CareMateAdminRepository;
-import me.hys.carematebackend.repository.UserRepository;
+import me.hys.carematebackend.repository.FacilityAdminRepository;
+import me.hys.carematebackend.repository.LtcFacilityRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -21,14 +21,14 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 @RequiredArgsConstructor
 public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     private final JWTUtil jwtUtil;
-    private final UserRepository userRepository;
-    private final CareMateAdminRepository careMateAdminRepository;
-
+    private final FacilityAdminRepository facilityAdminRepository;
+    private final LtcFacilityRepository ltcFacilityRepository;
     @Override
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response)
             throws AuthenticationException {
@@ -43,39 +43,50 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
 
     @Override
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authentication) throws IOException {
-        CustomUserDetails customUserDetails = (CustomUserDetails) authentication.getPrincipal();
-        String username = customUserDetails.getUsername();
-        String nickname = customUserDetails.getNickname();
+        CustomUserDetails cud = (CustomUserDetails) authentication.getPrincipal();
+        User user = cud.getUser();
 
-        System.out.println("✅ JWT 생성: username=" + username + ", nickname=" + nickname);
+        System.out.println("✅ JWT 생성: username=" + user.getUsername() + ", nickname=" + user.getNickname());
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        String accessToken = jwtUtil.createJwt("accessToken", username, nickname,86400000L);
-        String refreshToken = jwtUtil.createJwt("refreshToken", username, nickname, 86400000L);
+        String accessToken = jwtUtil.createJwt("accessToken", user.getUsername(), user.getNickname(),86400000L);
+        String refreshToken = jwtUtil.createJwt("refreshToken", user.getUsername(), user.getNickname(), 86400000L);
 
         System.out.println("✅ accessToken = " + accessToken);
 
         response.setHeader("accessToken", "Bearer " + accessToken);
         response.setHeader("refreshToken", "Bearer " + refreshToken);
 
-        // 🔹 사용자 정보 조회
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("유저 정보 없음"));
-
         // ✅ 관리자 시설 ID 조회
-        var adminIds = careMateAdminRepository.findCareMateIdsByUserId(user.getId());
+        List<String> instCodes = facilityAdminRepository
+                .findByUserId(user.getId())
+                .stream()
+                .map(a -> a.getInstCode())
+                .toList();
 
-        // ✅ 확장된 DTO 사용
-        ResponseUserDto userDto = ResponseUserDto.of(user, adminIds);
+        // 2) instCode → 시설 이름 변환
+        List<ResponseUserDto.FacilityInfo> facilities =
+                instCodes.stream()
+                        .map(code -> {
+                            var fac = ltcFacilityRepository.findByInstCode(code).orElse(null);
+                            return new ResponseUserDto.FacilityInfo(
+                                    code,
+                                    fac != null ? fac.getName() : "(이름 없음)"
+                            );
+                        })
+                        .toList();
+
+        // 3) DTO 생성
+        ResponseUserDto userDto = ResponseUserDto.of(user, facilities);
 
         // 🔹 응답 객체 구성 (userDto 포함)
-        ResponseDTO<Object> responseDTO = new ResponseDTO<>(ResponseCode.SUCCESS_LOGIN, userDto);
+        ResponseDTO<Object> res = new ResponseDTO<>(ResponseCode.SUCCESS_LOGIN, userDto);
 
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         ObjectMapper objectMapper = new ObjectMapper();
-        String jsonResponse = objectMapper.writeValueAsString(responseDTO);
+        String jsonResponse = objectMapper.writeValueAsString(res);
         response.getWriter().write(jsonResponse);
     }
 

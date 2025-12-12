@@ -148,10 +148,10 @@ export function Filters() {
                         {code:"기타", name:"기타 프로그램"},
                     ].map((p) => (
                         <button
-                            key={p.code}
-                            onClick={() => toggle(programTypes, setProgramTypes, p.code)}
+                            key={p.name}
+                            onClick={() => toggle(programTypes, setProgramTypes, p.name)}
                             className={`px-3 py-1 rounded-md border text-sm ${
-                                programTypes.includes(p.code)
+                                programTypes.includes(p.name)
                                     ? "bg-slate-900 text-white"
                                     : "bg-white"
                             }`}
