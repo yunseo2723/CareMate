@@ -28,6 +28,11 @@ export default function PostDetail() {
         location.reload();
     };
 
+    const refreshPost = () => {
+        authFetch(`http://localhost:8080/facility/${instCode}/post/${postId}`)
+            .then(r => r.json())
+            .then(setPost);
+    };
 
     if (!post) return <div className="p-6">불러오는 중...</div>;
 
@@ -35,7 +40,18 @@ export default function PostDetail() {
         <div className="max-w-3xl mx-auto p-6 space-y-6">
             {/* 제목 */}
             <h1 className="text-3xl font-bold">{post.title}</h1>
-            <div className="text-gray-600">{post.writerName}</div>
+
+            {/* 게시글 작성자 정보 (댓글 UI와 동일 스타일) */}
+            <div className="flex items-center gap-3 mt-4">
+                <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+
+                <div>
+                    <div className="font-semibold">{post.writerName}</div>
+                    <div className="text-xs text-gray-500">
+                        {post.createdAt?.replace("T", " ").slice(0, 16)}
+                    </div>
+                </div>
+            </div>
 
             {/* 본문 */}
             <div className="p-4 border rounded bg-white whitespace-pre-line">
@@ -49,6 +65,9 @@ export default function PostDetail() {
                     newComment={newComment}
                     setNewComment={setNewComment}
                     onSubmit={writeComment}
+                    refresh={refreshPost}
+                    instCode={instCode}
+                    postId={postId}
                 />
             )}
         </div>
@@ -57,18 +76,45 @@ export default function PostDetail() {
 
 /* ----------------------------- 댓글 컴포넌트 ----------------------------- */
 
-function CommentSection({ comments, newComment, setNewComment, onSubmit }: any) {
+const countAllComments = (list: any[]): number =>
+    list.reduce((acc, c) => {
+        const isDeleted = c.deleted === true || c.content === null || c.content === "삭제된 댓글입니다.";
+
+        const self = isDeleted ? 0 : 1;  // 삭제된 댓글은 카운트 제외
+        const children = countAllComments(c.replies ?? []);
+
+        return acc + self + children;
+    }, 0);
+
+function CommentSection({
+                            comments,
+                            newComment,
+                            setNewComment,
+                            onSubmit,
+                            refresh,
+                            instCode,
+                            postId
+                        }: any) {
+
+    const total = countAllComments(comments);
+
     return (
         <div className="space-y-4">
-            <h2 className="text-xl font-semibold">댓글 {comments.length}</h2>
+            <h2 className="text-xl font-semibold">댓글 {total}</h2>
 
-            {/* 상위 댓글 목록 */}
             {comments.map((c: any) => (
-                <CommentItem key={c.id} comment={c} onSubmit={onSubmit} />
+                <CommentItem
+                    key={c.id}
+                    comment={c}
+                    onSubmit={onSubmit}
+                    refresh={refresh}
+                    instCode={instCode}
+                    postId={postId}
+                    depth={0}
+                />
             ))}
 
-            {/* 새 댓글 입력 */}
-            <div className="flex gap-2 mt-4">
+            <div className="flex gap-2 mt-6">
                 <input
                     className="border p-2 flex-1"
                     value={newComment}
@@ -76,6 +122,7 @@ function CommentSection({ comments, newComment, setNewComment, onSubmit }: any) 
                     onChange={e => setNewComment(e.target.value)}
                 />
                 <button
+                    className="px-4 py-2 bg-blue-600 text-white rounded"
                     onClick={() => onSubmit(null, newComment)}
                 >
                     댓글 등록
@@ -85,53 +132,161 @@ function CommentSection({ comments, newComment, setNewComment, onSubmit }: any) 
     );
 }
 
+
 /* ----------------------------- 댓글 항목 ----------------------------- */
 
-function CommentItem({ comment, onSubmit }: any) {
+function CommentItem({ comment, onSubmit, refresh, instCode, postId, depth = 0 }: any) {
     const [replyOpen, setReplyOpen] = useState(false);
     const [replyText, setReplyText] = useState("");
+    const [menuOpen, setMenuOpen] = useState(false);
+    const [editMode, setEditMode] = useState(false);
+    const [editText, setEditText] = useState(comment.content);
+    const { authFetch, user } = useAuth();
+
+    const isMyComment = user?.name === comment.writerName;
+
+    /** ⭐ 들여쓰기: 내용만 들여쓰기 */
+    const indentStyle = depth > 0 ? "ml-12" : "";
+
+    /** 답글 토글 */
+    const toggleReply = () => {
+        setReplyOpen(!replyOpen);
+        if (!replyOpen) setReplyText(`@${comment.writerName} `);
+    };
+
+    /** 수정 */
+    const updateComment = async () => {
+        await authFetch(
+            `http://localhost:8080/facility/${instCode}/post/${postId}/comment/${comment.id}`,
+            {
+                method: "PATCH",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ content: editText })
+            }
+        );
+        setEditMode(false);
+        refresh();
+    };
+
+    /** 삭제 */
+    const deleteComment = async () => {
+        if (!confirm("댓글을 삭제하시겠습니까?")) return;
+        await authFetch(
+            `http://localhost:8080/facility/${instCode}/post/${postId}/comment/${comment.id}`,
+            { method: "DELETE" }
+        );
+        refresh();
+    };
 
     return (
-        <div className="border p-3 rounded bg-gray-50">
-            <div className="font-semibold">{comment.writerName}</div>
-            <div>{comment.content}</div>
+        <div className="mt-6">
+            {/* ---------------- 상단 프로필 + 이름 + 날짜 + 메뉴 ---------------- */}
+            <div className={`relative flex items-center gap-3 ${indentStyle}`}>
+            <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
 
-            <button
-                className="text-sm text-blue-600 mt-1"
-                onClick={() => setReplyOpen(!replyOpen)}
-            >
-                답글 달기
-            </button>
+                <div>
+                    <div className="font-semibold">
+                        {comment.deleted ? "(알 수 없음)" : comment.writerName}
+                    </div>
+                    <div className="text-xs text-gray-500">
+                        {comment.createdAt?.replace("T", " ").slice(0, 16)}
+                    </div>
+                </div>
 
-            {/* 대댓글 입력창 */}
-            {replyOpen && (
-                <div className="flex gap-2 mt-2 ml-4">
+                {/* 메뉴 버튼 - 항상 오른쪽 끝 */}
+                {isMyComment && (
+                    <div className="absolute right-0 top-2">
+                        <button
+                            className="text-gray-400 hover:text-black text-xl"
+                            onClick={() => setMenuOpen(!menuOpen)}
+                        >
+                            ⋯
+                        </button>
+
+                        {menuOpen && (
+                            <div className="absolute right-0 mt-1 bg-white border shadow rounded w-24 text-sm">
+                                <button
+                                    className="block w-full text-left px-3 py-2 hover:bg-gray-100"
+                                    onClick={() => {
+                                        setEditMode(true);
+                                        setMenuOpen(false);
+                                    }}
+                                >
+                                    수정하기
+                                </button>
+                                <button
+                                    className="block w-full text-left px-3 py-2 hover:bg-gray-100 text-red-500"
+                                    onClick={deleteComment}
+                                >
+                                    삭제하기
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+
+            {/* ---------------- 내용 구역 (여기만 들여쓰기 적용) ---------------- */}
+            {!editMode ? (
+                <div className={`${indentStyle} mt-3 whitespace-pre-line text-gray-800`}>
+                    {comment.content}
+                </div>
+            ) : (
+                <div className={`${indentStyle} mt-3 flex gap-2`}>
                     <input
-                        className="border p-2 flex-1"
-                        value={replyText}
-                        onChange={e => setReplyText(e.target.value)}
-                        placeholder="대댓글 입력"
+                        className="border p-2 flex-1 rounded"
+                        value={editText}
+                        onChange={(e) => setEditText(e.target.value)}
                     />
                     <button
+                        className="px-3 py-2 bg-blue-600 text-white rounded"
+                        onClick={updateComment}
+                    >
+                        저장
+                    </button>
+                </div>
+            )}
+
+            {/* ---------------- 좋아요 + 답글 버튼 ---------------- */}
+            {!editMode && (
+                <div className={`${indentStyle} mt-2 flex gap-4 text-sm text-gray-500`}>
+                    <button>♡ 0</button>
+                    <button onClick={toggleReply}>답글쓰기</button>
+                </div>
+            )}
+
+            {/* ---------------- 대댓글 입력 ---------------- */}
+            {replyOpen && (
+                <div className={`${indentStyle} mt-3 flex gap-2`}>
+                    <input
+                        className="border p-2 flex-1 rounded"
+                        value={replyText}
+                        onChange={(e) => setReplyText(e.target.value)}
+                    />
+                    <button
+                        className="px-3 py-2 bg-blue-600 text-white rounded"
                         onClick={() => onSubmit(comment.id, replyText)}
                     >
                         등록
                     </button>
-
                 </div>
             )}
 
-            {/* 대댓글 목록 */}
-            {comment.replies?.length > 0 && (
-                <div className="ml-6 mt-3 space-y-2 border-l pl-3">
-                    {comment.replies.map((r: any) => (
-                        <div key={r.id} className="bg-gray-100 p-2 rounded">
-                            <div className="text-sm font-semibold">{r.writerName}</div>
-                            <div className="text-sm">{r.content}</div>
-                        </div>
-                    ))}
-                </div>
-            )}
+            {/* ---------------- 하단 선 ---------------- */}
+            <div className="border-b border-gray-300/30 mt-6"></div>
+
+            {/* ---------------- 대댓글 재귀 ---------------- */}
+            {comment.replies?.map((r: any) => (
+                <CommentItem
+                    key={r.id}
+                    comment={r}
+                    onSubmit={onSubmit}
+                    refresh={refresh}
+                    instCode={instCode}
+                    postId={postId}
+                    depth={depth + 1}
+                />
+            ))}
         </div>
     );
 }

@@ -5,13 +5,13 @@ import lombok.Data;
 
 import java.util.List;
 
-@Data
-@AllArgsConstructor
+@Data @AllArgsConstructor
 public class CommentDto {
     private Long id;
     private String writerName;
     private String content;
     private String createdAt;
+    private boolean deleted;
 
-    private List<CommentDto> replies; // 대댓글
+    private List<CommentDto> replies;
 }

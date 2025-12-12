@@ -18,9 +18,7 @@ public class FacilityCommunityController {
 
     private final FacilityPostService postService;
 
-    /**
-     * 게시글 작성
-     */
+    /** 게시글 작성 */
     @PostMapping("/{instCode}/post")
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails cud,
@@ -29,33 +27,29 @@ public class FacilityCommunityController {
     ) {
         req.setInstCode(instCode);
 
-        FacilityPost saved = postService.createPost(
+        Long postId = postService.createPost(
                 cud.getUser().getId(),
                 req
         );
 
-        // 엔티티 그대로 보내면 안 됨
         return ResponseEntity.ok(Map.of(
-                "id", saved.getId(),
+                "id", postId,
                 "message", "created"
         ));
     }
 
-    /**
-     * 게시글 목록 조회
-     */
+    /** 게시글 목록 조회 */
     @GetMapping("/{instCode}/post")
     public ResponseEntity<?> list(
             @PathVariable String instCode,
             @RequestParam String type
     ) {
-        FacilityBoardType boardType = FacilityBoardType.valueOf(type);
-
         return ResponseEntity.ok(
-                postService.getPosts(instCode, boardType)
+                postService.getPosts(instCode, FacilityBoardType.valueOf(type))
         );
     }
 
+    /** 게시글 상세 조회 (+ 댓글 전체 포함) */
     @GetMapping("/{instCode}/post/{postId}")
     public ResponseEntity<?> getPost(
             @PathVariable String instCode,
@@ -64,10 +58,7 @@ public class FacilityCommunityController {
         return ResponseEntity.ok(postService.getPost(instCode, postId));
     }
 
-
-    /**
-     * 댓글 작성
-     */
+    /** 댓글 작성 */
     @PostMapping("/{instCode}/post/{postId}/comment")
     public ResponseEntity<?> writeComment(
             @AuthenticationPrincipal CustomUserDetails cud,
@@ -76,21 +67,56 @@ public class FacilityCommunityController {
             @RequestBody Map<String, Object> req
     ) {
         String content = (String) req.get("content");
-        Object pObj = req.get("parentId");
+        Long parentId = req.get("parentId") != null
+                ? Long.valueOf(req.get("parentId").toString())
+                : null;
 
-        Long parentId = null;
-        if (pObj != null) {
-            parentId = Long.valueOf(String.valueOf(pObj));
-        }
-
-        return ResponseEntity.ok(
-                postService.writeComment(
-                        cud.getUser().getId(),
-                        instCode,
-                        postId,
-                        content,
-                        parentId
-                )
+        postService.writeComment(
+                cud.getUser().getId(),
+                instCode,
+                postId,
+                content,
+                parentId
         );
+
+        return ResponseEntity.ok(Map.of("message", "created"));
+    }
+
+    /** 댓글 수정 */
+    @PatchMapping("/{instCode}/post/{postId}/comment/{commentId}")
+    public ResponseEntity<?> updateComment(
+            @AuthenticationPrincipal CustomUserDetails cud,
+            @PathVariable String instCode,
+            @PathVariable Long postId,
+            @PathVariable Long commentId,
+            @RequestBody Map<String, String> req
+    ) {
+        postService.updateComment(
+                cud.getUser().getId(),
+                instCode,
+                postId,
+                commentId,
+                req.get("content")
+        );
+
+        return ResponseEntity.ok(Map.of("message", "updated"));
+    }
+
+    /** 댓글 삭제 */
+    @DeleteMapping("/{instCode}/post/{postId}/comment/{commentId}")
+    public ResponseEntity<?> deleteComment(
+            @AuthenticationPrincipal CustomUserDetails cud,
+            @PathVariable String instCode,
+            @PathVariable Long postId,
+            @PathVariable Long commentId
+    ) {
+        postService.deleteComment(
+                cud.getUser().getId(),
+                instCode,
+                postId,
+                commentId
+        );
+
+        return ResponseEntity.ok(Map.of("message", "deleted"));
     }
 }

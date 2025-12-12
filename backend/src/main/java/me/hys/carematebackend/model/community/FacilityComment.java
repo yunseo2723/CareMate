@@ -28,10 +28,12 @@ public class FacilityComment {
     private String content;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private FacilityComment parent;   // 부모 댓글 (null이면 일반 댓글)
+    private FacilityComment parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<FacilityComment> replies = new ArrayList<>();
 
     private LocalDateTime createdAt;
+
+    private boolean isDeleted = false;   // ⭐ Soft delete flag
 }

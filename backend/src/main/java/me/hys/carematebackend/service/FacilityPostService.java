@@ -12,6 +12,7 @@ import me.hys.carematebackend.repository.FacilityCommentRepository;
 import me.hys.carematebackend.repository.FacilityPostRepository;
 import me.hys.carematebackend.repository.UserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -25,7 +26,7 @@ public class FacilityPostService {
     private final UserRepository userRepo;
 
     /** 게시글 작성 */
-    public FacilityPost createPost(Long userId, FacilityPost req) {
+    public Long createPost(Long userId, FacilityPost req) {
         User writer = userRepo.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -33,8 +34,11 @@ public class FacilityPostService {
         req.setCreatedAt(LocalDateTime.now());
         req.setUpdatedAt(LocalDateTime.now());
 
-        return postRepo.save(req);
+        FacilityPost saved = postRepo.save(req);
+
+        return saved.getId(); // 🔥 Long 반환
     }
+
 
     /** 게시글 목록 조회 */
     public List<FacilityPostListDto> getPosts(String instCode, FacilityBoardType type) {
@@ -76,17 +80,15 @@ public class FacilityPostService {
         );
     }
 
-    public List<CommentDto> convertToDtoWithReplies(
-            List<FacilityComment> roots,
-            List<FacilityComment> all
-    ) {
+    public List<CommentDto> convertToDtoWithReplies(List<FacilityComment> roots, List<FacilityComment> all) {
         return roots.stream()
                 .map(c -> new CommentDto(
                         c.getId(),
-                        c.getWriter().getName(),
-                        c.getContent(),
+                        c.isDeleted() ? "(알 수 없음)" : c.getWriter().getName(),
+                        c.isDeleted() ? "삭제된 댓글입니다." : c.getContent(),
                         c.getCreatedAt().toString(),
-                        getReplies(c.getId(), all)  // 🔥 대댓글 포함
+                        c.isDeleted(),
+                        getReplies(c.getId(), all)
                 ))
                 .toList();
     }
@@ -96,10 +98,11 @@ public class FacilityPostService {
                 .filter(c -> c.getParent() != null && c.getParent().getId().equals(parentId))
                 .map(c -> new CommentDto(
                         c.getId(),
-                        c.getWriter().getName(),
-                        c.getContent(),
+                        c.isDeleted() ? "(알 수 없음)" : c.getWriter().getName(),
+                        c.isDeleted() ? "삭제된 댓글입니다." : c.getContent(),
                         c.getCreatedAt().toString(),
-                        getReplies(c.getId(), all)  // 재귀
+                        c.isDeleted(),
+                        getReplies(c.getId(), all)
                 ))
                 .toList();
     }
@@ -134,6 +137,51 @@ public class FacilityPostService {
 
         return commentRepo.save(c);
     }
+
+    @Transactional
+    public FacilityComment updateComment(Long userId, String instCode, Long postId, Long commentId, String content) {
+
+        if (content == null || content.trim().isEmpty())
+            throw new RuntimeException("내용을 입력해주세요.");
+
+        FacilityPost post = postRepo.findByIdAndInstCode(postId, instCode)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+
+        FacilityComment comment = commentRepo.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("댓글이 존재하지 않습니다."));
+
+        if (!comment.getWriter().getId().equals(userId))
+            throw new RuntimeException("본인의 댓글만 수정할 수 있습니다.");
+
+        comment.setContent(content);
+        comment.setCreatedAt(comment.getCreatedAt()); // 유지
+        return commentRepo.save(comment);
+    }
+
+    @Transactional
+    public void deleteComment(Long userId, String instCode, Long postId, Long commentId) {
+        FacilityComment c = commentRepo.findById(commentId)
+                .orElseThrow(() -> new RuntimeException("댓글 없음"));
+
+        if (!c.getWriter().getId().equals(userId)) {
+            throw new RuntimeException("삭제 권한이 없습니다.");
+        }
+
+        // ⭐ 대댓글 여부 확인
+        boolean hasReplies =
+                !c.getReplies().isEmpty();
+
+        if (hasReplies) {
+            // ⭐ Soft delete → "삭제된 댓글입니다"
+            c.setDeleted(true);
+            c.setContent("삭제된 댓글입니다.");
+            commentRepo.save(c);
+        } else {
+            // ⭐ Hard delete → 그냥 삭제
+            commentRepo.delete(c);
+        }
+    }
+
 
 }
 
