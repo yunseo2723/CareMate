@@ -2,7 +2,8 @@ package me.hys.carematebackend.config;
 
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
-import me.hys.carematebackend.repository.CareMateAdminRepository;
+import me.hys.carematebackend.repository.FacilityAdminRepository;
+import me.hys.carematebackend.repository.LtcFacilityRepository;
 import me.hys.carematebackend.repository.UserRepository;
 import me.hys.carematebackend.util.JWTFilter;
 import me.hys.carematebackend.util.JWTUtil;
@@ -32,7 +33,8 @@ public class SecurityConfig {
 
     private final JWTUtil jwtUtil;
     private final UserRepository userRepository;
-    private final CareMateAdminRepository careMateAdminRepository;
+    private final FacilityAdminRepository facilityAdminRepository;
+    private final LtcFacilityRepository ltcFacilityRepository;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() { return new BCryptPasswordEncoder(); }
@@ -65,7 +67,7 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/users/register", "/users/login",
                                 "/signup/**", "/facilities/**", "/ltc/**").permitAll()
                         .requestMatchers("/users/me/**", "/admin/verify/**",
-                                "/contacts/**","/bookmarks/**", "/reviews/**, /facility/**").authenticated()
+                                "/contacts/**","/bookmarks/**", "/reviews/**", "/facility/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .authenticationProvider(daoAuthProvider(userDetailsService(userRepository), passwordEncoder()));
@@ -74,7 +76,7 @@ public class SecurityConfig {
         http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
         // LoginFilter 추가
-        var loginFilter = new LoginFilter(jwtUtil, userRepository, careMateAdminRepository);
+        var loginFilter = new LoginFilter(jwtUtil, facilityAdminRepository, ltcFacilityRepository);
         loginFilter.setAuthenticationManager(authCfg.getAuthenticationManager());
         loginFilter.setFilterProcessesUrl("/users/login");
         http.addFilterAt(loginFilter, UsernamePasswordAuthenticationFilter.class);

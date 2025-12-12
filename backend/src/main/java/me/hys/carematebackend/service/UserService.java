@@ -10,9 +10,11 @@ import me.hys.carematebackend.exception.DuplicateLoginIdException;
 import me.hys.carematebackend.exception.UnauthenticatedEmailException;
 import me.hys.carematebackend.exception.UserNotExistException;
 import me.hys.carematebackend.model.EmailVerification;
+import me.hys.carematebackend.model.FacilityAdmin;
 import me.hys.carematebackend.model.User;
-import me.hys.carematebackend.repository.CareMateAdminRepository;
 import me.hys.carematebackend.repository.EmailVerificationRepository;
+import me.hys.carematebackend.repository.FacilityAdminRepository;
+import me.hys.carematebackend.repository.LtcFacilityRepository;
 import me.hys.carematebackend.repository.UserRepository;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -27,7 +29,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
     private final EmailVerificationRepository verifyRepo;
-    private final CareMateAdminRepository careMateAdminRepository;
+    private final FacilityAdminRepository facilityAdminRepository;
+    private final LtcFacilityRepository ltcFacilityRepository;
 
     // 유저 등록
     public void registerUser(RegisterUserDto registerUserDto) {
@@ -65,8 +68,24 @@ public class UserService {
     public ResponseUserDto getMe(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotExistException("존재하지 않는 유저입니다."));
-        var adminIds = careMateAdminRepository.findCareMateIdsByUserId(user.getId()); // 👈 레포에 메서드 추가 필요
-        return ResponseUserDto.of(user, adminIds);
+        // 1) 유저가 관리 중인 instCode 목록
+        List<String> adminInstCodes =
+                facilityAdminRepository.findByUserId(user.getId())
+                        .stream()
+                        .map(FacilityAdmin::getInstCode)
+                        .toList();
+
+        // 2) instCode 기반 시설 이름 조회
+        List<ResponseUserDto.FacilityInfo> adminFacilities = adminInstCodes.stream()
+                .map(code -> {
+                    var fac = ltcFacilityRepository.findByInstCode(code).orElse(null);
+
+                    String name = (fac != null ? fac.getName() : "(이름 없음)");
+                    return new ResponseUserDto.FacilityInfo(code, name);
+                })
+                .toList();
+
+        return ResponseUserDto.of(user, adminFacilities);
     }
 
     // ✅ 2) 프로필 수정 (닉네임/이름/연락처 등)
@@ -84,8 +103,25 @@ public class UserService {
         }
         // phone 같은 필드를 User 엔티티에 추가했다면 여기서 setPhone(dto.getPhone()) 해주면 됨
 
-        var adminIds = careMateAdminRepository.findCareMateIdsByUserId(user.getId());
-        return ResponseUserDto.of(user, adminIds);
+        // ⭐ 현재 유저의 관리자 시설 목록 가져오기
+        List<String> instCodes = facilityAdminRepository.findByUserId(user.getId())
+                .stream()
+                .map(FacilityAdmin::getInstCode)
+                .toList();
+
+        // ⭐ instCode → 시설 이름 변환
+        List<ResponseUserDto.FacilityInfo> facilities =
+                instCodes.stream()
+                        .map(code -> {
+                            var fac = ltcFacilityRepository.findByInstCode(code).orElse(null);
+                            return new ResponseUserDto.FacilityInfo(
+                                    code,
+                                    fac != null ? fac.getName() : "(이름 없음)"
+                            );
+                        })
+                        .toList();
+
+        return ResponseUserDto.of(user, facilities);
     }
 
     // ✅ 3) 비밀번호 변경
