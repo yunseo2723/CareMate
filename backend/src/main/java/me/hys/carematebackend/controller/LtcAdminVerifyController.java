@@ -4,8 +4,11 @@ import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.admin.AdminVerifyApproveDto;
 import me.hys.carematebackend.dto.admin.AdminVerifyRejectDto;
 import me.hys.carematebackend.dto.admin.AdminVerifyRequest;
+import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.model.LtcAdminVerification;
 import me.hys.carematebackend.service.LtcAdminVerifyService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,11 +23,19 @@ public class LtcAdminVerifyController {
 
     // 인증 요청 (파일 업로드 포함)
     @PostMapping("/request")
-    public String requestVerify(
+    public ResponseEntity<?> requestVerify(
+            @AuthenticationPrincipal CustomUserDetails cud,   // ← 로그인 사용자
             @RequestPart("facilityName") String name,
             @RequestPart("facilityAddress") String address,
             @RequestPart("file") MultipartFile file
     ) {
+
+        if (cud == null) {
+            return ResponseEntity.status(401).body("로그인이 필요합니다.");
+        }
+
+        String uploaderEmail = cud.getUser().getUsername();
+        Long uploaderId = cud.getUser().getId();
 
         String fileUrl = "/uploaded/" + file.getOriginalFilename(); // TODO: S3 업로드 처리
 
@@ -32,10 +43,11 @@ public class LtcAdminVerifyController {
         dto.setFacilityName(name);
         dto.setFacilityAddress(address);
 
-        service.requestVerification(dto, fileUrl, null);
+        service.requestVerification(dto, fileUrl, uploaderEmail, uploaderId);
 
-        return "OK";
+        return ResponseEntity.ok("OK");
     }
+
 
     // 목록 조회 (운영자)
     @GetMapping("/list")
