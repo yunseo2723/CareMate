@@ -26,6 +26,7 @@ public class ResponseUserDto {
     @AllArgsConstructor
     public static class FacilityInfo {
         private String instCode;
+        private String kindCode;
         private String name;
     }
 

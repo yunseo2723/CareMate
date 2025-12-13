@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FacilityPostRepository extends JpaRepository<FacilityPost, Long> {
-    List<FacilityPost> findByInstCodeAndBoardTypeOrderByCreatedAtDesc(String instCode, FacilityBoardType type);
-    Optional<FacilityPost> findByIdAndInstCode(Long id, String instCode);
+    List<FacilityPost> findByInstCodeAndKindCodeAndBoardTypeOrderByCreatedAtDesc(String instCode, String kindCode, FacilityBoardType type);
+    Optional<FacilityPost> findByIdAndInstCodeAndKindCode(Long id, String instCode, String kindCode);
 
 }

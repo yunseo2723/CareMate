@@ -2,5 +2,6 @@ package me.hys.carematebackend.model.community;
 
 public enum FacilityBoardType {
     NOTICE, // 공지사항
-    FREE    // 자유게시판
+    FREE,    // 자유게시판
+    REVIEW  // 리뷰게시판
 }

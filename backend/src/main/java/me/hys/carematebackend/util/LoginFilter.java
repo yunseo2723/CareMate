@@ -68,10 +68,11 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         // 2) instCode → 시설 이름 변환
         List<ResponseUserDto.FacilityInfo> facilities =
                 instCodes.stream()
-                        .map(code -> {
-                            var fac = ltcFacilityRepository.findByInstCode(code).orElse(null);
+                        .map(instCode -> {
+                            var fac = ltcFacilityRepository.findByInstCode(instCode).orElse(null);
                             return new ResponseUserDto.FacilityInfo(
-                                    code,
+                                    instCode,
+                                    fac != null ? fac.getKindCode() : "(코드 없음)",
                                     fac != null ? fac.getName() : "(이름 없음)"
                             );
                         })

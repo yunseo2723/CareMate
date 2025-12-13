@@ -77,11 +77,12 @@ public class UserService {
 
         // 2) instCode 기반 시설 이름 조회
         List<ResponseUserDto.FacilityInfo> adminFacilities = adminInstCodes.stream()
-                .map(code -> {
-                    var fac = ltcFacilityRepository.findByInstCode(code).orElse(null);
+                .map(instCode -> {
+                    var fac = ltcFacilityRepository.findByInstCode(instCode).orElse(null);
 
                     String name = (fac != null ? fac.getName() : "(이름 없음)");
-                    return new ResponseUserDto.FacilityInfo(code, name);
+                    String kindCode = (fac != null ? fac.getKindCode() : "(코드 없음)");
+                    return new ResponseUserDto.FacilityInfo(instCode, kindCode, name);
                 })
                 .toList();
 
@@ -112,10 +113,11 @@ public class UserService {
         // ⭐ instCode → 시설 이름 변환
         List<ResponseUserDto.FacilityInfo> facilities =
                 instCodes.stream()
-                        .map(code -> {
-                            var fac = ltcFacilityRepository.findByInstCode(code).orElse(null);
+                        .map(instCode -> {
+                            var fac = ltcFacilityRepository.findByInstCode(instCode).orElse(null);
                             return new ResponseUserDto.FacilityInfo(
-                                    code,
+                                    instCode,
+                                    fac != null ? fac.getKindCode() : "(코드 없음)",
                                     fac != null ? fac.getName() : "(이름 없음)"
                             );
                         })

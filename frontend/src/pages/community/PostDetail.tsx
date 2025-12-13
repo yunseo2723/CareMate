@@ -1,24 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import EditPostModal from "../../components/EditPostModal";
+
 
 export default function PostDetail() {
-    const { postId, instCode } = useParams();
+    const navigate = useNavigate();
+    const { postId, instCode, kindCode } = useParams();
     const { authFetch } = useAuth();
 
     const [post, setPost] = useState<any>(null);
     const [newComment, setNewComment] = useState("");
 
+    const [editOpen, setEditOpen] = useState(false);
+
     useEffect(() => {
-        authFetch(`http://localhost:8080/facility/${instCode}/post/${postId}`)
+        authFetch(`http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}`)
             .then(r => r.json())
             .then(setPost);
-    }, [postId, instCode]);
+    }, [postId, instCode, kindCode, authFetch]);
+
+    const removePost = async () => {
+        if (!confirm("삭제할까요?")) return;
+
+        await authFetch(`http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}`, {
+            method: "DELETE",
+        });
+        alert("삭제되었습니다");
+        navigate(`/facility/${instCode}/${kindCode}/community`);
+    };
+
+    if (!post) return null;
 
     const writeComment = async (parentId: number | null, content: string) => {
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/post/${postId}/comment`,
+            `http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}/comment`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -29,7 +46,7 @@ export default function PostDetail() {
     };
 
     const refreshPost = () => {
-        authFetch(`http://localhost:8080/facility/${instCode}/post/${postId}`)
+        authFetch(`http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}`)
             .then(r => r.json())
             .then(setPost);
     };
@@ -38,9 +55,38 @@ export default function PostDetail() {
 
     return (
         <div className="max-w-3xl mx-auto p-6 space-y-6">
-            {/* 제목 */}
-            <h1 className="text-3xl font-bold">{post.title}</h1>
+            {/* 제목 + 수정/삭제 버튼 */}
+            {/* 제목 + 수정/삭제 */}
+            <div className="flex items-center justify-between">
+                <h1 className="text-3xl font-bold">{post.title}</h1>
 
+                {post.writerName && (
+                    <div className="flex gap-2">
+                        <button
+                            className="px-3 py-1 border rounded hover:bg-gray-50"
+                            onClick={() => setEditOpen(true)}
+                        >
+                            수정
+                        </button>
+
+                        <button
+                            className="px-3 py-1 border rounded text-red-500 hover:bg-red-50"
+                            onClick={removePost}
+                        >
+                            삭제
+                        </button>
+                    </div>
+                )}
+            </div>
+            <EditPostModal
+                open={editOpen}
+                onClose={() => setEditOpen(false)}
+                post={post}
+                instCode={instCode!}
+                kindCode={kindCode!}
+                onUpdated={refreshPost}
+            />
+            
             {/* 게시글 작성자 정보 (댓글 UI와 동일 스타일) */}
             <div className="flex items-center gap-3 mt-4">
                 <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
@@ -135,7 +181,7 @@ function CommentSection({
 
 /* ----------------------------- 댓글 항목 ----------------------------- */
 
-function CommentItem({ comment, onSubmit, refresh, instCode, postId, depth = 0 }: any) {
+function CommentItem({ comment, onSubmit, refresh, instCode, kindCode, postId, depth = 0 }: any) {
     const [replyOpen, setReplyOpen] = useState(false);
     const [replyText, setReplyText] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
@@ -157,7 +203,7 @@ function CommentItem({ comment, onSubmit, refresh, instCode, postId, depth = 0 }
     /** 수정 */
     const updateComment = async () => {
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/post/${postId}/comment/${comment.id}`,
+            `http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}/comment/${comment.id}`,
             {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -172,7 +218,7 @@ function CommentItem({ comment, onSubmit, refresh, instCode, postId, depth = 0 }
     const deleteComment = async () => {
         if (!confirm("댓글을 삭제하시겠습니까?")) return;
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/post/${postId}/comment/${comment.id}`,
+            `http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}/comment/${comment.id}`,
             { method: "DELETE" }
         );
         refresh();

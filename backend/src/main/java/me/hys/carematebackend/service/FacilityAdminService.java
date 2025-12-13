@@ -36,6 +36,7 @@ public class FacilityAdminService {
 
         return new FacilityInfoDto(
                 facility.getInstCode(),
+                facility.getKindCode(),
                 facility.getName(),
                 facility.getFullRoadNm(),
                 facility.getPhone(),

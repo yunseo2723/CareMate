@@ -32,9 +32,9 @@ export default function App() {
                     <Route path="signup" element={<Signup />} />
                     <Route path="admin" element={<ManagerVerify />} />
                     <Route path="/facility/:instCode" element={<FacilityDetail />} />
-                    <Route path="/facility/:instCode/community" element={<CommunityHome />} />
-                    <Route path="/facility/:instCode/community/write" element={<PostWrite />} />
-                    <Route path="/facility/:instCode/community/post/:postId" element={<PostDetail />} />
+                    <Route path="/facility/:instCode/:kindCode/community" element={<CommunityHome />} />
+                    <Route path="/facility/:instCode/:kindCode/community/write" element={<PostWrite />} />
+                    <Route path="/facility/:instCode/:kindCode/community/post/:postId" element={<PostDetail />} />
                     {/* ✅ 마이페이지 라우트와 하위 라우트들 */}
                     <Route path="mypage" element={<MyPageLayout />}>
                         {/* /mypage 접근 시 기본 탭을 profile로 리다이렉트 */}

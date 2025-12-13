@@ -346,7 +346,7 @@ export function MapPanel() {
             <div className="flex items-center gap-3 border-b p-4 text-base font-medium">
                 지도
                 <span className="text-xs text-slate-500">
-                    전체 {rows.length}개 불러옴
+                    요양원 {rows.length}개 불러옴
                 </span>
             </div>
 

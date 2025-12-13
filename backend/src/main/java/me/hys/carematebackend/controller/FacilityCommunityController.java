@@ -19,13 +19,15 @@ public class FacilityCommunityController {
     private final FacilityPostService postService;
 
     /** 게시글 작성 */
-    @PostMapping("/{instCode}/post")
+    @PostMapping("/{instCode}/{kindCode}/post")
     public ResponseEntity<?> createPost(
             @AuthenticationPrincipal CustomUserDetails cud,
             @PathVariable String instCode,
+            @PathVariable String kindCode,
             @RequestBody FacilityPost req
     ) {
         req.setInstCode(instCode);
+        req.setKindCode(kindCode);
 
         Long postId = postService.createPost(
                 cud.getUser().getId(),
@@ -38,31 +40,72 @@ public class FacilityCommunityController {
         ));
     }
 
+    /** 게시글 수정 */
+    @PatchMapping("/{instCode}/{kindCode}/post/{postId}")
+    public ResponseEntity<?> updatePost(
+            @AuthenticationPrincipal CustomUserDetails cud,
+            @PathVariable String instCode,
+            @PathVariable String kindCode,
+            @PathVariable Long postId,
+            @RequestBody Map<String, String> req
+            )  {
+        postService.updatePost(
+                cud.getUser().getId(),
+                instCode,
+                kindCode,
+                postId,
+                req.get("title"),
+                req.get("content")
+        );
+        return ResponseEntity.ok(Map.of("message", "updated"));
+    }
+
+    /** 댓글 삭제 */
+    @DeleteMapping("/{instCode}/{kindCode}/post/{postId}")
+    public ResponseEntity<?> deletePost(
+            @AuthenticationPrincipal CustomUserDetails cud,
+            @PathVariable String instCode,
+            @PathVariable String kindCode,
+            @PathVariable Long postId
+    ) {
+        postService.deletePost(
+                cud.getUser().getId(),
+                instCode,
+                kindCode,
+                postId
+        );
+
+        return ResponseEntity.ok(Map.of("message", "deleted"));
+    }
+
     /** 게시글 목록 조회 */
-    @GetMapping("/{instCode}/post")
+    @GetMapping("/{instCode}/{kindCode}/post")
     public ResponseEntity<?> list(
             @PathVariable String instCode,
+            @PathVariable String kindCode,
             @RequestParam String type
     ) {
         return ResponseEntity.ok(
-                postService.getPosts(instCode, FacilityBoardType.valueOf(type))
+                postService.getPosts(instCode, kindCode, FacilityBoardType.valueOf(type))
         );
     }
 
     /** 게시글 상세 조회 (+ 댓글 전체 포함) */
-    @GetMapping("/{instCode}/post/{postId}")
+    @GetMapping("/{instCode}/{kindCode}/post/{postId}")
     public ResponseEntity<?> getPost(
             @PathVariable String instCode,
+            @PathVariable String kindCode,
             @PathVariable Long postId
     ) {
-        return ResponseEntity.ok(postService.getPost(instCode, postId));
+        return ResponseEntity.ok(postService.getPost(instCode, kindCode, postId));
     }
 
     /** 댓글 작성 */
-    @PostMapping("/{instCode}/post/{postId}/comment")
+    @PostMapping("/{instCode}/{kindCode}/post/{postId}/comment")
     public ResponseEntity<?> writeComment(
             @AuthenticationPrincipal CustomUserDetails cud,
             @PathVariable String instCode,
+            @PathVariable String kindCode,
             @PathVariable Long postId,
             @RequestBody Map<String, Object> req
     ) {
@@ -74,6 +117,7 @@ public class FacilityCommunityController {
         postService.writeComment(
                 cud.getUser().getId(),
                 instCode,
+                kindCode,
                 postId,
                 content,
                 parentId
@@ -83,10 +127,11 @@ public class FacilityCommunityController {
     }
 
     /** 댓글 수정 */
-    @PatchMapping("/{instCode}/post/{postId}/comment/{commentId}")
+    @PatchMapping("/{instCode}/{kindCode}/post/{postId}/comment/{commentId}")
     public ResponseEntity<?> updateComment(
             @AuthenticationPrincipal CustomUserDetails cud,
             @PathVariable String instCode,
+            @PathVariable String kindCode,
             @PathVariable Long postId,
             @PathVariable Long commentId,
             @RequestBody Map<String, String> req
@@ -94,6 +139,7 @@ public class FacilityCommunityController {
         postService.updateComment(
                 cud.getUser().getId(),
                 instCode,
+                kindCode,
                 postId,
                 commentId,
                 req.get("content")

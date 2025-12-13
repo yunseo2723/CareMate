@@ -9,6 +9,7 @@ export type User = {
     // 요양원 관리자 InstCode 목록
     adminFacilities?: {
         instCode: string;
+        kindCode: string;
         name: string;
     }[];
 };

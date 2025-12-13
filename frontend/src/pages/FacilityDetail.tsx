@@ -27,7 +27,7 @@ export default function FacilityDetail() {
     return (
         <div className="max-w-6xl mx-auto p-4 space-y-6">
             {/* 상단 기본 정보 + 지도 */}
-            <TopSection data={data} instCode={instCode} />
+            <TopSection data={data} instCode={instCode} kindCode={kindCode} />
 
             {/* 평가 점수 */}
             <ScoreSection data={data} />
@@ -50,7 +50,7 @@ export default function FacilityDetail() {
     );
 }
 
-function TopSection({ data, instCode }: { data: FacilityDetailDTO, instCode: string }) {
+function TopSection({ data, instCode, kindCode }: { data: FacilityDetailDTO, instCode: string, kindCode: string }) {
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 왼쪽: 기본 정보 */}
@@ -78,7 +78,7 @@ function TopSection({ data, instCode }: { data: FacilityDetailDTO, instCode: str
 
                 {/* 🔥 커뮤니티로 이동 버튼 (예쁘게 배치) */}
                 <Link
-                    to={`/facility/${instCode}/community`}
+                    to={`/facility/${instCode}/${kindCode}/community`}
                     className="inline-block mt-2 px-4 py-2 rounded bg-blue-600 text-white font-medium hover:bg-blue-700 transition"
                 >
                     커뮤니티로 이동

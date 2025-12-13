@@ -10,6 +10,7 @@ import java.util.List;
 public class FacilityInfoDto {
 
     private String instCode;
+    private String kindCode;
     private String name;
     private String address;
     private String phone;

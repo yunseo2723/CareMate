@@ -18,8 +18,10 @@ public class FacilityPost {
     private Long id;
 
     private String instCode;  // 🔥 어떤 요양원의 게시판인지
+    private String kindCode;  // 🔥 어떤 요양원의 게시판인지
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "board_type", length = 20)
     private FacilityBoardType boardType;  // 공지사항 / 자유게시판
 
     private String title;
@@ -32,6 +34,10 @@ public class FacilityPost {
     @ManyToOne(fetch = FetchType.LAZY)
     private User writer; // 작성자
 
+    // ⭐ 리뷰 전용
+    private Integer rating; // 1~5 (REVIEW만 사용)
+
+    private int viewCount;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

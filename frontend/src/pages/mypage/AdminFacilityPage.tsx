@@ -20,6 +20,10 @@ export default function AdminFacilityPage() {
         adminFacilities.length ? adminFacilities[0].instCode : ""
     );
 
+    const [selectedKindCode] = useState<string>(
+        adminFacilities.length ? adminFacilities[0].kindCode : ""
+    );
+
     const [facility, setFacility] = useState<FacilityInfo | null>(null);
     const [loading, setLoading] = useState(false);
     const [err, setErr] = useState<string | null>(null);
@@ -90,7 +94,7 @@ export default function AdminFacilityPage() {
                     </div>
 
                     <a
-                        href={`/facility/${selectedInstCode}/community`}
+                        href={`/facility/${selectedInstCode}/${selectedKindCode}/community`}
                         className="inline-block mt-3 text-blue-600 underline"
                     >
                         커뮤니티 페이지로 이동

@@ -11,7 +11,7 @@ import AiResultModal from "../components/AiResultModal.tsx";
 
 export default function Home() {
     const search = useSearch();
-    const { results, loading, applyFilter, editingFilterId, setEditingFilterId } = search;
+    const { applyFilter, editingFilterId, setEditingFilterId } = search;
 
     const [aiOpen, setAiOpen] = useState(false);
     const [aiResult] = useState<any>(null);
@@ -82,9 +82,6 @@ export default function Home() {
             </aside>
 
             <section className="space-y-3">
-                <div className="text-sm text-slate-600">
-                    {loading ? "결과 계산 중…" : `${results.length}개 결과`}
-                </div>
                 <MapPanel />
             </section>
 

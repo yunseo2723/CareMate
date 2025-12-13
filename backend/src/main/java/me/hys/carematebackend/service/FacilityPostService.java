@@ -11,6 +11,7 @@ import me.hys.carematebackend.model.community.FacilityPost;
 import me.hys.carematebackend.repository.FacilityCommentRepository;
 import me.hys.carematebackend.repository.FacilityPostRepository;
 import me.hys.carematebackend.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -39,17 +40,41 @@ public class FacilityPostService {
         return saved.getId(); // 🔥 Long 반환
     }
 
+    @Transactional
+    public void updatePost(Long userId, String instCode, String kindCode, Long postId, String title, String content) {
+        FacilityPost post = postRepo.findByIdAndInstCodeAndKindCode(postId, instCode, kindCode)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+
+        if (!post.getWriter().getId().equals(userId))
+            throw new AccessDeniedException("본인의 게시글만 수정할 수 있습니다.");
+
+        post.setTitle(title);
+        post.setContent(content);
+        post.setUpdatedAt(LocalDateTime.now());
+        postRepo.save(post);
+    }
+
+    public void deletePost(Long userId, String instCode, String kindCode, Long postId) {
+        FacilityPost post = postRepo.findByIdAndInstCodeAndKindCode(postId, instCode, kindCode)
+                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
+
+        if (!post.getWriter().getId().equals(userId))
+            throw new AccessDeniedException("본인의 게시글만 삭제할 수 있습니다.");
+
+        postRepo.delete(post);
+    }
 
     /** 게시글 목록 조회 */
-    public List<FacilityPostListDto> getPosts(String instCode, FacilityBoardType type) {
+    public List<FacilityPostListDto> getPosts(String instCode, String kindCode, FacilityBoardType type) {
 
         List<FacilityPost> posts =
-                postRepo.findByInstCodeAndBoardTypeOrderByCreatedAtDesc(instCode, type);
+                postRepo.findByInstCodeAndKindCodeAndBoardTypeOrderByCreatedAtDesc(instCode, kindCode, type);
 
         return posts.stream()
                 .map(p -> new FacilityPostListDto(
                         p.getId(),
                         p.getTitle(),
+                        type,
                         p.getWriter() != null ? p.getWriter().getName() : "알 수 없음",
                         p.getCreatedAt() != null ? p.getCreatedAt().toString() : "",
                         commentRepo.countByPostId(p.getId())
@@ -57,8 +82,8 @@ public class FacilityPostService {
                 .toList();
     }
 
-    public PostDetailDto getPost(String instCode, Long postId) {
-        FacilityPost post = postRepo.findByIdAndInstCode(postId, instCode)
+    public PostDetailDto getPost(String instCode, String kindCode, Long postId) {
+        FacilityPost post = postRepo.findByIdAndInstCodeAndKindCode(postId, instCode, kindCode)
                 .orElseThrow(() -> new RuntimeException("Post not found"));
 
         // 댓글 전체 로드
@@ -109,13 +134,13 @@ public class FacilityPostService {
 
 
     /** 댓글 작성 */
-    public FacilityComment writeComment(Long userId, String instCode, Long postId, String content, Long parentId
+    public FacilityComment writeComment(Long userId, String instCode, String kindCode, Long postId, String content, Long parentId
     ) {
         if (content == null || content.trim().isEmpty()) {
             throw new RuntimeException("댓글 내용을 입력해주세요.");
         }
 
-        FacilityPost post = postRepo.findByIdAndInstCode(postId, instCode)
+        FacilityPost post = postRepo.findByIdAndInstCodeAndKindCode(postId, instCode, kindCode)
                 .orElseThrow(() -> new RuntimeException("해당 요양원의 게시글이 아닙니다."));
 
         User writer = userRepo.findById(userId)
@@ -139,12 +164,12 @@ public class FacilityPostService {
     }
 
     @Transactional
-    public FacilityComment updateComment(Long userId, String instCode, Long postId, Long commentId, String content) {
+    public void updateComment(Long userId, String instCode, String kindCode, Long postId, Long commentId, String content) {
 
         if (content == null || content.trim().isEmpty())
             throw new RuntimeException("내용을 입력해주세요.");
 
-        FacilityPost post = postRepo.findByIdAndInstCode(postId, instCode)
+        FacilityPost post = postRepo.findByIdAndInstCodeAndKindCode(postId, instCode, kindCode)
                 .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
 
         FacilityComment comment = commentRepo.findById(commentId)
@@ -155,7 +180,7 @@ public class FacilityPostService {
 
         comment.setContent(content);
         comment.setCreatedAt(comment.getCreatedAt()); // 유지
-        return commentRepo.save(comment);
+        commentRepo.save(comment);
     }
 
     @Transactional
