@@ -9,7 +9,6 @@ import FacilityDetail from "./pages/FacilityDetail";
 import CommunityHome from "./pages/community/CommunityHome";
 import PostWrite from "./pages/community/PostWrite";
 import PostDetail from "./pages/community/PostDetail";
-import SavedFiltersPage from "./pages/mypage/SavedFiltersPage";
 
 // MyPage 묶음
 import MyPageLayout from "./pages/mypage/MyPageLayout";
@@ -17,7 +16,8 @@ import ProfilePage from "./pages/mypage/ProfilePage";
 import PasswordPage from "./pages/mypage/PasswordPage";
 import NotificationsPage from "./pages/mypage/NotificationsPage";
 import AdminFacilityPage from "./pages/mypage/AdminFacilityPage";
-// import ReviewsPage from "./pages/mypage/ReviewsPage";
+import SavedFiltersPage from "./pages/mypage/SavedFiltersPage";
+import MyReviewsPage from "./pages/mypage/MyReviewsPage.tsx";
 // import DocumentsPage from "./pages/mypage/DocumentsPage";
 // import InboxPage from "./pages/mypage/InboxPage";
 
@@ -43,7 +43,7 @@ export default function App() {
                         <Route path="password" element={<PasswordPage />} />
                         <Route path="notifications" element={<NotificationsPage />} />
                         <Route path="admin-facility" element={<AdminFacilityPage />} />
-                        {/*<Route path="reviews" element={<ReviewsPage />} />*/}
+                        <Route path="reviews" element={<MyReviewsPage />} />
                         <Route path="saved-filters" element={<SavedFiltersPage />} />
                         {/*<Route path="documents" element={<DocumentsPage />} />*/}
                         {/*<Route path="inbox" element={<InboxPage />} />*/}
