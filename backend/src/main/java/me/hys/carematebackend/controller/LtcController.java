@@ -2,7 +2,7 @@ package me.hys.carematebackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.ltc.FacilityDetailRes;
-import me.hys.carematebackend.ltc.FacilityLiteRes;
+import me.hys.carematebackend.dto.ltc.FacilityLiteRes;
 import me.hys.carematebackend.repository.LtcFacilityRepository;
 import me.hys.carematebackend.service.LtcDetailDbService;
 import me.hys.carematebackend.service.LtcSimilarService;

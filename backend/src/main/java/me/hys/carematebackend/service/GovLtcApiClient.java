@@ -2,8 +2,8 @@ package me.hys.carematebackend.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import me.hys.carematebackend.dto.response.GovLtcItem;
-import me.hys.carematebackend.dto.response.GovLtcResponse;
+import me.hys.carematebackend.dto.ltc.GovLtcItem;
+import me.hys.carematebackend.dto.ltc.GovLtcResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;

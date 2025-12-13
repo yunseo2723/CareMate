@@ -1,10 +1,9 @@
-package me.hys.carematebackend.ltc;
+package me.hys.carematebackend.dto.ltc;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
-import me.hys.carematebackend.dto.ltc.ProgramDto;
 import me.hys.carematebackend.model.LtcFacility;
 
 import java.util.ArrayList;

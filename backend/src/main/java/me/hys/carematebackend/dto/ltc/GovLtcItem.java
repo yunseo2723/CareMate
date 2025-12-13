@@ -1,4 +1,4 @@
-package me.hys.carematebackend.dto.response;
+package me.hys.carematebackend.dto.ltc;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;

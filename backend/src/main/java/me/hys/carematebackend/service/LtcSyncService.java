@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import me.hys.carematebackend.dto.ltc.*;
-import me.hys.carematebackend.dto.response.GovLtcItem;
+import me.hys.carematebackend.dto.ltc.GovLtcItem;
 import me.hys.carematebackend.model.LtcFacility;
 import me.hys.carematebackend.repository.LtcFacilityRepository;
 import org.springframework.stereotype.Service;
