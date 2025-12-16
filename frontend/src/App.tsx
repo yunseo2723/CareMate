@@ -9,15 +9,17 @@ import FacilityDetail from "./pages/FacilityDetail";
 import CommunityHome from "./pages/community/CommunityHome";
 import PostWrite from "./pages/community/PostWrite";
 import PostDetail from "./pages/community/PostDetail";
+import ReviewDetail from "./pages/community/ReviewDetail.tsx";
+import CostSimulator from "./pages/CostSimulator.tsx"
 
 // MyPage 묶음
 import MyPageLayout from "./pages/mypage/MyPageLayout";
 import ProfilePage from "./pages/mypage/ProfilePage";
 import PasswordPage from "./pages/mypage/PasswordPage";
-import NotificationsPage from "./pages/mypage/NotificationsPage";
 import AdminFacilityPage from "./pages/mypage/AdminFacilityPage";
 import SavedFiltersPage from "./pages/mypage/SavedFiltersPage";
 import MyReviewsPage from "./pages/mypage/MyReviewsPage.tsx";
+import MyFavoritesPage from "./pages/mypage/MyFavoritesPage.tsx";
 // import DocumentsPage from "./pages/mypage/DocumentsPage";
 // import InboxPage from "./pages/mypage/InboxPage";
 
@@ -31,20 +33,22 @@ export default function App() {
                     <Route path="login" element={<Login />} />
                     <Route path="signup" element={<Signup />} />
                     <Route path="admin" element={<ManagerVerify />} />
+                    <Route path="cost-simulator" element={<CostSimulator />} />
                     <Route path="/facility/:instCode" element={<FacilityDetail />} />
                     <Route path="/facility/:instCode/:kindCode/community" element={<CommunityHome />} />
                     <Route path="/facility/:instCode/:kindCode/community/write" element={<PostWrite />} />
                     <Route path="/facility/:instCode/:kindCode/community/post/:postId" element={<PostDetail />} />
+                    <Route path="/facility/:instCode/:kindCode/community/review/:postId" element={<ReviewDetail />} />
                     {/* ✅ 마이페이지 라우트와 하위 라우트들 */}
                     <Route path="mypage" element={<MyPageLayout />}>
                         {/* /mypage 접근 시 기본 탭을 profile로 리다이렉트 */}
                         <Route index element={<Navigate to="profile" replace />} />
                         <Route path="profile" element={<ProfilePage />} />
                         <Route path="password" element={<PasswordPage />} />
-                        <Route path="notifications" element={<NotificationsPage />} />
                         <Route path="admin-facility" element={<AdminFacilityPage />} />
                         <Route path="reviews" element={<MyReviewsPage />} />
                         <Route path="saved-filters" element={<SavedFiltersPage />} />
+                        <Route path="favorites" element={<MyFavoritesPage />} />
                         {/*<Route path="documents" element={<DocumentsPage />} />*/}
                         {/*<Route path="inbox" element={<InboxPage />} />*/}
                     </Route>

@@ -1,4 +1,3 @@
-// src/pages/mypage/MyReviews.tsx
 import { useEffect, useState } from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -26,51 +25,66 @@ export default function MyReviewsPage() {
     }, []);
 
     return (
-        <div className="max-w-4xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">내가 작성한 리뷰</h1>
+        <div className="max-w-4xl space-y-6">
 
+            {/* 타이틀 */}
+            <div>
+                <h1 className="text-xl font-semibold tracking-tight">
+                    내가 작성한 리뷰
+                </h1>
+                <p className="text-sm text-slate-500 mt-1">
+                    내가 작성한 요양원 리뷰를 한눈에 확인할 수 있습니다.
+                </p>
+            </div>
+
+            {/* 리뷰 없음 */}
             {reviews.length === 0 && (
-                <div className="text-gray-500">
+                <div className="rounded-xl border bg-white p-6 text-sm text-slate-500">
                     아직 작성한 리뷰가 없습니다.
                 </div>
             )}
 
-            <table className="w-full text-sm border-t border-gray-300">
-                <thead className="bg-gray-100 text-gray-600">
-                <tr>
-                    <th className="py-2 text-left">요양원</th>
-                    <th className="text-left">제목</th>
-                    <th className="w-24">별점</th>
-                    <th className="w-32">작성일</th>
-                    <th className="w-20">조회</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                {reviews.map(r => (
-                    <tr
+            {/* 리뷰 카드 리스트 */}
+            <div className="space-y-3">
+                {reviews.map((r) => (
+                    <div
                         key={r.id}
-                        className="border-b hover:bg-gray-50 cursor-pointer"
                         onClick={() =>
                             navigate(
                                 `/facility/${r.instCode}/${r.kindCode}/community/post/${r.id}`
                             )
                         }
+                        className="rounded-2xl border bg-white p-5 cursor-pointer
+                       hover:border-slate-400 hover:shadow-sm transition"
                     >
-                        <td className="py-3">{r.facilityName}</td>
-                        <td className="font-medium">{r.title}</td>
-                        <td className="text-center">
-                            {"★".repeat(r.rating)}
-                            {"☆".repeat(5 - r.rating)}
-                        </td>
-                        <td className="text-center">
-                            {r.createdAt.slice(0, 10)}
-                        </td>
-                        <td className="text-center">{r.viewCount}</td>
-                    </tr>
+                        {/* 상단 */}
+                        <div className="flex items-start justify-between gap-4">
+                            <div>
+                                <div className="text-xs text-slate-500">
+                                    {r.facilityName}
+                                </div>
+                                <div className="font-semibold text-slate-900 mt-0.5">
+                                    {r.title}
+                                </div>
+                            </div>
+
+                            {/* 별점 */}
+                            <div className="text-sm text-yellow-500 whitespace-nowrap">
+                                {"★".repeat(r.rating)}
+                                <span className="text-slate-300">
+                  {"★".repeat(5 - r.rating)}
+                </span>
+                            </div>
+                        </div>
+
+                        {/* 메타 정보 */}
+                        <div className="flex gap-4 text-xs text-slate-500 mt-3">
+                            <span>작성일 · {r.createdAt.slice(0, 10)}</span>
+                            <span>조회 · {r.viewCount}</span>
+                        </div>
+                    </div>
                 ))}
-                </tbody>
-            </table>
+            </div>
         </div>
     );
 }

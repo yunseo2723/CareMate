@@ -24,42 +24,74 @@ export default function AiRecommendSidePanel() {
     };
 
     return (
-        <div className="rounded-xl border bg-white p-4 space-y-4">
-            <h3 className="text-lg font-bold">🤖 AI 맞춤 추천</h3>
+        <div className="rounded-2xl border bg-white p-5 space-y-5 shadow-sm">
 
-            <textarea
-                className="w-full border rounded p-2 text-sm"
-                rows={3}
-                value={aiPrompt}
-                onChange={(e) => setAiPrompt(e.target.value)}
-                placeholder="예: 치매 환자이고 운동 프로그램이 잘 되어 있는 서울 근교 요양원"
-            />
+            {/* 헤더 */}
+            <div className="flex items-center gap-2">
+                <span className="text-xl">🤖</span>
+                <h3 className="text-lg font-semibold tracking-tight">
+                    AI 맞춤 추천
+                </h3>
+            </div>
 
+            {/* 입력 */}
+            <div className="space-y-2">
+                <label className="text-sm font-medium text-slate-700">
+                    어떤 요양원을 찾고 계신가요?
+                </label>
+                <textarea
+                    className="w-full rounded-lg border px-3 py-2.5 text-sm resize-none
+                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+                    rows={3}
+                    value={aiPrompt}
+                    onChange={(e) => setAiPrompt(e.target.value)}
+                    placeholder="예: 치매 환자이고, 운동 프로그램이 잘 되어 있는 서울 근교 요양원"
+                />
+            </div>
+
+            {/* 버튼 */}
             <button
                 onClick={submit}
                 disabled={loading}
-                className="w-full bg-slate-900 text-white py-2 rounded"
+                className="w-full rounded-xl bg-slate-900 py-3 text-white font-semibold
+                   hover:bg-slate-800 transition disabled:opacity-60"
             >
-                {loading ? "추천 중..." : "추천 받기"}
+                {loading ? "AI가 추천 중입니다..." : "추천 받기"}
             </button>
 
+            {/* 결과 */}
             {aiResult && (
-                <div className="space-y-3">
+                <div className="space-y-4 pt-2 border-t">
+
+                    {/* 요구 정리 */}
                     <div className="text-sm text-slate-600">
-                        <b>요구 정리:</b> {aiResult.normalizedNeed}
+                        <span className="font-medium text-slate-800">요구 정리</span>
+                        <span className="ml-1">· {aiResult.normalizedNeed}</span>
                     </div>
 
-                    {aiResult.items.map((it) => (
-                        <div
-                            key={it.instCode}
-                            className="border rounded-lg p-3 cursor-pointer hover:bg-gray-50"
-                            onClick={() => navigate(`/facility/${it.instCode}?kindCode=${it.kindCode}`)}
-                        >
-                            <div className="font-semibold">{it.name}</div>
-                            <div className="text-xs text-gray-500">{it.address}</div>
-                            <div className="text-sm mt-1">{it.reason}</div>
-                        </div>
-                    ))}
+                    {/* 추천 카드 */}
+                    <div className="space-y-3">
+                        {aiResult.items.map((it) => (
+                            <div
+                                key={it.instCode}
+                                onClick={() =>
+                                    navigate(`/facility/${it.instCode}?kindCode=${it.kindCode}`)
+                                }
+                                className="rounded-xl border p-4 cursor-pointer
+                           hover:border-slate-400 hover:shadow-sm transition"
+                            >
+                                <div className="font-semibold text-slate-900">
+                                    {it.name}
+                                </div>
+                                <div className="text-xs text-slate-500 mt-0.5">
+                                    {it.address}
+                                </div>
+                                <div className="text-sm text-slate-700 mt-2 leading-relaxed">
+                                    {it.reason}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

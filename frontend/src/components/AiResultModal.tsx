@@ -4,7 +4,7 @@ type Item = {
     instCode: string;
     kindCode: string;
     name: string;
-    address: string; // fullRoadNm
+    address: string;
     reason: string;
 };
 
@@ -23,31 +23,42 @@ export default function AiResultModal({
     if (!open) return null;
 
     return (
-        <div className="fixed inset-0 bg-black/40 z-50 flex justify-center items-center">
-            <div className="bg-white w-[520px] rounded-xl p-6 space-y-4 max-h-[80vh] overflow-y-auto">
-                <h3 className="text-lg font-bold">AI 추천 결과</h3>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+            <div className="bg-white w-[520px] rounded-2xl p-6 space-y-5
+                      max-h-[80vh] overflow-y-auto shadow-lg">
 
-                <p className="text-sm text-gray-600">
-                    <b>요구 정리:</b> {normalizedNeed}
+                <h3 className="text-lg font-semibold">AI 추천 결과</h3>
+
+                <p className="text-sm text-slate-600">
+                    <span className="font-medium text-slate-800">요구 정리</span>
+                    <span className="ml-1">· {normalizedNeed}</span>
                 </p>
 
                 <div className="space-y-3">
                     {items.map((it) => (
                         <div
                             key={it.instCode}
-                            className="border rounded-lg p-4 cursor-pointer hover:bg-gray-50"
-                            onClick={() => navigate(`/facility/${it.instCode}?kindCode=${it.kindCode}`)}
+                            className="rounded-xl border p-4 cursor-pointer
+                         hover:border-slate-400 hover:bg-slate-50 transition"
+                            onClick={() =>
+                                navigate(`/facility/${it.instCode}?kindCode=${it.kindCode}`)
+                            }
                         >
                             <div className="font-semibold">{it.name}</div>
-                            <div className="text-xs text-gray-500">{it.address}</div>
-                            <div className="text-sm mt-1">{it.reason}</div>
+                            <div className="text-xs text-slate-500 mt-0.5">
+                                {it.address}
+                            </div>
+                            <div className="text-sm mt-2 text-slate-700">
+                                {it.reason}
+                            </div>
                         </div>
                     ))}
                 </div>
 
-                <div className="text-right">
+                <div className="flex justify-end pt-2">
                     <button
-                        className="px-4 py-2 border rounded-md"
+                        className="rounded-lg border px-4 py-2 text-sm
+                       hover:bg-slate-50 transition"
                         onClick={onClose}
                     >
                         닫기

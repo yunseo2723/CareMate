@@ -5,50 +5,35 @@ import {useAuth} from "../../hooks/useAuth.ts";
 
 export default function PostList({ type }: { type: "NOTICE" | "FREE" }) {
     const { instCode, kindCode } = useParams();
-    const [rows, setRows] = useState([]);
-    const { authFetch } = useAuth()
+    const [rows, setRows] = useState<any[]>([]);
+    const { authFetch } = useAuth();
 
     useEffect(() => {
-        authFetch(`http://localhost:8080/facility/${instCode}/${kindCode}/post?type=${type}`)
+        authFetch(
+            `http://localhost:8080/facility/${instCode}/${kindCode}/post?type=${type}`
+        )
             .then(r => r.json())
-            .then(rows => setRows(rows));
+            .then(setRows);
     }, [authFetch, instCode, kindCode, type]);
 
     return (
-        <div className="p-5">
-            {/* 상단 제목 + 글쓰기 버튼 */}
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">
-                    {type === "NOTICE" ? "공지사항" : "자유게시판"}
-                </h2>
+        <table className="w-full text-sm border-t border-gray-300">
+            <thead className="bg-gray-100 text-gray-600">
+            <tr>
+                <th className="py-2 w-20">말머리</th>
+                <th className="text-left">제목</th>
+                <th className="w-32">작성자</th>
+                <th className="w-32">작성일</th>
+                <th className="w-20">조회</th>
+            </tr>
+            </thead>
 
-                <Link
-                    to={`/facility/${instCode}/${kindCode}/community/write?type=${type}`}
-                    className="px-4 py-2 bg-blue-600 text-white rounded shadow"
-                >
-                    글쓰기
-                </Link>
-            </div>
-
-            {/* 게시글 테이블 */}
-            <table className="w-full text-sm border-t border-gray-300">
-                <thead className="bg-gray-100 text-gray-600">
-                <tr>
-                    <th className="py-2 w-20">말머리</th>
-                    <th className="py-2 text-left">제목</th>
-                    <th className="py-2 w-32">작성자</th>
-                    <th className="py-2 w-32">작성일</th>
-                    <th className="py-2 w-20">조회</th>
-                </tr>
-                </thead>
-
-                <tbody>
-                {rows.map((p: any) => (
-                    <PostRow key={p.id} post={p} />
-                ))}
-                </tbody>
-            </table>
-        </div>
+            <tbody>
+            {rows.map(p => (
+                <PostRow key={p.id} post={p} />
+            ))}
+            </tbody>
+        </table>
     );
 }
 

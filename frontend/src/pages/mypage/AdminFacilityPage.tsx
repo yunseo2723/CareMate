@@ -12,15 +12,14 @@ type FacilityInfo = {
 export default function AdminFacilityPage() {
     const { user, authFetch } = useAuth();
 
-    // 🔥 User에서 관리자 InstCode 목록 가져오기
     const adminFacilities = user?.adminFacilities ?? [];
     const isAdmin = adminFacilities.length > 0;
 
-    const [selectedInstCode, setSelectedInstCode] = useState<string>(
+    const [selectedInstCode, setSelectedInstCode] = useState(
         adminFacilities.length ? adminFacilities[0].instCode : ""
     );
 
-    const [selectedKindCode] = useState<string>(
+    const [selectedKindCode] = useState(
         adminFacilities.length ? adminFacilities[0].kindCode : ""
     );
 
@@ -42,63 +41,108 @@ export default function AdminFacilityPage() {
     }, [selectedInstCode]);
 
     if (!isAdmin)
-        return <div className="p-4 text-red-600">관리자 권한이 없습니다.</div>;
+        return (
+            <div className="rounded-xl border bg-white p-6 text-red-600">
+                관리자 권한이 없습니다.
+            </div>
+        );
 
     return (
-        <div className="space-y-4">
-            <h2 className="text-lg font-semibold">시설 관리</h2>
+        <div className="max-w-4xl space-y-6">
 
-            {/* 시설 선택 */}
-            <div className="flex items-center gap-2">
-                <label className="text-sm text-slate-600">관리 시설 선택:</label>
-
-                <select
-                    className="rounded-md border px-3 py-2"
-                    value={selectedInstCode}
-                    onChange={(e) => setSelectedInstCode(e.target.value)}
-                >
-                    {adminFacilities.map((fac) => (
-                        <option key={fac.instCode} value={fac.instCode}>
-                            {fac.name}
-                        </option>
-                    ))}
-                </select>
+            {/* 페이지 타이틀 */}
+            <div>
+                <h2 className="text-xl font-semibold tracking-tight">
+                    시설 관리
+                </h2>
+                <p className="text-sm text-slate-500 mt-1">
+                    관리 중인 요양원 정보를 확인하고 커뮤니티를 관리할 수 있습니다.
+                </p>
             </div>
 
-            {/* 상세 */}
-            {loading && <div className="text-sm">불러오는 중...</div>}
-            {err && <div className="text-sm text-red-600">{err}</div>}
+            {/* 시설 선택 카드 */}
+            <div className="rounded-2xl border bg-white p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+                    <label className="text-sm font-medium text-slate-700">
+                        관리 시설 선택
+                    </label>
+                    <select
+                        className="rounded-lg border px-3 py-2 text-sm
+                       focus:outline-none focus:ring-2 focus:ring-slate-300"
+                        value={selectedInstCode}
+                        onChange={(e) => setSelectedInstCode(e.target.value)}
+                    >
+                        {adminFacilities.map((fac) => (
+                            <option key={fac.instCode} value={fac.instCode}>
+                                {fac.name}
+                            </option>
+                        ))}
+                    </select>
+                </div>
+            </div>
 
+            {/* 상태 */}
+            {loading && (
+                <div className="text-sm text-slate-500">
+                    시설 정보를 불러오는 중입니다…
+                </div>
+            )}
+            {err && (
+                <div className="text-sm text-red-600">
+                    {err}
+                </div>
+            )}
+
+            {/* 시설 상세 카드 */}
             {facility && (
-                <div className="rounded-lg border p-4 space-y-2">
-                    <div className="text-lg font-bold">{facility.name}</div>
-                    <div className="text-sm text-slate-600">
-                        주소: {facility.address}
+                <div className="rounded-2xl border bg-white p-6 space-y-5">
+
+                    {/* 시설 기본 정보 */}
+                    <div>
+                        <h3 className="text-lg font-semibold">
+                            {facility.name}
+                        </h3>
+                        <div className="mt-2 space-y-1 text-sm text-slate-600">
+                            <div>주소 · {facility.address ?? "-"}</div>
+                            <div>전화번호 · {facility.phone ?? "-"}</div>
+                        </div>
                     </div>
-                    <div className="text-sm text-slate-600">
-                        전화번호: {facility.phone ?? "-"}
-                    </div>
-                    <div className="mt-3">
-                        <div className="font-semibold mb-1">관리자 목록</div>
+
+                    {/* 관리자 목록 */}
+                    <div>
+                        <h4 className="font-semibold mb-2">
+                            관리자 목록
+                        </h4>
                         {facility.admins.length === 0 ? (
-                            <div className="text-sm text-slate-500">현재 관리자 없음</div>
+                            <div className="text-sm text-slate-500">
+                                현재 등록된 관리자가 없습니다.
+                            </div>
                         ) : (
-                            <ul className="list-disc ml-5 text-sm">
+                            <ul className="space-y-1 text-sm text-slate-700">
                                 {facility.admins.map((a) => (
-                                    <li key={a.userId}>
-                                        {a.name} ({a.email})
+                                    <li key={a.userId} className="flex gap-2">
+                                        <span className="font-medium">{a.name}</span>
+                                        <span className="text-slate-500">
+                      ({a.email})
+                    </span>
                                     </li>
                                 ))}
                             </ul>
                         )}
                     </div>
 
-                    <a
-                        href={`/facility/${selectedInstCode}/${selectedKindCode}/community`}
-                        className="inline-block mt-3 text-blue-600 underline"
-                    >
-                        커뮤니티 페이지로 이동
-                    </a>
+                    {/* 커뮤니티 이동 */}
+                    <div className="pt-4 border-t">
+                        <a
+                            href={`/facility/${selectedInstCode}/${selectedKindCode}/community`}
+                            className="inline-flex items-center gap-2 rounded-xl
+                         bg-slate-900 px-5 py-2.5 text-sm
+                         font-semibold text-white
+                         hover:bg-slate-800 transition"
+                        >
+                            커뮤니티 페이지로 이동 →
+                        </a>
+                    </div>
                 </div>
             )}
         </div>

@@ -1,6 +1,5 @@
 // src/components/MapPanel.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
-
 import {
     useEffect,
     useMemo,
@@ -56,6 +55,16 @@ export function MapPanel() {
         programTypes
     } = useContext(Ctx);
 
+    const isFilterActive =
+        careLevel !== "전체" ||
+        gradeFilter !== "전체" ||
+        minCaregiver > 0 ||
+        hasNurse ||
+        hasDoctor ||
+        hasSocial ||
+        roomTypes.length > 0 ||
+        programTypes.length > 0;
+
     const matchesType = (item: FacilityLite): boolean => {
         if (careLevel === "전체") return true;
         return mapFacilityType(item.kindCode) === careLevel;
@@ -109,7 +118,6 @@ export function MapPanel() {
         });
     }
 
-
     const containerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any | null>(null);
     const clustererRef = useRef<any | null>(null);
@@ -139,6 +147,19 @@ export function MapPanel() {
                 map,
                 averageCenter: false,
                 minLevel: 3,
+                styles: [
+                    {
+                        width: "42px",
+                        height: "42px",
+                        background: "rgba(15, 23, 42, 0.85)", // slate-900
+                        borderRadius: "9999px",
+                        color: "#fff",
+                        textAlign: "center",
+                        lineHeight: "42px",
+                        fontSize: "13px",
+                        fontWeight: "600",
+                    },
+                ],
             });
 
             mapRef.current = map;
@@ -148,12 +169,12 @@ export function MapPanel() {
             const circle = new kakao.maps.Circle({
                 center: new kakao.maps.LatLng(SEOUL_CENTER.lat, SEOUL_CENTER.lng),
                 radius: radiusKm * 1000,
-                strokeWeight: 3,
-                strokeColor: "#0055ff",
-                strokeOpacity: 0.9,
+                strokeWeight: 2,
+                strokeColor: "#2563eb",
+                strokeOpacity: 0.6,
                 strokeStyle: "solid",
-                fillColor: "#99ccff",
-                fillOpacity: 0.3,
+                fillColor: "#93c5fd",
+                fillOpacity: 0.15,
             });
 
             circle.setMap(map);
@@ -169,7 +190,7 @@ export function MapPanel() {
         };
 
         wait();
-    }, []);
+    }, [radiusKm]);
 
     /** 1) DB에서 전체 시설 리스트 가져오기 */
     useEffect(() => {
@@ -187,23 +208,28 @@ export function MapPanel() {
     }, []);
 
     /** 2) DB에서 lat/lng 있는 시설만 필터링 */
-    const renderable = useMemo(() =>
-            rows
-                .filter(r => r.lat != null && r.lng != null)
-                .filter(matchesType)
-                .filter(matchesGrade)
-                .filter(matchesCaregiver)
-                .filter(matchesNurse)
-                .filter(matchesDoctor)
-                .filter(matchesSocial)
-                .filter(matchesRoom)
-                .filter(matchesProgram)
-        , [
-            rows, careLevel, gradeFilter,
-            minCaregiver, hasNurse, hasDoctor, hasSocial,
-            roomTypes, programTypes
-        ]);
+    const renderable = useMemo(() => {
+        const base = rows.filter(r => r.lat != null && r.lng != null);
 
+        if (!isFilterActive) {
+            return base; // ✅ 필터 하나도 안 건드렸으면 전부
+        }
+
+        return base
+            .filter(matchesType)
+            .filter(matchesGrade)
+            .filter(matchesCaregiver)
+            .filter(matchesNurse)
+            .filter(matchesDoctor)
+            .filter(matchesSocial)
+            .filter(matchesRoom)
+            .filter(matchesProgram);
+    }, [
+        rows,
+        careLevel, gradeFilter,
+        minCaregiver, hasNurse, hasDoctor, hasSocial,
+        roomTypes, programTypes
+    ]);
 
     /** 3) 마커 & 클러스터링 갱신 */
     useEffect(() => {
@@ -339,7 +365,7 @@ export function MapPanel() {
                 insurance: [],
             }))
         );
-    }, [renderable, radiusKm, circleCenter]);
+    }, [renderable, radiusKm, circleCenter, setCircleFacilities]);
 
     return (
         <div className="rounded-2xl border bg-white">

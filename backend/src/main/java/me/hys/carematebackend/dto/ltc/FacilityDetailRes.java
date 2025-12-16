@@ -63,10 +63,12 @@ public class FacilityDetailRes {
 
     private List<ProgramDto> programs;
     private List<ContractDto> contracts;
+    private List<NonBenefitDto> nonBenefits;
 
     public static FacilityDetailRes from(LtcFacility f,
                                          List<ProgramDto> programs,
-                                         List<ContractDto> contracts) {
+                                         List<ContractDto> contracts,
+                                         List<NonBenefitDto> nonBenefits) {
 
         return FacilityDetailRes.builder()
                 .instCode(f.getInstCode())
@@ -122,6 +124,7 @@ public class FacilityDetailRes {
 
                 .programs(programs)
                 .contracts(contracts)
+                .nonBenefits(nonBenefits)
 
                 .build();
     }

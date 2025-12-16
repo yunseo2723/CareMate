@@ -1,21 +1,40 @@
 // src/components/review/StarRating.tsx
-export default function StarRating({value, onChange}: {
+type StarRatingProps = {
     value: number;
-    onChange: (v: number) => void;
-}) {
+    onChange?: (v: number) => void; // 선택
+    readOnly?: boolean;
+};
+
+export default function StarRating({
+                                       value,
+                                       onChange,
+                                       readOnly = false,
+                                   }: StarRatingProps) {
     return (
         <div className="flex gap-1">
-            {[1,2,3,4,5].map(n => (
-                <span
-                    key={n}
-                    className={`cursor-pointer text-2xl ${
-                        n <= value ? "text-yellow-400" : "text-gray-300"
-                    }`}
-                    onClick={() => onChange(n)}
-                >
-                    ★
-                </span>
-            ))}
+            {[1, 2, 3, 4, 5].map((n) => {
+                const active = n <= value;
+
+                return (
+                    <span
+                        key={n}
+                        className={`text-2xl select-none ${
+                            active ? "text-yellow-400" : "text-gray-300"
+                        } ${
+                            readOnly
+                                ? "cursor-default"
+                                : "cursor-pointer hover:scale-110 transition"
+                        }`}
+                        onClick={() => {
+                            if (!readOnly && onChange) {
+                                onChange(n);
+                            }
+                        }}
+                    >
+                        ★
+                    </span>
+                );
+            })}
         </div>
     );
 }

@@ -27,7 +27,6 @@ export default function MyPageLayout(){
                     <div className="space-y-1">
                         {link("profile","내 프로필")}
                         {link("password","비밀번호 변경")}
-                        {link("notifications","알림 설정")}
                     </div>
                 </div>
 
@@ -51,16 +50,10 @@ export default function MyPageLayout(){
                     <div className="text-xs font-semibold text-slate-500 mb-2">요양원 필터</div>
                     <div className="space-y-1">
                         {link("saved-filters","검색/필터 저장")}
+                        {link("favorites","즐겨찾기")}
                     </div>
                 </div>
 
-                <div>
-                    <div className="text-xs font-semibold text-slate-500 mb-2">알림</div>
-                    <div className="space-y-1">
-                        {link("documents","문서함")}
-                        {link("inbox","알림함")}
-                    </div>
-                </div>
             </aside>
 
             {/* 우측 콘텐츠 */}

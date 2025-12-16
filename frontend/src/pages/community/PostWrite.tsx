@@ -17,8 +17,8 @@ export default function PostWrite() {
     const { authFetch } = useAuth()
 
     const submit = async () => {
-        let url = "";
-        let payload: any = {};
+        let url: string;
+        let payload: any;
 
         if (boardType === "REVIEW") {
             // ⭐ 리뷰 전용
@@ -74,14 +74,17 @@ export default function PostWrite() {
                 onChange={e => setContent(e.target.value)}
             />
 
-            <label className="flex items-center gap-2">
-                <input
-                    type="checkbox"
-                    checked={allowComment}
-                    onChange={e => setAllowComment(e.target.checked)}
-                />
-                댓글 허용
-            </label>
+            {boardType !== "REVIEW" && (
+                <label className="flex items-center gap-2">
+                    <input
+                        type="checkbox"
+                        checked={allowComment}
+                        onChange={e => setAllowComment(e.target.checked)}
+                    />
+                    댓글 허용
+                </label>
+            )}
+
 
             <button
                 onClick={submit}
