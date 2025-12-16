@@ -2,7 +2,8 @@ package me.hys.carematebackend.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
-import me.hys.carematebackend.dto.ltc.*;
+import me.hys.carematebackend.dto.ltc.LtcFacilitySearchDto;
+import me.hys.carematebackend.dto.ltc.NonBenefitDto;
 import me.hys.carematebackend.repository.LtcFacilityRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +14,7 @@ import java.util.List;
 public class LtcSearchService {
 
     private final LtcFacilityRepository repo;
-    private final ObjectMapper objectMapper; // ✅ DI 사용
+    private final ObjectMapper objectMapper;
 
     public List<LtcFacilitySearchDto> search(String name) {
 
@@ -37,7 +38,6 @@ public class LtcSearchService {
                             );
                         }
                     } catch (Exception e) {
-                        // ❗ 로그만 남기고 계속 진행
                         System.err.println("비급여 JSON 파싱 실패: " + f.getInstCode());
                     }
 

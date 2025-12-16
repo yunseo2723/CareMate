@@ -16,10 +16,10 @@ public class ResponseUserDto {
     private Long id;
     private String username;
     private String nickname;
-    /** 👇 프런트 환영문구용 */
+    /** 프런트 환영문구용 */
     private String name;
 
-    /** 👇 이 유저가 관리자인 CareMate(시설) ID, 이름 목록 */
+    /** 해당 유저가 관리자인 CareMate(시설) ID, 이름 목록 */
     private List<FacilityInfo> adminFacilities;
 
     @Getter

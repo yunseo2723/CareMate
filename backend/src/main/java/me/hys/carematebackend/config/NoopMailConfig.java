@@ -4,6 +4,7 @@ import jakarta.mail.internet.MimeMessage;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.lang.NonNull;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
@@ -19,10 +20,10 @@ public class NoopMailConfig {
     @ConditionalOnProperty(value = "app.mail.enabled", havingValue = "false")
     public JavaMailSender noopMailSender() {
         return new JavaMailSenderImpl() {
-            @Override public void send(MimeMessage mimeMessage) { /* no-op */ }
-            @Override public void send(MimeMessage... mimeMessages) { }
-            @Override public void send(SimpleMailMessage simpleMessage) { }
-            @Override public void send(SimpleMailMessage... simpleMessages) { }
+            @Override public void send(@NonNull MimeMessage mimeMessage) { /* no-op */ }
+            @Override public void send(@NonNull MimeMessage... mimeMessages) { }
+            @Override public void send(@NonNull SimpleMailMessage simpleMessage) { }
+            @Override public void send(@NonNull SimpleMailMessage... simpleMessages) { }
         };
     }
 }

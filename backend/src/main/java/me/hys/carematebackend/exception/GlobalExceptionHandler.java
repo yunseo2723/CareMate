@@ -47,41 +47,31 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(DuplicateLoginIdException.class)
-    protected ResponseEntity<ErrorResponseDTO> handleDuplicateLoginIdException(final DuplicateLoginIdException e) {
+    protected ResponseEntity<ErrorResponseDTO> handleDuplicateLoginIdException() {
         return ResponseEntity
                 .status(ErrorCode.DUPLICATE_LOGIN_ID.getStatus().value())
                 .body(new ErrorResponseDTO(ErrorCode.DUPLICATE_LOGIN_ID));
     }
 
     @ExceptionHandler(UnauthenticatedEmailException.class)
-    protected ResponseEntity<ErrorResponseDTO> handleUnauthenticatedEmailException(final UnauthenticatedEmailException e) {
+    protected ResponseEntity<ErrorResponseDTO> handleUnauthenticatedEmailException() {
         return ResponseEntity
                 .status(ErrorCode.UNAUTHENTICATED_EMAIL.getStatus().value())
                 .body(new ErrorResponseDTO(ErrorCode.UNAUTHENTICATED_EMAIL));
     }
 
     @ExceptionHandler(CodeExpiredException.class)
-    protected ResponseEntity<ErrorResponseDTO> handleCodeExpiredException(final CodeExpiredException e) {
+    protected ResponseEntity<ErrorResponseDTO> handleCodeExpiredException() {
         return ResponseEntity
                 .status(ErrorCode.CODE_EXPIRED.getStatus().value())
                 .body(new ErrorResponseDTO(ErrorCode.CODE_EXPIRED));
     }
 
     @ExceptionHandler(UnverifiedCodeException.class)
-    protected ResponseEntity<ErrorResponseDTO> handleUnverifiedCodeException(final UnverifiedCodeException e) {
+    protected ResponseEntity<ErrorResponseDTO> handleUnverifiedCodeException() {
         return ResponseEntity
                 .status(ErrorCode.UNVERIFIED_CODE.getStatus().value())
                 .body(new ErrorResponseDTO(ErrorCode.UNVERIFIED_CODE));
-    }
-
-    /**
-     * 우리가 만든 CustomException 공통 처리
-     */
-    @ExceptionHandler(CustomException.class)
-    protected ResponseEntity<ErrorResponseDTO> handleCustomException(final CustomException e) {
-        return ResponseEntity
-                .status(e.getErrorCode().getStatus().value())
-                .body(new ErrorResponseDTO(e.getErrorCode()));
     }
 
     /**

@@ -23,11 +23,11 @@ public class LtcController {
     private final LtcDetailDbService detailDbService;
     private final LtcSearchService searchService;
 
-    // 전국 Lite 리스트
+    // 전국 요양원 lite 리스트
     @GetMapping("/list/lite")
     public List<FacilityLiteRes> listLite() {
         return repo.findAll().stream()
-                .map(FacilityLiteRes::from)   // ← 이제 정상 작동!
+                .map(FacilityLiteRes::from)
                 .toList();
     }
 

@@ -25,7 +25,6 @@ public class LtcFacilitySearchDto {
                 .name(f.getName())
                 .fullRoadAddr(f.getFullRoadNm())
                 .nonBenefits(nonBenefits)
-
                 .build();
     }
 }

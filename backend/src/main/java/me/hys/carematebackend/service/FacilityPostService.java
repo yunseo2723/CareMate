@@ -133,8 +133,8 @@ public class FacilityPostService {
     }
 
 
-    /** 댓글 작성 */
-    public FacilityComment writeComment(Long userId, String instCode, String kindCode, Long postId, String content, Long parentId
+    /** 댓글 작성 **/
+    public void writeComment(Long userId, String instCode, String kindCode, Long postId, String content, Long parentId
     ) {
         if (content == null || content.trim().isEmpty()) {
             throw new RuntimeException("댓글 내용을 입력해주세요.");
@@ -160,17 +160,14 @@ public class FacilityPostService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        return commentRepo.save(c);
+        commentRepo.save(c);
     }
 
     @Transactional
-    public void updateComment(Long userId, String instCode, String kindCode, Long postId, Long commentId, String content) {
+    public void updateComment(Long userId, String ignoredInstCode, String ignoredKindCode, Long ignoredPostId, Long commentId, String content) {
 
         if (content == null || content.trim().isEmpty())
             throw new RuntimeException("내용을 입력해주세요.");
-
-        FacilityPost post = postRepo.findByIdAndInstCodeAndKindCode(postId, instCode, kindCode)
-                .orElseThrow(() -> new RuntimeException("게시글이 존재하지 않습니다."));
 
         FacilityComment comment = commentRepo.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글이 존재하지 않습니다."));
@@ -184,7 +181,7 @@ public class FacilityPostService {
     }
 
     @Transactional
-    public void deleteComment(Long userId, String instCode, Long postId, Long commentId) {
+    public void deleteComment(Long userId, String ignoredInstCode, Long ignoredPostId, Long commentId) {
         FacilityComment c = commentRepo.findById(commentId)
                 .orElseThrow(() -> new RuntimeException("댓글 없음"));
 
@@ -197,12 +194,10 @@ public class FacilityPostService {
                 !c.getReplies().isEmpty();
 
         if (hasReplies) {
-            // ⭐ Soft delete → "삭제된 댓글입니다"
             c.setDeleted(true);
             c.setContent("삭제된 댓글입니다.");
             commentRepo.save(c);
         } else {
-            // ⭐ Hard delete → 그냥 삭제
             commentRepo.delete(c);
         }
     }

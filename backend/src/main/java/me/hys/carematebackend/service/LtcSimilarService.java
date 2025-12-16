@@ -2,13 +2,12 @@ package me.hys.carematebackend.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Service;
 
-import jakarta.annotation.PostConstruct;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class LtcSimilarService {
@@ -28,18 +27,7 @@ public class LtcSimilarService {
         System.out.println("[LtcSimilarService] loaded " + facilityById.size() + " facilities");
     }
 
-    // 실시간: 조건으로 필터링
-    public List<Map<String, Object>> search(int topN) {
-        return facilityById.values().stream()
-                .limit(topN)
-                .collect(Collectors.toList());
-    }
-
-    public List<Map<String, Object>> findAll() {
-        return new ArrayList<>(facilityById.values());
-    }
-
-    // “비슷한 요양원” 뿌리기
+    // 유사 요양원 출력
     public List<Map<String, Object>> similar(String instCode) {
         Map<String, Object> fac = facilityById.get(instCode);
         if (fac == null) return Collections.emptyList();

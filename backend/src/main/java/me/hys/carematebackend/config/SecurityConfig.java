@@ -15,6 +15,7 @@ import org.springframework.security.authentication.dao.DaoAuthenticationProvider
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -25,6 +26,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -57,13 +59,13 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http, AuthenticationConfiguration authCfg) throws Exception {
 
-        http.csrf(csrf -> csrf.disable())
+        http.csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .formLogin(f -> f.disable())
-                .httpBasic(h -> h.disable())
+                .formLogin(AbstractHttpConfigurer::disable)
+                .httpBasic(AbstractHttpConfigurer::disable)
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()                 // ⭐ Preflight 허용
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health", "/users/register", "/users/login",
                                 "/signup/**", "/facilities/**", "/ltc/**").permitAll()
                         .requestMatchers("/users/me/**", "/admin/verify/**",
@@ -72,10 +74,8 @@ public class SecurityConfig {
                 )
                 .authenticationProvider(daoAuthProvider(userDetailsService(userRepository), passwordEncoder()));
 
-        // JWTFilter 추가
         http.addFilterBefore(new JWTFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
-        // LoginFilter 추가
         var loginFilter = new LoginFilter(jwtUtil, facilityAdminRepository, ltcFacilityRepository);
         loginFilter.setAuthenticationManager(authCfg.getAuthenticationManager());
         loginFilter.setFilterProcessesUrl("/users/login");
@@ -88,9 +88,9 @@ public class SecurityConfig {
     @Bean
     public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        config.setAllowedOrigins(Arrays.asList("http://localhost:5173"));
-        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS")); // ⭐ PATCH 반드시 포함
-        config.setAllowedHeaders(Arrays.asList("*"));
+        config.setAllowedOrigins(List.of("http://localhost:5173"));
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
         config.addExposedHeader("accessToken");
         config.addExposedHeader("refreshToken");

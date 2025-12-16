@@ -9,7 +9,6 @@ import java.util.List;
 
 /**
  * 목록 API 공통 래퍼
- *
  * 실제 XML:
  * <response>
  *   <header>...</header>

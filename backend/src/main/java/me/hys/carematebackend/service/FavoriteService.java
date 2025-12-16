@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-// service/FavoriteService.java
 @Service
 @RequiredArgsConstructor
 public class FavoriteService {
@@ -34,7 +33,6 @@ public class FavoriteService {
             return false; // 해제됨
         }
 
-        // ⭐ 요양원 정보 조회
         LtcFacility facility = ltcFacilityRepo
                 .findByInstCodeAndKindCode(instCode, kindCode)
                 .orElseThrow(() -> new RuntimeException("요양원 정보 없음"));

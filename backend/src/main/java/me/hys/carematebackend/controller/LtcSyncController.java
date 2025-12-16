@@ -3,7 +3,10 @@ package me.hys.carematebackend.controller;
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.service.LtcSyncService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/ltc")
@@ -12,9 +15,7 @@ public class LtcSyncController {
 
     private final LtcSyncService service;
 
-    /**
-     * 전국 17개 시도 전체 동기화
-     */
+    // 전국 17개 시도 전체 동기화
     @PostMapping("/sync/all")
     public ResponseEntity<?> syncAll() {
 
@@ -33,9 +34,7 @@ public class LtcSyncController {
         return ResponseEntity.ok("Synced ALL sido → total: " + total);
     }
 
-    /**
-     * 시도 하나만 동기화
-     */
+    // 시도 하나만 동기화
     @PostMapping("/sync/{sido}")
     public ResponseEntity<?> syncOne(@PathVariable String sido) {
         int count = service.syncSido(sido);

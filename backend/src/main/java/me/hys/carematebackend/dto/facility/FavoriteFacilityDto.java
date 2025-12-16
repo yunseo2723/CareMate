@@ -5,7 +5,6 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-// dto/FavoriteFacilityDto.java
 @Getter
 @AllArgsConstructor
 public class FavoriteFacilityDto {

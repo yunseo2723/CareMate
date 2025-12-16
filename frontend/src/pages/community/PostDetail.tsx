@@ -218,7 +218,7 @@ function CommentItem({ comment, onSubmit, refresh, instCode, kindCode, postId, d
     const deleteComment = async () => {
         if (!confirm("댓글을 삭제하시겠습니까?")) return;
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}/comment/${comment.id}`,
+            `http://localhost:8080/facility/${instCode}/post/${postId}/comment/${comment.id}`,
             { method: "DELETE" }
         );
         refresh();

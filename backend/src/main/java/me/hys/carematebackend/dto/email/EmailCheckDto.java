@@ -6,9 +6,7 @@ import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
 
-/**
- * “인증번호 확인” 요청 DTO
- */
+/** “인증번호 확인” 요청 DTO **/
 @Getter
 @Setter
 public class EmailCheckDto {

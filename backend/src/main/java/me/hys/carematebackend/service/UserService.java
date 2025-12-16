@@ -63,7 +63,7 @@ public class UserService {
         verifyRepo.delete(ev);
     }
 
-    // ✅ 1) 내 정보 조회 (/users/me)
+    // 1) 내 정보 조회 (/users/me)
     @Transactional(readOnly = true)
     public ResponseUserDto getMe(Long userId) {
         User user = userRepository.findById(userId)
@@ -89,7 +89,7 @@ public class UserService {
         return ResponseUserDto.of(user, adminFacilities);
     }
 
-    // ✅ 2) 프로필 수정 (닉네임/이름/연락처 등)
+    // 2) 프로필 수정 (닉네임/이름/연락처 등)
     @Transactional
     public ResponseUserDto updateProfile(Long userId, ProfileUpdateDto dto) {
         User user = userRepository.findById(userId)
@@ -104,13 +104,13 @@ public class UserService {
         }
         // phone 같은 필드를 User 엔티티에 추가했다면 여기서 setPhone(dto.getPhone()) 해주면 됨
 
-        // ⭐ 현재 유저의 관리자 시설 목록 가져오기
+        // 현재 유저의 관리자 시설 목록 가져오기
         List<String> instCodes = facilityAdminRepository.findByUserId(user.getId())
                 .stream()
                 .map(FacilityAdmin::getInstCode)
                 .toList();
 
-        // ⭐ instCode → 시설 이름 변환
+        // instCode → 시설 이름 변환
         List<ResponseUserDto.FacilityInfo> facilities =
                 instCodes.stream()
                         .map(instCode -> {

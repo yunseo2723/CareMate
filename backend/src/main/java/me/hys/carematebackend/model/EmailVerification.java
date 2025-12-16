@@ -25,7 +25,7 @@ public class EmailVerification {
 
     private LocalDateTime expiry;              // 만료 시각
 
-    /** ✅ 인증 완료 여부 (기본 false) */
+    /** 인증 완료 여부 */
     @Column(nullable = false)
     @Builder.Default
     private boolean verified = false;

@@ -8,6 +8,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class GeoService {
@@ -39,7 +40,7 @@ public class GeoService {
                     .bodyToMono(Map.class)
                     .block();
 
-            List<Map<String, Object>> docs = (List<Map<String, Object>>) res.get("documents");
+            List<Map<String, Object>> docs = (List<Map<String, Object>>) Objects.requireNonNull(res).get("documents");
             if (docs == null || docs.isEmpty()) {
                 System.out.println("⚠ Kakao returned empty");
                 return null;

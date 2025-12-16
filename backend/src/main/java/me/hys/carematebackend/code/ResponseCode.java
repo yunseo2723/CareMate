@@ -17,8 +17,6 @@ public enum ResponseCode {
     SUCCESS_RETRIEVE_USER(HttpStatus.OK, "유저 정보를 성공적으로 조회했습니다."),
     SUCCESS_DELETE_USER(HttpStatus.OK, "유저가 성공적으로 삭제되었습니다."),
     SUCCESS_UPDATE_USER(HttpStatus.OK, "유저 정보를 성공적으로 수정했습니다."),
-    SUCCESS_RETRIEVE_ALL_USERS(HttpStatus.OK, "모든 사용자를 성공적으로 조회했습니다."),
-    SUCCESS_POLICE_LOGOUT(HttpStatus.OK, "성공적으로 로그아웃했습니다."),
     SUCCESS_EMAIL_SEND(HttpStatus.OK, "인증번호를 전송했습니다."),
     SUCCESS_EMAIL_ACCEPT(HttpStatus.OK, "이메일 인증을 성공했습니다.");
 

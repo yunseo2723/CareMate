@@ -4,11 +4,11 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.ai.AiRecommendRequest;
 import me.hys.carematebackend.dto.ai.AiRecommendResponse;
-import me.hys.carematebackend.model.LtcFacility; // 너희 엔티티에 맞춰 import 수정
-import me.hys.carematebackend.repository.LtcFacilityRepository; // 실제 레포 경로 맞춰
+import me.hys.carematebackend.model.LtcFacility;
+import me.hys.carematebackend.repository.LtcFacilityRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,7 +21,7 @@ public class AiRecommendService {
 
     public AiRecommendResponse recommend(AiRecommendRequest req) {
 
-        // ✅ 후보 수 줄이기 (강력 권장)
+        // 후보 수 조절
         List<LtcFacility> candidates =
                 ltcFacilityRepository.findTop200ByOrderByInstCodeAsc();
 

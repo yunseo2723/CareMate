@@ -45,7 +45,8 @@ public class FacilityLiteRes {
                 ObjectMapper mapper = new ObjectMapper();
                 programs = mapper.readValue(
                         f.getProgramsJson(),
-                        new TypeReference<List<Map<String, Object>>>() {}
+                        new TypeReference<>() {
+                        }
                 );
             } catch (Exception ignored) {}
         }

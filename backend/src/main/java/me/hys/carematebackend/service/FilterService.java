@@ -1,7 +1,6 @@
 package me.hys.carematebackend.service;
 
 import lombok.RequiredArgsConstructor;
-import me.hys.carematebackend.dto.filter.SavedFilterDto;
 import me.hys.carematebackend.model.SavedFilter;
 import me.hys.carematebackend.model.User;
 import me.hys.carematebackend.repository.SavedFilterRepository;
@@ -11,7 +10,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 
-// service/FilterService.java
 @Service
 @RequiredArgsConstructor
 public class FilterService {

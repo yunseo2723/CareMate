@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.code.ErrorCode;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
@@ -25,7 +26,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private final UserRepository userRepository;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
 
         //request에서 Authorization 헤더를 찾음
         String authorization= request.getHeader("Authorization");

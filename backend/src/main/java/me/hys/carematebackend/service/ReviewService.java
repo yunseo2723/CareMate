@@ -1,7 +1,6 @@
 package me.hys.carematebackend.service;
 
 import lombok.RequiredArgsConstructor;
-import me.hys.carematebackend.dto.community.PostDetailDto;
 import me.hys.carematebackend.dto.community.ReviewDetailDto;
 import me.hys.carematebackend.dto.community.ReviewDto;
 import me.hys.carematebackend.dto.community.ReviewListDto;
@@ -54,7 +53,7 @@ public class ReviewService {
                 .toList();
     }
 
-    /** 리뷰 상세 (+ 조회수 증가) */
+    /** 리뷰 상세 */
     public ReviewDetailDto detailReview(Long id, String instCode, String kindCode) {
         FacilityPost p = postRepository.findByIdAndInstCodeAndKindCode(id, instCode, kindCode)
                 .orElseThrow(() -> new RuntimeException("리뷰 없음"));

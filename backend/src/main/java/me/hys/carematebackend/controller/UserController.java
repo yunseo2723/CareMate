@@ -4,11 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.code.ResponseCode;
 import me.hys.carematebackend.dto.response.ResponseDTO;
-import me.hys.carematebackend.dto.user.CustomUserDetails;
-import me.hys.carematebackend.dto.user.RegisterUserDto;
-import me.hys.carematebackend.dto.user.ResponseUserDto;
-import me.hys.carematebackend.dto.user.ProfileUpdateDto;
-import me.hys.carematebackend.dto.user.PasswordChangeDto;
+import me.hys.carematebackend.dto.user.*;
 import me.hys.carematebackend.service.UserService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -38,9 +34,7 @@ public class UserController {
         return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS_RETRIEVE_USER, users));
     }
 
-    /**
-     * 로그인된 현재 정보 불러오기
-     */
+     /** 로그인된 현재 정보 불러오기 **/
     @GetMapping("/me")
     public ResponseEntity<ResponseDTO<ResponseUserDto>> getMyUserInfo(@AuthenticationPrincipal CustomUserDetails cud) {
         Long userId = cud.getUser().getId(); // 또는 cud.getUserId()
@@ -48,7 +42,7 @@ public class UserController {
         return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS_RETRIEVE_USER, dto));
     }
 
-    /** 🔹 내 프로필 수정 (이름/닉네임/연락처 등) */
+    /** 내 프로필 수정 **/
     @PatchMapping("/me/profile")
     public ResponseEntity<ResponseDTO<ResponseUserDto>> updateMyProfile(
             @AuthenticationPrincipal CustomUserDetails cud,
@@ -59,7 +53,7 @@ public class UserController {
         return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS_UPDATE_USER, dto));
     }
 
-    /** 🔹 비밀번호 변경 */
+    /** 비밀번호 변경 **/
     @PatchMapping("/me/password")
     public ResponseEntity<ResponseDTO<?>> changeMyPassword(
             @AuthenticationPrincipal CustomUserDetails cud,
@@ -70,9 +64,7 @@ public class UserController {
         return ResponseEntity.ok(new ResponseDTO<>(ResponseCode.SUCCESS_UPDATE_USER, null));
     }
 
-    /**
-     * id 기반 회원 삭제
-     */
+     /** id 기반 회원 삭제 **/
     @DeleteMapping("/{id}")
     public ResponseEntity<ResponseDTO<?>> deleteUser(@PathVariable Long id) {
         userService.deleteById(id);

@@ -117,7 +117,7 @@ public class LtcSyncService {
                 f.setParking(e.getPkngEquip());
             }
 
-            // ================= ⭐ 프로그램 리스트 =================
+            // ================= 프로그램 리스트 =================
 
             try {
                 String programXml = ltcDetailApi.programList(inst).block();
@@ -131,7 +131,6 @@ public class LtcSyncService {
                 log.warn("프로그램 파싱 실패 instCode={}", inst, ex);
             }
 
-            // ================= ⭐ 계약(협약병원 등) 리스트도 같은 방식으로 =================
             try {
                 String contractXml = ltcDetailApi.convList(inst).block();
                 List<ContractDto> contracts = parser.parseContractList(contractXml);
@@ -144,7 +143,7 @@ public class LtcSyncService {
                 log.warn("계약정보 파싱 실패 instCode={}", inst, ex);
             }
 
-            // ================= ⭐ 비급여 항목 리스트 =================
+            // ================= 비급여 항목 리스트 =================
 
             try {
                 String nonBenefitXml = ltcDetailApi.nonBenefitList(inst).block();

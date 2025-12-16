@@ -17,8 +17,8 @@ public class FacilityPost {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String instCode;  // 🔥 어떤 요양원의 게시판인지
-    private String kindCode;  // 🔥 어떤 요양원의 게시판인지
+    private String instCode;
+    private String kindCode;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "board_type", length = 20)

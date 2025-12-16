@@ -11,6 +11,7 @@ import me.hys.carematebackend.dto.response.ErrorResponseDTO;
 import me.hys.carematebackend.dto.response.ResponseDTO;
 import me.hys.carematebackend.dto.user.CustomUserDetails;
 import me.hys.carematebackend.dto.user.ResponseUserDto;
+import me.hys.carematebackend.model.FacilityAdmin;
 import me.hys.carematebackend.model.User;
 import me.hys.carematebackend.repository.FacilityAdminRepository;
 import me.hys.carematebackend.repository.LtcFacilityRepository;
@@ -62,7 +63,7 @@ public class LoginFilter extends UsernamePasswordAuthenticationFilter {
         List<String> instCodes = facilityAdminRepository
                 .findByUserId(user.getId())
                 .stream()
-                .map(a -> a.getInstCode())
+                .map(FacilityAdmin::getInstCode)
                 .toList();
 
         // 2) instCode → 시설 이름 변환

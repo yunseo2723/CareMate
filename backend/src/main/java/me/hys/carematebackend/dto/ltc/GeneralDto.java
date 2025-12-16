@@ -27,8 +27,4 @@ public class GeneralDto {
 
         return locTelNo_1 + "-" + p2 + "-" + p3;
     }
-
-    public void buildFullTel() {
-        this.fullTel = getFullTel();
-    }
 }

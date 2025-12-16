@@ -10,7 +10,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 public class TokenErrorResponse {
-    public static void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException, IOException {
+    public static void sendErrorResponse(HttpServletResponse response, ErrorCode errorCode) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
         ErrorResponseDTO errorResponse = new ErrorResponseDTO(errorCode);
         String jsonResponse = objectMapper.writeValueAsString(errorResponse);

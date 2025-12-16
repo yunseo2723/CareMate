@@ -7,9 +7,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * 공공데이터 LTC XML → DTO 변환기
- */
 @Slf4j
 public class LtcXmlParser {
 
@@ -94,7 +91,6 @@ public class LtcXmlParser {
 
         } catch (Exception e) {
             log.error("❌ XML Parse Error (list): {}", e.getMessage());
-            log.debug("XML FULL: {}", xml);
             return Collections.emptyList();
         }
     }

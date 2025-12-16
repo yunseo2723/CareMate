@@ -21,10 +21,10 @@ public class LtcAdminVerifyController {
 
     private final LtcAdminVerifyService service;
 
-    // 인증 요청 (파일 업로드 포함)
+    // 인증 요청
     @PostMapping("/request")
     public ResponseEntity<?> requestVerify(
-            @AuthenticationPrincipal CustomUserDetails cud,   // ← 로그인 사용자
+            @AuthenticationPrincipal CustomUserDetails cud,
             @RequestPart("facilityName") String name,
             @RequestPart("facilityAddress") String address,
             @RequestPart("file") MultipartFile file
@@ -47,7 +47,6 @@ public class LtcAdminVerifyController {
 
         return ResponseEntity.ok("OK");
     }
-
 
     // 목록 조회 (운영자)
     @GetMapping("/list")

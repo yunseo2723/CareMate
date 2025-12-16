@@ -23,9 +23,7 @@ public class GovLtcApiClient {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    /**
-     * 개별 시도 조회
-     */
+    /** 개별 시도 조회 **/
     public List<GovLtcItem> fetchFacilitiesBySido(String sidoCd) {
 
         UriComponentsBuilder b = UriComponentsBuilder

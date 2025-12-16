@@ -5,9 +5,6 @@ import lombok.Data;
 
 import java.util.List;
 
-/**
- * Root DTO for getLtcInsttSeachList02 API (JSON)
- */
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class GovLtcResponse {

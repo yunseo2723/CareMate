@@ -13,7 +13,6 @@ import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-// LtcClient.java
 @Service
 @RequiredArgsConstructor
 public class LtcClient {
@@ -25,7 +24,7 @@ public class LtcClient {
     private URI buildUri(String path, Map<String,String> params) {
         UriComponentsBuilder b = UriComponentsBuilder.fromHttpUrl(baseUrl2 + path);
         if (params != null) params.forEach(b::queryParam);
-        return b.build(true).toUri(); // ★ 이미 인코딩된 값 보존
+        return b.build(true).toUri();
     }
 
     private Mono<String> call(String path, Map<String,String> params) {
@@ -33,7 +32,7 @@ public class LtcClient {
 
         if (params != null) q.putAll(params);
 
-        q.put("serviceKey", serviceKey);           // ★ 무조건 포함
+        q.put("serviceKey", serviceKey);
         URI uri = buildUri(path, q);
         System.out.println("[LtcClient] CALL " + uri);
 
@@ -57,7 +56,6 @@ public class LtcClient {
                 });
     }
 
-    // ★★★ 반드시 ‘02’ 접미사 포함한 정확한 경로 사용 ★★★
     public Mono<String> general(String instCode, String kindCode) {
         return call("/getGeneralSttusDetailInfoItem02", Map.of(
                 "adminPttnCd", kindCode,

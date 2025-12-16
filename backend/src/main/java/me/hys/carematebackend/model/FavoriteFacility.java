@@ -5,10 +5,7 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-// model/FavoriteFacility.java
-@Entity
-@Getter
-@Setter
+@Entity @Getter @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

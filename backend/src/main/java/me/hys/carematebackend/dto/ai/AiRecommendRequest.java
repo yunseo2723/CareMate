@@ -1,6 +1,7 @@
 package me.hys.carematebackend.dto.ai;
 
 import lombok.Data;
+
 import java.util.Map;
 
 @Data

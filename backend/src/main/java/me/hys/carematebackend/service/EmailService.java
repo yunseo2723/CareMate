@@ -27,9 +27,7 @@ public class EmailService {
 
     private static final Duration TTL = Duration.ofMinutes(3);
 
-    /**
-     * 인증번호 전송
-     */
+    /** 인증번호 전송 **/
     public void sendEmailCode(String email) {
 
         String code = String.format("%06d",
@@ -89,9 +87,7 @@ public class EmailService {
         }
     }
 
-    /**
-     * 인증번호 확인
-     */
+    /** 인증번호 확인 **/
     public void verifyCode(String email, String inputCode) {
         EmailVerification ev = verifyRepo.findByEmail(email)
                 .orElseThrow(() -> new IllegalStateException("코드 발급 기록이 없습니다."));
