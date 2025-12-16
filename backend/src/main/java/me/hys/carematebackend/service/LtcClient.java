@@ -98,6 +98,12 @@ public class LtcClient {
         return call("/getConvInsttDetailInfoList02", p);
     }
 
+    public Mono<String> nonBenefitList(String instCode) {
+        Map<String,String> p = new LinkedHashMap<>();
+        p.put("longTermAdminSym", instCode);
+        return call("/getNonBenefitSttusDetailInfoList02", p);
+    }
+
     public Mono<String> etc(String instCode, String kindCode) {
         return call("/getInsttEtcDetailInfoItem02", Map.of(
                 "longTermAdminSym", instCode,

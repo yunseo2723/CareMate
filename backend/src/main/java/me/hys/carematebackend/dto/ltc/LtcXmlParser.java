@@ -127,11 +127,11 @@ public class LtcXmlParser {
         return parseDetail(xml, EtcDto.class);
     }
 
-    public List<ProgramDto> parseProgramList(String xml) {
-        return parseList(xml, ProgramDto.class);
-    }
+    public List<ProgramDto> parseProgramList(String xml) { return parseList(xml, ProgramDto.class); }
 
     public List<ContractDto> parseContractList(String xml) {
         return parseList(xml, ContractDto.class);
     }
+
+    public List<NonBenefitDto> parseNonBenefitList(String xml) { return parseList(xml, NonBenefitDto.class); }
 }

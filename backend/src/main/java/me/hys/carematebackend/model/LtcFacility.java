@@ -81,6 +81,9 @@ public class LtcFacility {
     @Column(columnDefinition = "TEXT")
     private String contractsJson;
 
+    @Column(columnDefinition = "TEXT")
+    private String nonbenefitJson;
+
     @Column(name="last_update")
     private LocalDate lastUpdate;
 }

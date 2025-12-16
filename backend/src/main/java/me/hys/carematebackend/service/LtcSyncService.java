@@ -144,6 +144,21 @@ public class LtcSyncService {
                 log.warn("계약정보 파싱 실패 instCode={}", inst, ex);
             }
 
+            // ================= ⭐ 비급여 항목 리스트 =================
+
+            try {
+                String nonBenefitXml = ltcDetailApi.nonBenefitList(inst).block();
+                List<NonBenefitDto> nonBenefits = parser.parseNonBenefitList(nonBenefitXml);
+
+                if (nonBenefits != null && !nonBenefits.isEmpty()) {
+                    String json = om.writeValueAsString(nonBenefits);
+                    f.setNonbenefitJson(json);   // 🔸 LtcFacility에 String 필드 존재한다고 가정
+                }
+            } catch (Exception ex) {
+                log.warn("프로그램 파싱 실패 instCode={}", inst, ex);
+            }
+
+
             f.setLastUpdate(LocalDate.now());
             repo.saveAndFlush(f);
 

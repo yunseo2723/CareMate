@@ -13,5 +13,7 @@ public interface LtcFacilityRepository extends JpaRepository<LtcFacility, String
 
     Optional<LtcFacility> findByInstCodeAndKindCode(String instCode, String kindCode);
 
+    List<LtcFacility> findTop10ByNameContainingIgnoreCaseOrderByNameAsc(String name);
+
     List<LtcFacility> findTop200ByOrderByInstCodeAsc();
 }
