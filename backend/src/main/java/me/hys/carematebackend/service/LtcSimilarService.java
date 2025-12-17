@@ -3,10 +3,11 @@ package me.hys.carematebackend.service;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.PostConstruct;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @Service
@@ -15,9 +16,14 @@ public class LtcSimilarService {
     private final Map<String, Map<String, Object>> facilityById = new HashMap<>();
 
     @PostConstruct
-    public void load() throws Exception {
-        Path p = Path.of("data/output/facilities_final.json");
-        String json = Files.readString(p);
+    public void load() throws IOException {
+        ClassPathResource resource =
+                new ClassPathResource("output/facilities_final.json");
+
+        String json = new String(
+                resource.getInputStream().readAllBytes(),
+                StandardCharsets.UTF_8
+        );
         ObjectMapper om = new ObjectMapper();
         List<Map<String, Object>> list = om.readValue(json, new TypeReference<>() {});
         for (Map<String, Object> fac : list) {
