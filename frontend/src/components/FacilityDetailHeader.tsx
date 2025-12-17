@@ -9,7 +9,7 @@ export default function FavoriteStar({ instCode, kindCode }: any) {
 
     useEffect(() => {
         authFetch(
-            `http://localhost:8080/favorites/${instCode}/${kindCode}`
+            `https://caremate-fmp1.onrender.com/favorites/${instCode}/${kindCode}`
         )
             .then(r => r.json())
             .then(d => setFav(d.favorite));
@@ -17,7 +17,7 @@ export default function FavoriteStar({ instCode, kindCode }: any) {
 
     const toggle = async () => {
         const res = await authFetch(
-            `http://localhost:8080/favorites/${instCode}/${kindCode}`,
+            `https://caremate-fmp1.onrender.com/favorites/${instCode}/${kindCode}`,
             { method: "POST" }
         );
         const data = await res.json();

@@ -12,7 +12,7 @@ export default function SavedFiltersPage() {
     const [preview, setPreview] = useState<SavedFilter | null>(null);
 
     const load = useCallback(async () => {
-        const res = await authFetch("http://localhost:8080/filters");
+        const res = await authFetch("https://caremate-fmp1.onrender.com/filters");
         setFilters(await res.json());
     }, [authFetch]);
 
@@ -32,7 +32,7 @@ export default function SavedFiltersPage() {
 
     const remove = async (id: number) => {
         if (!confirm("이 필터를 삭제할까요?")) return;
-        await authFetch(`http://localhost:8080/filters/${id}`, {
+        await authFetch(`https://caremate-fmp1.onrender.com/filters/${id}`, {
             method: "DELETE",
         });
         await load();

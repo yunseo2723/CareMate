@@ -33,7 +33,7 @@ export default function AdminFacilityPage() {
         setLoading(true);
         setErr(null);
 
-        authFetch(`http://localhost:8080/facility/admin/${selectedInstCode}/info`)
+        authFetch(`https://caremate-fmp1.onrender.com/facility/admin/${selectedInstCode}/info`)
             .then(r => r.json())
             .then(setFacility)
             .catch(e => setErr(e.message))

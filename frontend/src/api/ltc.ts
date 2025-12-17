@@ -83,7 +83,7 @@ export type FacilityDetailDTO = {
 
 /** 지도/검색용 전체 리스트 */
 export async function fetchFacilitiesLiteAll(): Promise<FacilityLite[]> {
-    const url = "http://localhost:8080/ltc/list/lite";
+    const url = "https://caremate-fmp1.onrender.com/ltc/list/lite";
 
     const res = await fetch(url, { credentials: "include" });
     if (!res.ok) return [];
@@ -96,7 +96,7 @@ export async function fetchFacilityDetailByInst(
     instCode: string,
     kindCode: string,
 ): Promise<FacilityDetailDTO> {
-    const url = new URL("http://localhost:8080/ltc/detail");
+    const url = new URL("https://caremate-fmp1.onrender.com/ltc/detail");
     url.searchParams.set("instCode", instCode);
     url.searchParams.set("kindCode", kindCode);
 
@@ -177,7 +177,7 @@ export async function fetchSimilarFacilities(
 ): Promise<SimilarFacility[]> {
 
     const url = new URL(
-        `http://localhost:8080/ltc/similar/${encodeURIComponent(instCode)}`
+        `https://caremate-fmp1.onrender.com/ltc/similar/${encodeURIComponent(instCode)}`
     );
     url.searchParams.set("size", String(size));
 

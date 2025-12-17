@@ -22,7 +22,7 @@ export default function Login() {
             params.set("username", email);
             params.set("password", pw);
 
-            const res = await fetch("http://localhost:8080/users/login", {
+            const res = await fetch("https://caremate-fmp1.onrender.com/users/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 credentials: "include",

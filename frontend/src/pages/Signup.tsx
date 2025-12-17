@@ -81,7 +81,7 @@ export default function Signup() {
             return;
         }
         try {
-            const res = await fetch("http://localhost:8080/signup/emailAuth", {
+            const res = await fetch("https://caremate-fmp1.onrender.com/signup/emailAuth", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
@@ -122,7 +122,7 @@ export default function Signup() {
         };
 
         try {
-            const res = await fetch("http://localhost:8080/users/register", {
+            const res = await fetch("https://caremate-fmp1.onrender.com/users/register", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",

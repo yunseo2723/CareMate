@@ -14,7 +14,7 @@ export default function MyFavoritesPage() {
     const [list, setList] = useState<Fav[]>([]);
 
     useEffect(() => {
-        authFetch("http://localhost:8080/favorites/me")
+        authFetch("https://caremate-fmp1.onrender.com/favorites/me")
             .then(r => r.json())
             .then(setList);
     }, [authFetch]);

@@ -13,7 +13,7 @@ export default function AiRecommendSidePanel() {
         if (!aiPrompt.trim()) return;
         setLoading(true);
 
-        const res = await authFetch("http://localhost:8080/ai/recommend", {
+        const res = await authFetch("https://caremate-fmp1.onrender.com/ai/recommend", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message: aiPrompt }),

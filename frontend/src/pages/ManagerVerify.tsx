@@ -17,7 +17,7 @@ export default function ManagerVerify() {
         form.append("file", file);
 
         const res = await authFetch(
-            "http://localhost:8080/admin/verify/request",
+            "https://caremate-fmp1.onrender.com/admin/verify/request",
             {
                 method: "POST",
                 body: form,

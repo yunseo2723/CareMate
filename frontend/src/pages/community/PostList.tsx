@@ -10,7 +10,7 @@ export default function PostList({ type }: { type: "NOTICE" | "FREE" }) {
 
     useEffect(() => {
         authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/post?type=${type}`
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post?type=${type}`
         )
             .then(r => r.json())
             .then(setRows);

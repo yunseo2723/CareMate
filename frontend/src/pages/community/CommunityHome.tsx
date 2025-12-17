@@ -14,7 +14,7 @@ export default function CommunityHome() {
         if (!instCode) return;
 
         authFetch(
-            `http://localhost:8080/ltc/detail?instCode=${instCode}&kindCode=${kindCode}`
+            `https://caremate-fmp1.onrender.com/ltc/detail?instCode=${instCode}&kindCode=${kindCode}`
         )
             .then((res) => res.json())
             .then((data) => setFacilityName(data.name))

@@ -23,7 +23,7 @@ export default function EditPostModal({open, onClose, post, instCode, kindCode, 
     const save = async () => {
         setLoading(true);
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/post/${post.id}`,
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post/${post.id}`,
             {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },

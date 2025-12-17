@@ -13,7 +13,7 @@ export default function ReviewDetail() {
 
     useEffect(() => {
         authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/review/${postId}`
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/review/${postId}`
         )
             .then((r) => r.json())
             .then(setReview);
@@ -23,7 +23,7 @@ export default function ReviewDetail() {
         if (!confirm("리뷰를 삭제할까요?")) return;
 
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/review/${postId}`,
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/review/${postId}`,
             { method: "DELETE" }
         );
 

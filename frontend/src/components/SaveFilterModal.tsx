@@ -30,7 +30,7 @@ export default function SaveFilterModal({
 
     if (editingId) {
       // 🔧 수정
-      await authFetch(`http://localhost:8080/filters/${editingId}`, {
+      await authFetch(`https://caremate-fmp1.onrender.com/filters/${editingId}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -42,7 +42,7 @@ export default function SaveFilterModal({
       setEditingFilterId(null); // ⭐ 중요
     } else {
       // 🆕 신규 저장
-      await authFetch("http://localhost:8080/filters", {
+      await authFetch("https://caremate-fmp1.onrender.com/filters", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

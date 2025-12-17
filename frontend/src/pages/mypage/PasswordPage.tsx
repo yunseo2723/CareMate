@@ -9,7 +9,7 @@ export default function PasswordPage() {
 
     const onChange = async () => {
         if (n1 !== n2) return alert("새 비밀번호가 일치하지 않습니다.");
-        const res = await authFetch("http://localhost:8080/users/me/password", {
+        const res = await authFetch("https://caremate-fmp1.onrender.com/users/me/password", {
             method: "PATCH",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ currentPassword: cur, newPassword: n1 }),

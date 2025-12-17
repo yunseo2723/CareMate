@@ -267,7 +267,7 @@ export default function CostSimulator() {
         try {
             setIsSearching(true);
             const res = await fetch(
-                `http://localhost:8080/ltc/search/${encodeURIComponent(value)}`
+                `https://caremate-fmp1.onrender.com/ltc/search/${encodeURIComponent(value)}`
             );
 
             const data = await res.json();

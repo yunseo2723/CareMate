@@ -51,7 +51,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
                 return;
             }
 
-            const res = await fetch("http://localhost:8080/users/me", {
+            const res = await fetch("https://caremate-fmp1.onrender.com/users/me", {
                 credentials: "include",
                 headers: at ? { Authorization: `${at}` } : {},
             });

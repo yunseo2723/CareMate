@@ -19,7 +19,7 @@ export default function MyReviewsPage() {
     const [reviews, setReviews] = useState<MyReview[]>([]);
 
     useEffect(() => {
-        authFetch("http://localhost:8080/myreview/reviews")
+        authFetch("https://caremate-fmp1.onrender.com/myreview/reviews")
             .then(res => res.json())
             .then(setReviews);
     }, [authFetch]);

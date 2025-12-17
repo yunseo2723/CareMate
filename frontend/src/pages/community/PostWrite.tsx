@@ -22,7 +22,7 @@ export default function PostWrite() {
 
         if (boardType === "REVIEW") {
             // ⭐ 리뷰 전용
-            url = `http://localhost:8080/facility/${instCode}/${kindCode}/review`;
+            url = `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/review`;
             payload = {
                 title,
                 content,
@@ -30,7 +30,7 @@ export default function PostWrite() {
             };
         } else {
             // 자유 / 공지
-            url = `http://localhost:8080/facility/${instCode}/${kindCode}/post`;
+            url = `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post`;
             payload = {
                 title,
                 content,

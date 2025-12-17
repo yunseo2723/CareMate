@@ -18,7 +18,7 @@ export default function AdminVerifyList() {
     const load = useCallback(async () => {
         setLoading(true);
         try {
-            const res = await fetch("http://localhost:8080/admin/verify/list");
+            const res = await fetch("https://caremate-fmp1.onrender.com/admin/verify/list");
             const data = await res.json();
             setRows(data);
         } finally {
@@ -34,7 +34,7 @@ export default function AdminVerifyList() {
         const inst = prompt("해당 요양원의 instCode를 입력하세요.");
         if (!inst) return;
 
-        await fetch("http://localhost:8080/admin/verify/approve", {
+        await fetch("https://caremate-fmp1.onrender.com/admin/verify/approve", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id, instCode: inst }),
@@ -48,7 +48,7 @@ export default function AdminVerifyList() {
         const reason = prompt("반려 사유 입력");
         if (!reason) return;
 
-        await fetch("http://localhost:8080/admin/verify/reject", {
+        await fetch("https://caremate-fmp1.onrender.com/admin/verify/reject", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ id, reason }),

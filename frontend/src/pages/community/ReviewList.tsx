@@ -20,7 +20,7 @@ export default function ReviewList() {
 
     useEffect(() => {
         authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/review`
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/review`
         )
             .then(res => res.json())
             .then(setReviews);

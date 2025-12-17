@@ -16,7 +16,7 @@ export default function PostDetail() {
     const [editOpen, setEditOpen] = useState(false);
 
     useEffect(() => {
-        authFetch(`http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}`)
+        authFetch(`https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post/${postId}`)
             .then(r => r.json())
             .then(setPost);
     }, [postId, instCode, kindCode, authFetch]);
@@ -24,7 +24,7 @@ export default function PostDetail() {
     const removePost = async () => {
         if (!confirm("삭제할까요?")) return;
 
-        await authFetch(`http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}`, {
+        await authFetch(`https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post/${postId}`, {
             method: "DELETE",
         });
         alert("삭제되었습니다");
@@ -35,7 +35,7 @@ export default function PostDetail() {
 
     const writeComment = async (parentId: number | null, content: string) => {
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}/comment`,
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post/${postId}/comment`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -46,7 +46,7 @@ export default function PostDetail() {
     };
 
     const refreshPost = () => {
-        authFetch(`http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}`)
+        authFetch(`https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post/${postId}`)
             .then(r => r.json())
             .then(setPost);
     };
@@ -203,7 +203,7 @@ function CommentItem({ comment, onSubmit, refresh, instCode, kindCode, postId, d
     /** 수정 */
     const updateComment = async () => {
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/${kindCode}/post/${postId}/comment/${comment.id}`,
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/${kindCode}/post/${postId}/comment/${comment.id}`,
             {
                 method: "PATCH",
                 headers: { "Content-Type": "application/json" },
@@ -218,7 +218,7 @@ function CommentItem({ comment, onSubmit, refresh, instCode, kindCode, postId, d
     const deleteComment = async () => {
         if (!confirm("댓글을 삭제하시겠습니까?")) return;
         await authFetch(
-            `http://localhost:8080/facility/${instCode}/post/${postId}/comment/${comment.id}`,
+            `https://caremate-fmp1.onrender.com/facility/${instCode}/post/${postId}/comment/${comment.id}`,
             { method: "DELETE" }
         );
         refresh();
