@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: CareMate-Backend
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create   # 최초 배포 시 create 권장, 이후 update/validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  mail:
+    enabled: ${APP_MAIL_ENABLED:true}
+    host: smtp.gmail.com
+    port: 587
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.trust: smtp.gmail.com
+      mail.debug: false
+
+jwt:
+  secret: ${JWT_SECRET}
+
+ltc:
+  api:
+    base2: "https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02"
+    serviceKey: ${LTC_SERVICE_KEY}
+    rest-api-key: ${KAKAO_REST_API_KEY}
+
+openai:
+  api-key: ${OPENAI_API_KEY}
