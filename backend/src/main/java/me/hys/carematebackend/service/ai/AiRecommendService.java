@@ -6,16 +6,11 @@ import me.hys.carematebackend.dto.ai.AiRecommendRequest;
 import me.hys.carematebackend.dto.ai.AiRecommendResponse;
 import me.hys.carematebackend.model.LtcFacility;
 import me.hys.carematebackend.repository.LtcFacilityRepository;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-@ConditionalOnProperty(
-        name = "openai.enabled",
-        havingValue = "true"
-)
 @Service
 @RequiredArgsConstructor
 public class AiRecommendService {
