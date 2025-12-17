@@ -48,7 +48,7 @@ export default function Signup() {
         try {
             setIsSending(true);
 
-            const res = await fetch("http://localhost:8080/signup/email", {
+            const res = await fetch("https://caremate-fmp1.onrender.com/signup/email", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 credentials: "include",
