@@ -45,6 +45,7 @@ openai:
 
 resend:
   api-key: ${RESEND_API_KEY}
+  from: noreply@caremate.kro.kr
 
 management:
   health:

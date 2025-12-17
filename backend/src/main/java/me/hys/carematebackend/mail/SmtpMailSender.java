@@ -21,7 +21,7 @@ public class SmtpMailSender implements MailSenderPort {
             MimeMessageHelper helper =
                     new MimeMessageHelper(message, true, "utf-8");
 
-            helper.setFrom("caremate.kro.kr", "Care Mate");
+            helper.setFrom("noreply@caremate.kro.kr", "Care Mate");
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(plain, html);
