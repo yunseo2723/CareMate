@@ -2,10 +2,10 @@
 FROM gradle:8.9-jdk17 as build
 WORKDIR /workspace
 COPY backend/ ./
-RUN gradle clean bootJar --no-daemon
+RUN ./gradlew clean bootJar --no-daemon
 
 # ---- Runtime stage ----
-FROM eclipse-temurin:21-jre
+FROM eclipse-temurin:17-jre
 WORKDIR /app
 # 빌드 산출물 경로에 맞게 *.jar 복사
 COPY --from=build /workspace/build/libs/*.jar /app/app.jar
