@@ -37,4 +37,4 @@ ltc:
         rest-api-key: "8ade036e254dad1d6e5f2a93e73eee45"
 
 openai:
-    api-key: ${OPENAI_API_KEY:dummy}
+    api-key: ${OPENAI_API_KEY}
