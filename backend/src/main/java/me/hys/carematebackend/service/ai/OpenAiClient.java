@@ -2,11 +2,16 @@ package me.hys.carematebackend.service.ai;
 
 import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.ai.OpenAiResponse;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
 
+@ConditionalOnProperty(
+        name = "openai.enabled",
+        havingValue = "true"
+)
 @Component
 @RequiredArgsConstructor
 public class OpenAiClient {
