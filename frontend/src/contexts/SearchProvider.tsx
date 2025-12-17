@@ -1,6 +1,6 @@
 // src/providers/SearchProvider.tsx
 
-import { useState } from "react";
+import React, { useState } from "react";
 import {Ctx, type SearchFilter} from "./Ctx.ts";
 
 export function SearchProvider({ children }: { children: React.ReactNode }) {

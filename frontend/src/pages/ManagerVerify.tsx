@@ -71,10 +71,10 @@ export default function ManagerVerify() {
                         </label>
                         <input
                             className="w-full rounded-lg border px-4 py-2 text-sm
-                         focus:outline-none focus:ring-2 focus:ring-slate-900"
+                         focus:outline-none focus:ring-2 focus:ring-lime-600"
                             value={facilityName}
                             onChange={(e) => setFacilityName(e.target.value)}
-                            placeholder="예: 미소드림재가노인복지센터"
+                            placeholder="예: ㅇㅇ요양원"
                         />
                     </div>
 
@@ -88,7 +88,7 @@ export default function ManagerVerify() {
                          focus:outline-none focus:ring-2 focus:ring-slate-900"
                             value={facilityAddress}
                             onChange={(e) => setFacilityAddress(e.target.value)}
-                            placeholder="예: 서울 종로구 율곡로 432"
+                            placeholder="예: 서울특별시 강남구"
                         />
                     </div>
 
@@ -122,9 +122,9 @@ export default function ManagerVerify() {
                 {/* 버튼 */}
                 <button
                     onClick={submit}
-                    className="mt-6 w-full rounded-lg bg-slate-900 py-2.5
+                    className="mt-6 w-full rounded-lg bg-lime-600 py-2.5
                      text-white font-medium
-                     hover:bg-slate-800 transition"
+                     hover:bg-lime-500 transition"
                 >
                     인증 요청하기
                 </button>

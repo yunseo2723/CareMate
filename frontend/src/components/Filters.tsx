@@ -28,8 +28,8 @@ export function Filters() {
 
             {/* 상단 CTA */}
             <button
-                className="w-full py-3 rounded-xl bg-slate-900 text-white font-semibold tracking-tight
-                   hover:bg-slate-800 transition"
+                className="w-full py-3 rounded-xl bg-lime-600 text-white font-semibold tracking-tight
+                   hover:bg-lime-500"
                 onClick={() => navigate("/cost-simulator")}
             >
                 요양원 월 예상 비용 계산하기
@@ -63,7 +63,7 @@ export function Filters() {
                     step={0.5}
                     value={radiusKm}
                     onChange={(e) => setRadiusKm(Number(e.target.value))}
-                    className="w-full accent-slate-800"
+                    className="w-full accent-slate-500"
                 />
             </section>
 
@@ -97,7 +97,7 @@ export function Filters() {
                             onClick={() => setGradeFilter(g)}
                             className={`px-4 py-1.5 rounded-full border text-sm transition
                 ${gradeFilter === g
-                                ? "bg-slate-900 text-white border-slate-900"
+                                ? "bg-lime-600 text-white border-slate-900"
                                 : "bg-white hover:bg-slate-50"
                             }`}
                         >
@@ -122,7 +122,7 @@ export function Filters() {
                     step={1}
                     value={minCaregiver}
                     onChange={(e) => setMinCaregiver(Number(e.target.value))}
-                    className="w-full accent-slate-800"
+                    className="w-full accent-slate-500"
                 />
             </section>
 
@@ -155,7 +155,7 @@ export function Filters() {
                             onClick={() => toggle(roomTypes, setRoomTypes, rt)}
                             className={`px-4 py-1.5 rounded-full border text-sm transition
                 ${roomTypes.includes(rt)
-                                ? "bg-slate-900 text-white"
+                                ? "bg-lime-600 text-white"
                                 : "bg-white hover:bg-slate-50"
                             }`}
                         >
@@ -184,7 +184,7 @@ export function Filters() {
                             onClick={() => toggle(programTypes, setProgramTypes, p.name)}
                             className={`px-4 py-1.5 rounded-full border text-sm transition
                 ${programTypes.includes(p.name)
-                                ? "bg-slate-900 text-white"
+                                ? "bg-lime-600 text-white"
                                 : "bg-white hover:bg-slate-50"
                             }`}
                         >

@@ -60,7 +60,7 @@ function TopSection({
                     <FavoriteStar instCode={instCode} kindCode={kindCode} />
                 </h1>
 
-                <p className="text-sm text-slate-600">{data.fullRoadAddr}</p>
+                <p className="text-slate-600">{data.fullRoadAddr}</p>
 
                 <div className="flex flex-wrap gap-3 items-center">
                     {data.grade && (
@@ -72,17 +72,17 @@ function TopSection({
                     {data.phone && (
                         <a
                             href={`tel:${data.phone}`}
-                            className="text-sm text-blue-600 underline"
+                            className="text-black underline"
                         >
-                            문의 {data.phone}
+                            문의 : {data.phone}
                         </a>
                     )}
                 </div>
 
                 <Link
                     to={`/facility/${instCode}/${kindCode}/community`}
-                    className="inline-block w-fit rounded-md bg-blue-600 px-4 py-2
-                     text-white text-sm font-medium hover:bg-blue-700 transition"
+                    className="inline-block w-fit rounded-md bg-lime-600 px-4 py-2
+                     text-white text-sm font-medium hover:bg-lime-500 transition"
                 >
                     커뮤니티로 이동
                 </Link>
@@ -294,7 +294,7 @@ function Card({
             className={`rounded-lg p-4 text-center
         ${
                 highlight
-                    ? "bg-slate-900 text-white"
+                    ? "bg-lime-600 text-black font-bold"
                     : isZero
                         ? "bg-slate-50 text-slate-400"
                         : "border bg-white"

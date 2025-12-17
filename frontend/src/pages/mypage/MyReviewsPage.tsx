@@ -22,7 +22,7 @@ export default function MyReviewsPage() {
         authFetch("http://localhost:8080/myreview/reviews")
             .then(res => res.json())
             .then(setReviews);
-    }, []);
+    }, [authFetch]);
 
     return (
         <div className="max-w-4xl space-y-6">

@@ -77,7 +77,7 @@ export default function SaveFilterModal({
 
                     <input
                         className="border p-2 w-full rounded"
-                        placeholder="예) 부천 · 치매전문"
+                        placeholder="예) 치매전문"
                         value={name}
                         onChange={(e) => setName(e.target.value)}
                     />
@@ -85,7 +85,7 @@ export default function SaveFilterModal({
                     <div className="flex justify-end gap-2">
                       <button onClick={() => setOpen(false)}>취소</button>
                       <button
-                          className="bg-blue-600 text-white px-4 py-2 rounded"
+                          className="bg-lime-600 text-white px-4 py-2 rounded"
                           onClick={save}
                       >
                         {editingId ? "수정 완료" : "저장"}

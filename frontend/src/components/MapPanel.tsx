@@ -1,11 +1,10 @@
-// src/components/MapPanel.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
     useEffect,
     useMemo,
     useRef,
     useState,
-    useContext,
+    useContext, useCallback,
 } from "react";
 import { Ctx } from "../contexts/Ctx";
 import {
@@ -65,58 +64,60 @@ export function MapPanel() {
         roomTypes.length > 0 ||
         programTypes.length > 0;
 
-    const matchesType = (item: FacilityLite): boolean => {
+    const matchesType = useCallback((item: FacilityLite): boolean => {
         if (careLevel === "전체") return true;
         return mapFacilityType(item.kindCode) === careLevel;
-    };
+    }, [careLevel]);
 
-    function matchesGrade(f: FacilityLite): boolean {
+    const matchesGrade = useCallback((f: FacilityLite): boolean => {
         if (gradeFilter === "전체") return true;
         return f.grade === gradeFilter;
-    }
-    function matchesCaregiver(f: FacilityLite) {
-        return f.caregiver ?? 0 >= minCaregiver;
-    }
-    function matchesNurse(f: FacilityLite) {
+    }, [gradeFilter]);
+
+    const matchesCaregiver = useCallback((f: FacilityLite) => {
+        return (f.caregiver ?? 0) >= minCaregiver;
+    }, [minCaregiver]);
+
+    const matchesNurse = useCallback((f: FacilityLite) => {
         if (!hasNurse) return true;
         return (f.nurse ?? 0) > 0;
-    }
-    function matchesDoctor(f: FacilityLite) {
+    }, [hasNurse]);
+
+    const matchesDoctor = useCallback((f: FacilityLite) => {
         if (!hasDoctor) return true;
         return (f.doctor ?? 0) > 0;
-    }
-    function matchesSocial(f: FacilityLite) {
+    }, [hasDoctor]);
+
+    const matchesSocial = useCallback((f: FacilityLite) => {
         if (!hasSocial) return true;
         return (f.socialWorker ?? 0) > 0;
-    }
-    function matchesRoom(f: FacilityLite): boolean {
+    }, [hasSocial]);
+
+    const matchesRoom = useCallback((f: FacilityLite): boolean => {
         for (const rt of roomTypes) {
             if (rt === "1인실" && (f.singleRm ?? 0) > 0) return true;
             if (rt === "2인실" && (f.doubleRm ?? 0) > 0) return true;
             if (rt === "3인실" && (f.tripleRm ?? 0) > 0) return true;
             if (rt === "4인실" && (f.quadrupleRm ?? 0) > 0) return true;
-
             if (rt === "프로그램실" && (f.programRoom ?? 0) > 0) return true;
             if (rt === "식당" && (f.diningKitchen ?? 0) > 0) return true;
             if (rt === "목욕실" && (f.bath ?? 0) > 0) return true;
         }
         return roomTypes.length === 0;
-    }
-    function matchesProgram(f: FacilityLite): boolean {
-        if (programTypes.length === 0) return true;
+    }, [roomTypes]);
 
+    const matchesProgram = useCallback((f: FacilityLite): boolean => {
+        if (programTypes.length === 0) return true;
         const programs = f.programs;
         if (!programs || programs.length === 0) return false;
 
         return programTypes.some((name) => {
             const codes = PROGRAM_MAP[name];
             if (!codes) return false;
-
-            return programs.some(p =>
-                codes.includes(String(p.pgmType))
-            );
+            return programs.some(p => codes.includes(String(p.pgmType)));
         });
-    }
+    }, [programTypes]);
+
 
     const containerRef = useRef<HTMLDivElement | null>(null);
     const mapRef = useRef<any | null>(null);
@@ -147,19 +148,6 @@ export function MapPanel() {
                 map,
                 averageCenter: false,
                 minLevel: 3,
-                styles: [
-                    {
-                        width: "42px",
-                        height: "42px",
-                        background: "rgba(15, 23, 42, 0.85)", // slate-900
-                        borderRadius: "9999px",
-                        color: "#fff",
-                        textAlign: "center",
-                        lineHeight: "42px",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                    },
-                ],
             });
 
             mapRef.current = map;
@@ -212,7 +200,7 @@ export function MapPanel() {
         const base = rows.filter(r => r.lat != null && r.lng != null);
 
         if (!isFilterActive) {
-            return base; // ✅ 필터 하나도 안 건드렸으면 전부
+            return base;
         }
 
         return base
@@ -224,12 +212,7 @@ export function MapPanel() {
             .filter(matchesSocial)
             .filter(matchesRoom)
             .filter(matchesProgram);
-    }, [
-        rows,
-        careLevel, gradeFilter,
-        minCaregiver, hasNurse, hasDoctor, hasSocial,
-        roomTypes, programTypes
-    ]);
+    }, [rows, isFilterActive, matchesType, matchesGrade, matchesCaregiver, matchesNurse, matchesDoctor, matchesSocial, matchesRoom, matchesProgram]);
 
     /** 3) 마커 & 클러스터링 갱신 */
     useEffect(() => {
@@ -337,8 +320,6 @@ export function MapPanel() {
             setCircleCenter({ lat: pos.getLat(), lng: pos.getLng() });
         }
     }, [center, radiusKm, mapReady]);
-
-
 
     /** 5) 반경 슬라이더 변경 시 원 크기만 변경 */
     useEffect(() => {

@@ -38,7 +38,7 @@ export default function AdminFacilityPage() {
             .then(setFacility)
             .catch(e => setErr(e.message))
             .finally(() => setLoading(false));
-    }, [selectedInstCode]);
+    }, [authFetch, selectedInstCode]);
 
     if (!isAdmin)
         return (
@@ -136,9 +136,9 @@ export default function AdminFacilityPage() {
                         <a
                             href={`/facility/${selectedInstCode}/${selectedKindCode}/community`}
                             className="inline-flex items-center gap-2 rounded-xl
-                         bg-slate-900 px-5 py-2.5 text-sm
+                         bg-lime-600 px-5 py-2.5 text-sm
                          font-semibold text-white
-                         hover:bg-slate-800 transition"
+                         hover:bg-lime-500 transition"
                         >
                             커뮤니티 페이지로 이동 →
                         </a>

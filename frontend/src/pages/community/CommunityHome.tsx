@@ -82,8 +82,8 @@ function Section({
                 <h2 className="text-lg font-semibold">{title}</h2>
                 <a
                     href={actionHref}
-                    className="rounded-md bg-blue-600 px-3 py-1.5
-                     text-sm text-white hover:bg-blue-700 transition"
+                    className="rounded-md bg-lime-600 px-3 py-1.5
+                     text-sm text-white hover:bg-lime-500 transition"
                 >
                     {actionLabel}
                 </a>

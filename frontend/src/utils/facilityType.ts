@@ -1,5 +1,3 @@
-// src/utils/facilityType.ts
-
 export function mapFacilityType(code?: string): string {
     if (!code) return "기타";
 

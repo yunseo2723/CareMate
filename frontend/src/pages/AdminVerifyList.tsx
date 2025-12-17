@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 
 type VerifyRow = {
     id: number;
@@ -15,17 +15,20 @@ export default function AdminVerifyList() {
     const [rows, setRows] = useState<VerifyRow[]>([]);
     const [loading, setLoading] = useState(true);
 
-    const load = async () => {
+    const load = useCallback(async () => {
         setLoading(true);
-        const res = await fetch("http://localhost:8080/admin/verify/list");
-        const data = await res.json();
-        setRows(data);
-        setLoading(false);
-    };
+        try {
+            const res = await fetch("http://localhost:8080/admin/verify/list");
+            const data = await res.json();
+            setRows(data);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
 
     useEffect(() => {
-        load();
-    }, []);
+        void load();
+    }, [load]);
 
     const approve = async (id: number) => {
         const inst = prompt("해당 요양원의 instCode를 입력하세요.");
@@ -38,7 +41,7 @@ export default function AdminVerifyList() {
         });
 
         alert("승인 완료");
-        load();
+        await load();
     };
 
     const reject = async (id: number) => {
@@ -52,7 +55,7 @@ export default function AdminVerifyList() {
         });
 
         alert("반려 처리됨");
-        load();
+        await load();
     };
 
     if (loading) return <div className="p-10">불러오는 중...</div>;
@@ -86,7 +89,7 @@ export default function AdminVerifyList() {
                             <a
                                 href={r.businessDocUrl}
                                 target="_blank"
-                                className="text-blue-600 underline"
+                                className="text-lime-600 underline"
                             >
                                 서류 보기
                             </a>

@@ -89,7 +89,7 @@ export function SimilarModal({
                        hover:bg-slate-100 transition"
                     >
                         <div className="flex items-center gap-2 mb-1">
-              <span className="text-xs rounded-full bg-slate-900 text-white px-2 py-0.5">
+              <span className="text-xs rounded-full bg-lime-600 text-white px-2 py-0.5">
                 기준 요양원
               </span>
                         </div>

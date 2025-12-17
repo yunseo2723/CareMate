@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 const AUTH_CARD =
@@ -57,7 +57,8 @@ export default function Signup() {
 
             if (!res.ok) {
                 const msg = await res.text().catch(() => "");
-                throw new Error(msg || "전송 실패");
+                console.error(msg || "전송 실패");
+                return;
             }
 
             setCodeSent(true);

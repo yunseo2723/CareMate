@@ -62,7 +62,7 @@ function PostRow({ post }: any) {
                 >
                     {post.title}
                     {post.commentCount > 0 && (
-                        <span className="text-blue-600 ml-1">
+                        <span className="text-lime-600 ml-1">
                             [{post.commentCount}]
                         </span>
                     )}

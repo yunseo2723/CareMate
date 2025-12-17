@@ -1,4 +1,3 @@
-// utils/programMap.ts
 export const PROGRAM_MAP: Record<string, string[]> = {
     "인지기능향상": ["1"],
     "운동보조": ["2"],

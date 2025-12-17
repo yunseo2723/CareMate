@@ -12,7 +12,7 @@ export default function MyPageLayout(){
         <NavLink
             to={to}
             className={({isActive}) =>
-                `block rounded-md px-3 py-2 text-sm ${isActive ? "bg-slate-900 text-white" : "hover:bg-slate-100"}`
+                `block rounded-md px-3 py-2 text-sm ${isActive ? "bg-lime-600 text-white" : "hover:bg-slate-100"}`
             }>
             {label}
         </NavLink>

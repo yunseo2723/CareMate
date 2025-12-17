@@ -88,7 +88,7 @@ export default function PostWrite() {
 
             <button
                 onClick={submit}
-                className="px-4 py-2 bg-blue-600 text-white rounded"
+                className="px-4 py-2 bg-lime-600 text-white rounded"
             >
                 등록
             </button>

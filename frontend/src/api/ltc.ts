@@ -1,4 +1,3 @@
-// src/api/ltc.ts
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 export type FacilityLite = {

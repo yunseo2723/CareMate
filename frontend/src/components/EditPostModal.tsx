@@ -63,7 +63,7 @@ export default function EditPostModal({open, onClose, post, instCode, kindCode, 
                         취소
                     </button>
                     <button
-                        className="px-4 py-2 bg-blue-600 text-white rounded"
+                        className="px-4 py-2 bg-lime-600 text-white rounded"
                         onClick={save}
                         disabled={loading}
                     >

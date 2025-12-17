@@ -53,8 +53,8 @@ export default function AiRecommendSidePanel() {
             <button
                 onClick={submit}
                 disabled={loading}
-                className="w-full rounded-xl bg-slate-900 py-3 text-white font-semibold
-                   hover:bg-slate-800 transition disabled:opacity-60"
+                className="w-full rounded-xl bg-fuchsia-700 py-3 text-white font-semibold
+                   hover:bg-fuchsia-600 transition disabled:opacity-60"
             >
                 {loading ? "AI가 추천 중입니다..." : "추천 받기"}
             </button>

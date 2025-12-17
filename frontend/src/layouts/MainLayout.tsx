@@ -1,9 +1,9 @@
-// src/layouts/MainLayout.tsx
-import { Outlet, Link, useNavigate } from "react-router-dom";
+import { Outlet, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import logo from "../assets/logo2.png";
+import FacilityQuickSearch from "../components/FacilityQuickSearch.tsx";
 
 export default function MainLayout() {
-    const nav = useNavigate();
     const { user, logout, loading } = useAuth();
     if (loading) return null;
 
@@ -12,81 +12,101 @@ export default function MainLayout() {
     return (
         <div className="min-h-dvh flex flex-col bg-gradient-to-b from-white to-slate-50">
             {/* Header */}
-            <header className="sticky top-0 z-40 border-b bg-white/80 backdrop-blur">
-                <div className="mx-auto flex max-w-screen-2xl items-center px-6 py-3">
+            <header className="w-full border-b bg-white">
+                <div className="mx-auto max-w-[14200px] px-8">
+                    <div className="flex items-center justify-between h-50">
+                        {/* 좌 / 중 / 우 */}
 
-                    {/* 브랜드 */}
-                    <Link to="/" className="flex items-center gap-3 hover:opacity-90">
-                        <div className="h-7 w-7 rounded-lg bg-slate-900 flex items-center justify-center">
-                            <span className="text-white text-xs font-bold">C</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <h1 className="text-lg font-semibold tracking-tight">
-                                CareMate
-                            </h1>
-                            <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[11px] text-slate-600">
-                요양원 추천
-              </span>
-                        </div>
+
+
+                        {/* 브랜드 */}
+                    <Link to="/" className="flex items-center gap-2 shrink-0">
+                        <img
+                            src={logo}
+                            alt="CareMate"
+                            className="h-40 w-auto object-contain"
+                        />
                     </Link>
 
-                    {/* 우측 영역 */}
-                    <div className="ml-auto flex items-center gap-3">
-                        {user ? (
-                            <>
-                                {/* 환영 문구 */}
-                                <span className="hidden md:inline text-sm text-slate-600">
-                  <span className="font-medium text-slate-800">
-                    {displayName}
-                  </span>
-                  님 환영합니다
-                </span>
+                        <div className="flex-1 flex justify-center">
+                        <FacilityQuickSearch />
+                    </div>
 
-                                {/* 관리자 */}
-                                <button
-                                    onClick={() => nav("/admin")}
-                                    className="rounded-lg bg-slate-100 px-3 py-1.5 text-sm
-                             text-slate-700 hover:bg-slate-200 transition"
-                                >
-                                    관리자 인증
-                                </button>
+                        {/* 우측 영역 */}
+                        <div className="flex flex-col items-end gap-3 min-w-[240px]">
+                            {user ? (
+                                <>
+                                    {/* 환영 문구 (위) */}
+                                    <div className="text-base text-slate-700 mr-1">
+                                        <span className="font-semibold">{displayName}</span> 님 환영합니다
+                                    </div>
 
-                                {/* 마이페이지 */}
-                                <button
-                                    onClick={() => nav("/mypage")}
-                                    className="rounded-lg border px-3 py-1.5 text-sm
-                             hover:bg-slate-50 transition"
-                                >
-                                    마이페이지
-                                </button>
+                                    {/* 버튼 영역 (아래) */}
+                                    <div className="flex items-center gap-3">
+                                        {/* 관리자 */}
+                                        <Link
+                                            to="/admin"
+                                            className="
+            px-4 py-2 rounded-md bg-slate-100 hover:bg-slate-200 text-sm
+          "
+                                        >
+                                            관리자 인증
+                                        </Link>
 
-                                {/* 로그아웃 (Primary) */}
-                                <button
-                                    onClick={logout}
-                                    className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm
-                             text-white hover:bg-slate-800 transition"
-                                >
-                                    로그아웃
-                                </button>
-                            </>
-                        ) : (
-                            <>
-                                <Link
-                                    to="/login"
-                                    className="rounded-lg border px-3 py-1.5 text-sm
-                             hover:bg-slate-50 transition"
-                                >
-                                    로그인
-                                </Link>
-                                <Link
-                                    to="/signup"
-                                    className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm
-                             text-white hover:bg-slate-800 transition"
-                                >
-                                    회원가입
-                                </Link>
-                            </>
-                        )}
+                                        {/* 마이페이지 */}
+                                        <Link
+                                            to="/mypage"
+                                            className="
+           px-4 py-2 rounded-md border hover:bg-slate-50 text-sm
+          "
+                                        >
+                                            마이페이지
+                                        </Link>
+
+                                        {/* 로그아웃 */}
+                                        <button
+                                            onClick={logout}
+                                            className="
+            px-4 py-2 rounded-md bg-lime-600 text-white text-sm font-semibold hover:bg-lime-500
+          "
+                                        >
+                                            로그아웃
+                                        </button>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex items-center gap-3">
+                                    <Link
+                                        to="/login"
+                                        className="
+          rounded-lg
+          border
+          px-4 py-2
+          text-sm font-medium
+          hover:bg-slate-50
+          transition
+        "
+                                    >
+                                        로그인
+                                    </Link>
+                                    <Link
+                                        to="/signup"
+                                        className="
+          rounded-lg
+          bg-slate-900
+          px-4 py-2
+          text-sm font-semibold
+          text-white
+          hover:bg-slate-800
+          transition
+        "
+                                    >
+                                        회원가입
+                                    </Link>
+                                </div>
+                            )}
+                        </div>
+
                     </div>
                 </div>
             </header>

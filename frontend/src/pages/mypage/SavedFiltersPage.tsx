@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import {useCallback, useEffect, useState} from "react";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import type { SavedFilter } from "../../types/savedFilter";
@@ -11,14 +11,14 @@ export default function SavedFiltersPage() {
     const [filters, setFilters] = useState<SavedFilter[]>([]);
     const [preview, setPreview] = useState<SavedFilter | null>(null);
 
-    const load = async () => {
+    const load = useCallback(async () => {
         const res = await authFetch("http://localhost:8080/filters");
         setFilters(await res.json());
-    };
+    }, [authFetch]);
 
     useEffect(() => {
-        load();
-    }, []);
+        void load();
+    }, [load]);
 
     const apply = (f: SavedFilter) => {
         navigate(`/?filter=${encodeURIComponent(f.filterJson)}`);
@@ -35,7 +35,7 @@ export default function SavedFiltersPage() {
         await authFetch(`http://localhost:8080/filters/${id}`, {
             method: "DELETE",
         });
-        load();
+        await load();
     };
 
     return (
@@ -88,8 +88,8 @@ export default function SavedFiltersPage() {
 
                             <button
                                 onClick={() => apply(f)}
-                                className="rounded-lg bg-slate-900 px-3 py-1.5 text-sm
-                           text-white hover:bg-slate-800 transition"
+                                className="rounded-lg bg-lime-600 px-3 py-1.5 text-sm
+                           text-white hover:bg-lime-500 transition"
                             >
                                 적용
                             </button>

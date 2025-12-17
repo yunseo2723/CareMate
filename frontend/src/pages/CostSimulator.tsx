@@ -844,7 +844,7 @@ export default function CostSimulator() {
                                 {/* 선택 안 하고 엔터/버튼 눌렀을 때용 fallback */}
                                 <button
                                     type="button"
-                                    className="px-4 py-2 bg-blue-600 text-white rounded"
+                                    className="px-4 py-2 bg-lime-600 text-white rounded"
                                     onClick={() => {
                                         if (suggestions.length === 0) {
                                             alert("요양원을 선택해주세요");

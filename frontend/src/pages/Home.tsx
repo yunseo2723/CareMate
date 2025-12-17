@@ -29,7 +29,7 @@ export default function Home() {
         if (editingId) {
             setEditingFilterId(Number(editingId));
         }
-    }, []);
+    }, [applyFilter, search, setEditingFilterId]);
 
     const filterPayload = {
         center: search.center,

@@ -104,9 +104,9 @@ export default function ProfilePage() {
                 <div className="flex justify-end pt-4 border-t">
                     <button
                         onClick={onSave}
-                        className="rounded-xl bg-slate-900 px-6 py-2.5
+                        className="rounded-xl bg-lime-600 px-6 py-2.5
                        text-white font-semibold
-                       hover:bg-slate-800 transition"
+                       hover:bg-lime-500 transition"
                     >
                         변경 사항 저장
                     </button>
