@@ -57,6 +57,9 @@ dependencies {
 
     // env
     implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+    // resend
+    implementation 'com.resend:resend-java:3.+'
 }
 
 tasks.named('test') {
