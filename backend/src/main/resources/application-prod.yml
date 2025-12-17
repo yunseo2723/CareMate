@@ -1,3 +1,7 @@
+app:
+  mail:
+    enabled: ${APP_MAIL_ENABLED:true}
+
 spring:
   application:
     name: CareMate-Backend
@@ -17,7 +21,6 @@ spring:
         format_sql: false
 
   mail:
-    enabled: ${APP_MAIL_ENABLED:true}
     host: smtp.gmail.com
     port: 587
     username: ${MAIL_USERNAME}
@@ -39,3 +42,4 @@ ltc:
 
 openai:
   api-key: ${OPENAI_API_KEY}
+
