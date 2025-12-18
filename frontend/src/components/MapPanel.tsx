@@ -141,7 +141,7 @@ export function MapPanel() {
 
             const map = new kakao.maps.Map(containerRef.current!, {
                 center: new kakao.maps.LatLng(SEOUL_CENTER.lat, SEOUL_CENTER.lng),
-                level: 8,
+                level: 9,
             });
 
             const clusterer = new kakao.maps.MarkerClusterer({
@@ -360,7 +360,7 @@ export function MapPanel() {
             <div className="p-4">
                 <div
                     ref={containerRef}
-                    className="h-[70vh] w-full rounded-2xl border"
+                    className="w-full rounded-2xl border h-[280px] md:h-[360px] xl:h-[420px]"
                 />
             </div>
 

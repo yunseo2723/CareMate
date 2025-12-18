@@ -35,24 +35,34 @@ export default function FacilityQuickSearch() {
     };
 
     return (
-        <div className="relative w-full max-w-xl mx-auto">
+        <div className="relative w-full max-w-md">
             <input
                 value={query}
                 onChange={(e) => search(e.target.value)}
                 placeholder="요양원 이름을 입력하세요"
-                className="w-[520px] md:w-[600px] lg:w-[580px] rounded-full border-2
-                border-black px-10 py-5 text-lg font-semibold placeholder:text-gray-400 shadow-sm"
+                className="
+          w-full
+          rounded-full
+          border
+          border-black
+          px-5
+          py-3.5
+          text-sm
+          font-medium
+          placeholder:text-slate-950
+          shadow-sm
+        "
             />
 
             {open && results.length > 0 && (
-                <div className="absolute z-20 w-full bg-white border rounded-md shadow mt-1 max-h-64 overflow-auto">
+                <div className="absolute z-20 mt-1 w-full bg-white border rounded-md shadow max-h-64 overflow-auto">
                     {results.map((f) => (
                         <div
                             key={f.instCode}
-                            className="px-4 py-3 hover:bg-blue-50 cursor-pointer"
+                            className="px-4 py-2 hover:bg-blue-50 cursor-pointer"
                             onClick={() => select(f)}
                         >
-                            <div className="font-medium">{f.name}</div>
+                            <div className="text-sm font-medium">{f.name}</div>
                             {f.fullRoadAddr && (
                                 <div className="text-xs text-gray-500">
                                     {f.fullRoadAddr}

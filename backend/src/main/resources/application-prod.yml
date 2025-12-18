@@ -1,11 +1,4 @@
-app:
-  mail:
-    enabled: false
-
 spring:
-  application:
-    name: CareMate-Backend
-
   datasource:
     url: ${SPRING_DATASOURCE_URL}
     username: ${SPRING_DATASOURCE_USERNAME}
@@ -14,7 +7,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create   # 최초 배포 시 create 권장, 이후 update/validate
+      ddl-auto: create   # 최초 1회만, 이후 update 추천
     show-sql: false
     properties:
       hibernate:

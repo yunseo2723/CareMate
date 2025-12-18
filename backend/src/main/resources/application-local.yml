@@ -1,0 +1,31 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://dpg-d51bnt95pdvs73clnbng-a.singapore-postgres.render.com:5432/caremate_o06x
+    username: caremate_o06x_user
+    password: ERDtGX6rIk3MIzB6X0Cnl5GsgCS6yTUg
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hayunseo14@gmail.com
+    password: ravbdlsvqlyrabwg
+    properties:
+      mail.smtp.auth: true
+      mail.smtp.starttls.enable: true
+      mail.smtp.ssl.trust: smtp.gmail.com
+      mail.debug: true
+
+resend:
+  api-key: ${RESEND_API_KEY}
+  from: noreply@caremate.kro.kr
+
+management:
+  health:
+    mail:
+      enabled: false

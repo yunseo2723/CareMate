@@ -5,7 +5,7 @@ import { useAuth } from "../hooks/useAuth";
 
 const AUTH_CARD = "mx-auto w-full max-w-xl md:max-w-2xl rounded-2xl border bg-white p-8 shadow-sm";
 const INPUT = "w-full rounded-md border px-3 h-11 text-base";
-const PRIMARY_BTN = "w-full rounded-md bg-slate-900 h-11 text-base font-medium text-white hover:opacity-90 disabled:opacity-50";
+const PRIMARY_BTN = "w-full rounded-md bg-lime-600 h-11 text-base font-medium text-white hover:opacity-90 disabled:opacity-50";
 
 export default function Login() {
     const nav = useNavigate();

@@ -9,11 +9,9 @@ export function Filters() {
         careLevel, setCareLevel,
         gradeFilter, setGradeFilter,
         minCaregiver, setMinCaregiver,
-
         hasNurse, setHasNurse,
         hasDoctor, setHasDoctor,
         hasSocial, setHasSocial,
-
         roomTypes, setRoomTypes,
         programTypes, setProgramTypes
     } = useSearch();
@@ -24,23 +22,31 @@ export function Filters() {
     };
 
     return (
-        <div className="rounded-3xl border bg-white p-7 space-y-8 shadow-sm">
+        <div className="rounded-2xl border bg-white p-5 space-y-6 shadow-sm">
 
             {/* 상단 CTA */}
             <button
-                className="w-full py-3 rounded-xl bg-lime-600 text-white font-semibold tracking-tight
-                   hover:bg-lime-500"
+                className="
+          w-full
+          py-2.5
+          rounded-lg
+          bg-lime-600
+          text-white
+          text-sm
+          font-semibold
+          hover:bg-lime-500
+        "
                 onClick={() => navigate("/cost-simulator")}
             >
                 요양원 월 예상 비용 계산하기
             </button>
 
             {/* 위치 검색 */}
-            <section className="space-y-3">
-                <h3 className="text-base font-semibold">위치 검색</h3>
+            <section className="space-y-2">
+                <h3 className="text-sm font-semibold">위치 검색</h3>
                 <input
-                    className="w-full rounded-lg border px-4 py-2.5 text-sm
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+                    className="w-full rounded-md border px-3 py-2 text-sm
+          focus:outline-none focus:ring-2 focus:ring-slate-300"
                     value={center}
                     onChange={(e) => setCenter(e.target.value)}
                     placeholder="예: 강남구청"
@@ -51,10 +57,10 @@ export function Filters() {
             </section>
 
             {/* 반경 */}
-            <section className="space-y-3">
+            <section className="space-y-2">
                 <div className="flex justify-between items-center">
-                    <h3 className="text-base font-semibold">검색 반경</h3>
-                    <span className="text-sm font-medium text-slate-700">{radiusKm} km</span>
+                    <h3 className="text-sm font-semibold">검색 반경</h3>
+                    <span className="text-xs font-medium text-slate-700">{radiusKm} km</span>
                 </div>
                 <input
                     type="range"
@@ -68,11 +74,11 @@ export function Filters() {
             </section>
 
             {/* 유형 */}
-            <section className="space-y-3">
-                <h3 className="text-base font-semibold">유형</h3>
+            <section className="space-y-2">
+                <h3 className="text-sm font-semibold">유형</h3>
                 <select
-                    className="w-full rounded-lg border px-4 py-2.5 text-sm bg-white
-                     focus:outline-none focus:ring-2 focus:ring-slate-300"
+                    className="w-full rounded-md border px-3 py-2 text-sm bg-white
+          focus:outline-none focus:ring-2 focus:ring-slate-300"
                     value={careLevel}
                     onChange={(e) => setCareLevel(e.target.value)}
                 >
@@ -86,18 +92,16 @@ export function Filters() {
             </section>
 
             {/* 평가 등급 */}
-            <section className="space-y-3">
-                <h3 className="text-base font-semibold">
-                    국민건강보험공단 평가 등급
-                </h3>
-                <div className="flex flex-wrap gap-2">
+            <section className="space-y-2">
+                <h3 className="text-sm font-semibold">평가 등급</h3>
+                <div className="flex flex-wrap gap-1.5">
                     {["전체", "A", "B", "C", "D", "E"].map(g => (
                         <button
                             key={g}
                             onClick={() => setGradeFilter(g)}
-                            className={`px-4 py-1.5 rounded-full border text-sm transition
+                            className={`px-3 py-1 rounded-full border text-xs transition
                 ${gradeFilter === g
-                                ? "bg-lime-600 text-white border-slate-900"
+                                ? "bg-lime-600 text-white"
                                 : "bg-white hover:bg-slate-50"
                             }`}
                         >
@@ -108,10 +112,10 @@ export function Filters() {
             </section>
 
             {/* 요양보호사 */}
-            <section className="space-y-3">
+            <section className="space-y-2">
                 <div className="flex justify-between items-center">
-                    <h3 className="text-base font-semibold">요양보호사 최소 인원</h3>
-                    <span className="text-sm font-medium text-slate-700">
+                    <h3 className="text-sm font-semibold">요양보호사</h3>
+                    <span className="text-xs font-medium text-slate-700">
             {minCaregiver}명
           </span>
                 </div>
@@ -127,33 +131,33 @@ export function Filters() {
             </section>
 
             {/* 인력 구성 */}
-            <section className="space-y-3">
-                <h3 className="text-base font-semibold">인력 구성</h3>
-                <div className="grid grid-cols-1 gap-2 text-sm">
+            <section className="space-y-2">
+                <h3 className="text-sm font-semibold">인력 구성</h3>
+                <div className="grid grid-cols-1 gap-1.5 text-sm">
                     <label className="flex items-center gap-2">
                         <input type="checkbox" checked={hasNurse} onChange={e => setHasNurse(e.target.checked)} />
-                        간호 인력 있음
+                        간호 인력
                     </label>
                     <label className="flex items-center gap-2">
                         <input type="checkbox" checked={hasDoctor} onChange={e => setHasDoctor(e.target.checked)} />
-                        의사 있음
+                        의사
                     </label>
                     <label className="flex items-center gap-2">
                         <input type="checkbox" checked={hasSocial} onChange={e => setHasSocial(e.target.checked)} />
-                        사회복지사 있음
+                        사회복지사
                     </label>
                 </div>
             </section>
 
             {/* 병실 / 시설 */}
-            <section className="space-y-3">
-                <h3 className="text-base font-semibold">병실 / 시설</h3>
-                <div className="flex flex-wrap gap-2">
+            <section className="space-y-2">
+                <h3 className="text-sm font-semibold">병실 / 시설</h3>
+                <div className="flex flex-wrap gap-1.5">
                     {["1인실","2인실","3인실","4인실","프로그램실","식당","목욕실"].map(rt => (
                         <button
                             key={rt}
                             onClick={() => toggle(roomTypes, setRoomTypes, rt)}
-                            className={`px-4 py-1.5 rounded-full border text-sm transition
+                            className={`px-3 py-1 rounded-full border text-xs transition
                 ${roomTypes.includes(rt)
                                 ? "bg-lime-600 text-white"
                                 : "bg-white hover:bg-slate-50"
@@ -166,29 +170,23 @@ export function Filters() {
             </section>
 
             {/* 프로그램 */}
-            <section className="space-y-3">
-                <h3 className="text-base font-semibold">프로그램</h3>
-                <div className="grid grid-cols-2 gap-2">
+            <section className="space-y-2">
+                <h3 className="text-sm font-semibold">프로그램</h3>
+                <div className="grid grid-cols-2 gap-1.5">
                     {[
-                        {name:"인지기능향상"},
-                        {name:"운동보조"},
-                        {name:"현실인식훈련"},
-                        {name:"운동요법"},
-                        {name:"가족참여"},
-                        {name:"인지자극활동"},
-                        {name:"음악활동"},
-                        {name:"기타 프로그램"},
-                    ].map(p => (
+                        "인지기능향상","운동보조","현실인식훈련","운동요법",
+                        "가족참여","인지자극활동","음악활동","기타 프로그램",
+                    ].map(name => (
                         <button
-                            key={p.name}
-                            onClick={() => toggle(programTypes, setProgramTypes, p.name)}
-                            className={`px-4 py-1.5 rounded-full border text-sm transition
-                ${programTypes.includes(p.name)
+                            key={name}
+                            onClick={() => toggle(programTypes, setProgramTypes, name)}
+                            className={`px-3 py-1 rounded-full border text-xs transition
+                ${programTypes.includes(name)
                                 ? "bg-lime-600 text-white"
                                 : "bg-white hover:bg-slate-50"
                             }`}
                         >
-                            {p.name}
+                            {name}
                         </button>
                     ))}
                 </div>
