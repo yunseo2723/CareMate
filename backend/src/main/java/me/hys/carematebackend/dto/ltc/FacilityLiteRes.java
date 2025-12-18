@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import me.hys.carematebackend.model.LtcFacility;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.Map;
 
 @Data
 @Builder
+@Getter
 public class FacilityLiteRes {
     private String instCode;
     private String kindCode;

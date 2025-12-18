@@ -82,14 +82,23 @@ export type FacilityDetailDTO = {
 };
 
 /** 지도/검색용 전체 리스트 */
-export async function fetchFacilitiesLiteAll(): Promise<FacilityLite[]> {
-    const url = "https://caremate-fmp1.onrender.com/ltc/list/lite";
+export async function fetchFacilitiesInCircle(
+    centerLat: number,
+    centerLng: number,
+    radiusKm: number,
+): Promise<FacilityLite[]> {
 
-    const res = await fetch(url, { credentials: "include" });
+    const url = new URL("https://caremate-fmp1.onrender.com/ltc/map/lite");
+    url.searchParams.set("centerLat", String(centerLat));
+    url.searchParams.set("centerLng", String(centerLng));
+    url.searchParams.set("radiusKm", String(radiusKm));
+
+    const res = await fetch(url.toString());
     if (!res.ok) return [];
 
     return await res.json();
 }
+
 
 /** 상세 조회 */
 export async function fetchFacilityDetailByInst(

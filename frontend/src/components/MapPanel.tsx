@@ -8,7 +8,7 @@ import {
 } from "react";
 import { Ctx } from "../contexts/Ctx";
 import {
-    fetchFacilitiesLiteAll,
+    fetchFacilitiesInCircle,
     type FacilityLite,
 } from "../api/ltc";
 import { SimilarModal } from "./SimilarModal";
@@ -26,24 +26,10 @@ type Coord = { lat: number; lng: number };
 
 const SEOUL_CENTER: Coord = { lat: 37.5665, lng: 126.9780 };
 
-/** 거리 계산 */
-function haversine(lat1: number, lon1: number, lat2: number, lon2: number) {
-    const R = 6371; // km
-    const dLat = ((lat2 - lat1) * Math.PI) / 180;
-    const dLon = ((lon2 - lon1) * Math.PI) / 180;
-    const a =
-        Math.sin(dLat / 2) ** 2 +
-        Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) ** 2;
-    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-}
-
 export function MapPanel() {
     const {
         center,
         radiusKm,
-        setCircleFacilities,
         careLevel,
         gradeFilter,
         minCaregiver,
@@ -182,10 +168,16 @@ export function MapPanel() {
 
     /** 1) DB에서 전체 시설 리스트 가져오기 */
     useEffect(() => {
+        if (!mapReady) return;
+
         let alive = true;
 
         (async () => {
-            const list = await fetchFacilitiesLiteAll();
+            const list = await fetchFacilitiesInCircle(
+                circleCenter.lat,
+                circleCenter.lng,
+                radiusKm
+            );
             if (!alive) return;
             setRows(list);
         })();
@@ -193,7 +185,8 @@ export function MapPanel() {
         return () => {
             alive = false;
         };
-    }, []);
+    }, [circleCenter, radiusKm, mapReady]);
+
 
     /** 2) DB에서 lat/lng 있는 시설만 필터링 */
     const renderable = useMemo(() => {
@@ -225,10 +218,6 @@ export function MapPanel() {
         clusterer.clear();
 
         const markers = renderable
-            .filter((f) => {
-                const d = haversine(circleCenter.lat, circleCenter.lng, f.lat!, f.lng!);
-                return d <= radiusKm;
-            })
             .map((f) => {
                 const marker = new kakao.maps.Marker({
                     position: new kakao.maps.LatLng(f.lat!, f.lng!),
@@ -328,25 +317,6 @@ export function MapPanel() {
     }, [radiusKm]);
 
     /** 6) 반경 내 시설 리스트 업데이트 */
-    useEffect(() => {
-        const within = renderable.filter((f) => {
-            const d = haversine(circleCenter.lat, circleCenter.lng, f.lat!, f.lng!);
-            return d <= radiusKm;
-        });
-
-        setCircleFacilities(
-            within.map((f) => ({
-                instCode: f.instCode,
-                kindCode: f.kindCode,
-                name: f.name,
-                address: f.fullRoadAddr ?? "",
-                monthlyCost: 0,
-                rating: 0,
-                bedsAvailable: 1,
-                insurance: [],
-            }))
-        );
-    }, [renderable, radiusKm, circleCenter, setCircleFacilities]);
 
     return (
         <div className="rounded-2xl border bg-white">

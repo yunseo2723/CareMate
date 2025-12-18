@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import me.hys.carematebackend.dto.ltc.FacilityDetailRes;
 import me.hys.carematebackend.dto.ltc.FacilityLiteRes;
 import me.hys.carematebackend.dto.ltc.LtcFacilitySearchDto;
-import me.hys.carematebackend.repository.LtcFacilityRepository;
 import me.hys.carematebackend.service.LtcDetailDbService;
 import me.hys.carematebackend.service.LtcSearchService;
 import me.hys.carematebackend.service.LtcSimilarService;
@@ -19,17 +18,23 @@ import java.util.Map;
 public class LtcController {
 
     private final LtcSimilarService service;
-    private final LtcFacilityRepository repo;
     private final LtcDetailDbService detailDbService;
     private final LtcSearchService searchService;
 
     // 전국 요양원 lite 리스트
-    @GetMapping("/list/lite")
-    public List<FacilityLiteRes> listLite() {
-        return repo.findAll().stream()
-                .map(FacilityLiteRes::from)
-                .toList();
+    @GetMapping("/map/lite")
+    public List<FacilityLiteRes> mapLite(
+            @RequestParam double centerLat,
+            @RequestParam double centerLng,
+            @RequestParam double radiusKm,
+            @RequestParam(defaultValue = "200") int limit
+    ) {
+        limit = Math.min(limit, 300); // 안전장치
+        return searchService.findLiteInRadius(
+                centerLat, centerLng, radiusKm, limit
+        );
     }
+
 
     @GetMapping("/detail")
     public FacilityDetailRes detail(
