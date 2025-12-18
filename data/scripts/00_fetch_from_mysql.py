@@ -1,32 +1,32 @@
 # 00_fetch_from_mysql.py
-import pymysql
-import json
 from pathlib import Path
-
-from data.scripts.Roadname_mapper import RoadnameMapper
+from dotenv import load_dotenv
+import os
+import psycopg2
+import psycopg2.extras
+import json
 
 ROOT = Path(__file__).resolve().parents[1]
+ENV_PATH = ROOT / ".env"
 OUT = ROOT / "output"
 OUT.mkdir(parents=True, exist_ok=True)
 
-OUT_FILE = OUT / "ltc_from_mysql.json"
+OUT_FILE = OUT / "ltc_from_postgres.json"
 
+load_dotenv(ENV_PATH)
 
 def fetch_all_facilities():
-    conn = pymysql.connect(
-        host="localhost",
-        user="root",
-        password="1234",
-        database="caremate",
-        port=3306,
-        charset='utf8mb4',
-        cursorclass=pymysql.cursors.DictCursor
+    conn = psycopg2.connect(
+        host=os.getenv("PG_HOST"),
+        port=os.getenv("PG_PORT"),
+        dbname=os.getenv("PG_DB"),
+        user=os.getenv("PG_USER"),
+        password=os.getenv("PG_PASSWORD"),
+        sslmode="require"
     )
 
-    sql = "SELECT * FROM ltc_facility"
-
-    with conn.cursor() as cur:
-        cur.execute(sql)
+    with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+        cur.execute("SELECT * FROM ltc_facility")
         rows = cur.fetchall()
 
     conn.close()

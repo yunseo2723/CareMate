@@ -4,10 +4,18 @@ import numpy as np
 from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import StandardScaler
+from scipy.sparse import hstack
+import joblib
 
 ROOT = Path(__file__).resolve().parents[1]
-IN_FILE = ROOT / "output" / "ltc_from_mysql.json"
-OUT_FILE = ROOT / "output" / "facilities_vectors.npz"
+IN_FILE = ROOT / "output" / "ltc_from_postgres.json"
+
+OUTPUT_DIR = ROOT / "output"
+OUTPUT_DIR.mkdir(exist_ok=True)
+
+VEC_FILE = OUTPUT_DIR / "facilities_vectors.npz"
+TFIDF_FILE = OUTPUT_DIR / "tfidf.pkl"
+SCALER_FILE = OUTPUT_DIR / "scaler.pkl"
 
 def load_data():
     with open(IN_FILE, "r", encoding="utf-8") as f:
@@ -78,29 +86,33 @@ def main():
     # --------------------------
     # 2) 숫자 특징 생성
     # --------------------------
-    num_features = np.array([build_numeric_features(f) for f in data])
+    num_features = np.array([build_numeric_features(f) for f in data], dtype=np.float32)
     scaler = StandardScaler()
     num_vec = scaler.fit_transform(num_features)
 
     # --------------------------
     # 3) 최종 벡터 결합
     # --------------------------
-    final_vectors = np.hstack([text_vec.toarray(), num_vec])
+    final_vectors = hstack([text_vec, num_vec]).astype(np.float32)
 
     # --------------------------
     # 4) 저장
     # --------------------------
     np.savez_compressed(
-        OUT_FILE,
-        vectors=final_vectors,
+        VEC_FILE,
+        vectors=final_vectors.toarray(),   # 저장 시점에서만 dense
         instCodes=[f["instCode"] for f in data],
         kindCodes=[f["kindCode"] for f in data]
     )
 
+    joblib.dump(tfidf, TFIDF_FILE)
+    joblib.dump(scaler, SCALER_FILE)
+
     print("🔥 벡터 생성 완료")
-    print(" - 시설 수:", len(data))
-    print(" - 벡터 차원:", final_vectors.shape)
-    print(" - 파일:", OUT_FILE)
+    print(" - 벡터 shape:", final_vectors.shape)
+    print(" - vectors 파일:", VEC_FILE)
+    print(" - tfidf 모델:", TFIDF_FILE)
+    print(" - scaler 모델:", SCALER_FILE)
 
 
 if __name__ == "__main__":

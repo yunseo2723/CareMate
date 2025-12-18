@@ -3,7 +3,7 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / "output" / "ltc_from_mysql.json"
+SRC = ROOT / "output" / "ltc_from_postgres.json"
 SIM = ROOT / "output" / "facilities_with_sim.json"
 OUT = ROOT / "output" / "facilities_final.json"
 

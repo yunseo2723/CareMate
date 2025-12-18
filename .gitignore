@@ -62,5 +62,5 @@ dist-ssr
 *.sln
 *.sw?
 
-# env (local secrets)
+# .env (local secrets)
 .env.local

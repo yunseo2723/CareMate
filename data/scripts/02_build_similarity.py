@@ -39,7 +39,7 @@ def region_weight(a, b):
 def main():
     # 1) 벡터, 시설 메타 로드
     npz = np.load(VEC_FILE, allow_pickle=True)
-    vectors = npz["vectors"]
+    vectors = npz["vectors"].astype(np.float32)
     instCodes = npz["instCodes"].tolist()
     kindCodes = npz["kindCodes"].tolist()
 
@@ -79,7 +79,7 @@ def main():
                 "score": round(score, 6)  # 반올림
             })
 
-            if len(refined) == 30:  # 일단 30개만 계산해서 그 안에서 TOP 5 선택
+            if len(refined) == 20:  # 일단 20개만 계산해서 그 안에서 TOP 5 선택
                 break
 
         # 최종 상위 5개만

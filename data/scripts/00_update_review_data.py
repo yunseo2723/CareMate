@@ -1,8 +1,15 @@
 import pandas as pd
-import pymysql
+import psycopg2
+import psycopg2.extras
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
+ENV_PATH = ROOT / ".env"
+
+load_dotenv(ENV_PATH)
+
 RAW_DIR = ROOT / "raw"
 
 TXT_PATH = RAW_DIR / "국민건강보험공단_장기요양기관 평가 결과_20241231.csv"
@@ -36,37 +43,43 @@ def compute_total_if_missing(row):
     if not values:
         return None  # 다 비었으면 total_score도 None
 
-    return sum(values) / len(values)
+    return float(sum(values) / len(values))
 
 # 2) 장기요양기관기호를 정제 (하이픈 제거)
 df["기관코드"] = df["장기요양기관기호"].astype(str).str.replace("-", "")
 
 # DB 연결
-conn = pymysql.connect(
-    host="localhost",
-    user="root",
-    password="1234",
-    db="caremate",
-    charset="utf8"
+conn = psycopg2.connect(
+    host=os.getenv("PG_HOST"),
+    port=int(os.getenv("PG_PORT")),
+    dbname=os.getenv("PG_DB"),
+    user=os.getenv("PG_USER"),
+    password=os.getenv("PG_PASSWORD"),
+    sslmode="require"
 )
 
 cursor = conn.cursor()
 
-# 3) DB에서 instCode 목록 불러오기
+# ======================
+# inst_code 목록 조회
+# ======================
 cursor.execute("SELECT inst_code FROM ltc_facility")
 inst_list = [row[0] for row in cursor.fetchall()]
 
-# 4) 매칭 후 업데이트
+# ======================
+# UPDATE SQL
+# ======================
 update_sql = """
-             UPDATE ltc_facility SET
-                                     grade=%s,
-                                     total_score=%s,
-                                     op_score=%s,
-                                     safety_score=%s,
-                                     rights_score=%s,
-                                     process_score=%s,
-                                     result_score=%s
-             WHERE inst_code=%s \
+             UPDATE ltc_facility
+             SET
+                 grade = %s,
+                 total_score = %s,
+                 op_score = %s,
+                 safety_score = %s,
+                 rights_score = %s,
+                 process_score = %s,
+                 result_score = %s
+             WHERE inst_code = %s \
              """
 
 updated = 0
