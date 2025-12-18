@@ -30,7 +30,8 @@ public class GovLtcApiClient {
                 .fromHttpUrl("https://apis.data.go.kr/B550928/searchLtcInsttService02/getLtcInsttSeachList02")
                 .queryParam("serviceKey", serviceKey)
                 .queryParam("siDoCd", sidoCd)
-                .queryParam("numOfRows", 10000)
+                .queryParam("numOfRows", 30000)
+                .queryParam("pageNo", 1)
                 .queryParam("_type", "json");
 
         URI url = b.build(true).toUri();

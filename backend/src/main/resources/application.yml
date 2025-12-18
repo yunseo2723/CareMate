@@ -8,13 +8,13 @@ spring:
         show-sql: true
 
     jwt:
-        secret: TrmFK2Nox5h5JtGd6IoNcuSdVCg5dX9cr8LsE7Cm+k3notiNNkSVJU8GLQ9B33I/mBwayz0MiAwdVHW6Xa/FBw==
+        secret: ${JWT_SECRET}
 
 ltc:
     api:
         base2: "https://apis.data.go.kr/B550928/getLtcInsttDetailInfoService02"
-        serviceKey: "4b4656be576582ffcf2998862cd759faf9352dc841639c60c790cc336e160bbc"
-        rest-api-key: "8ade036e254dad1d6e5f2a93e73eee45"
+        serviceKey: ${LTC_SERVICE_KEY}
+        rest-api-key: ${KAKAO_REST_API_KEY}
 
 openai:
     api-key: ${OPENAI_API_KEY}
