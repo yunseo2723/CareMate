@@ -27,9 +27,9 @@ public class LtcController {
             @RequestParam double centerLat,
             @RequestParam double centerLng,
             @RequestParam double radiusKm,
-            @RequestParam(defaultValue = "200") int limit
+            @RequestParam(defaultValue = "1000") int limit
     ) {
-        limit = Math.min(limit, 300); // 안전장치
+        limit = Math.min(limit, 1500); // 안전장치
         return searchService.findLiteInRadius(
                 centerLat, centerLng, radiusKm, limit
         );
