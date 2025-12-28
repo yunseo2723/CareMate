@@ -22,7 +22,12 @@ export default function MainLayout() {
                     {/* 데스크톱 헤더 */}
                     <div className="hidden md:flex items-center justify-between h-30">
                         <Link to="/" className="flex items-center gap-2 shrink-0">
-                            <img src={logo} alt="CareMate" className="h-30 w-auto object-contain" />
+                            <img
+                                src={logo}
+                                alt="CareMate"
+                                className="h-20 w-auto scale-125 origin-left"
+                            />
+
                         </Link>
 
                         <div className="flex-1 flex justify-center px-6">
@@ -83,10 +88,15 @@ export default function MainLayout() {
                     </div>
 
                     {/* 모바일 헤더 */}
-                    <div className="md:hidden flex items-center justify-between h-14">
-                        <Link to="/" className="flex items-center gap-2">
-                            <img src={logo} alt="CareMate" className="h-8 w-auto" />
+                    <div className="md:hidden flex items-center justify-between h-20">
+                        <Link to="/" className="flex items-center">
+                            <img
+                                src={logo}
+                                alt="CareMate"
+                                className="h-15 w-auto scale-125 origin-left"
+                            />
                         </Link>
+
 
                         <button
                             className="text-2xl"
