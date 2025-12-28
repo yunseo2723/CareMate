@@ -1,10 +1,14 @@
 import { Outlet, Link } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo2.png";
 import FacilityQuickSearch from "../components/FacilityQuickSearch.tsx";
+import MobileSideDrawer from "../components/MobileSideDrawer";
 
 export default function MainLayout() {
     const { user, logout, loading } = useAuth();
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
     if (loading) return null;
 
     const displayName = user?.name ?? user?.nickname ?? user?.username;
@@ -12,25 +16,21 @@ export default function MainLayout() {
     return (
         <div className="min-h-dvh flex flex-col bg-gradient-to-b from-white to-slate-50">
             {/* Header */}
-            <header className="w-full border-b bg-white">
+            <header className="w-full border-b bg-white sticky top-0 z-40">
                 <div className="mx-auto max-w-[1200px] px-4">
-                    <div className="flex items-center justify-between h-30">
-                        {/* 브랜드 */}
+
+                    {/* 데스크톱 헤더 */}
+                    <div className="hidden md:flex items-center justify-between h-30">
                         <Link to="/" className="flex items-center gap-2 shrink-0">
-                            <img
-                                src={logo}
-                                alt="CareMate"
-                                className="h-30 w-auto object-contain"
-                            />
+                            <img src={logo} alt="CareMate" className="h-30 w-auto object-contain" />
                         </Link>
 
-                        {/* 중앙 검색 */}
                         <div className="flex-1 flex justify-center px-6">
                             <FacilityQuickSearch />
                         </div>
 
-                        {/* 우측 영역 */}
-                        <div className="flex flex-col items-end gap-2 min-w-[220px]">
+                        {/* 기존 우측 영역 그대로 */}
+                        <div className="hidden md:flex flex-col items-end gap-2 min-w-[220px]">
                             {user ? (
                                 <>
                                     <div className="text-sm text-slate-700">
@@ -68,6 +68,7 @@ export default function MainLayout() {
                                     >
                                         로그인
                                     </Link>
+
                                     <Link
                                         to="/signup"
                                         className="rounded-md bg-lime-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-lime-500"
@@ -77,9 +78,37 @@ export default function MainLayout() {
                                 </div>
                             )}
                         </div>
+
                     </div>
+
+                    {/* 모바일 헤더 */}
+                    <div className="md:hidden flex items-center justify-between h-14">
+                        <Link to="/" className="flex items-center gap-2">
+                            <img src={logo} alt="CareMate" className="h-8 w-auto" />
+                        </Link>
+
+                        <button
+                            className="text-2xl"
+                            onClick={() => setMobileMenuOpen(true)}
+                        >
+                            ☰
+                        </button>
+                    </div>
+
+                    {/* 모바일 검색 (헤더 내부) */}
+                    <div className="md:hidden border-t px-4 py-3">
+                        <FacilityQuickSearch />
+                    </div>
+
                 </div>
             </header>
+
+            <MobileSideDrawer
+                open={mobileMenuOpen}
+                onClose={() => setMobileMenuOpen(false)}
+                user={user}
+                logout={logout}
+            />
 
             {/* Main */}
             <main className="flex-1 w-full py-6">

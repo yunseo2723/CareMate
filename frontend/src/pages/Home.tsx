@@ -8,8 +8,10 @@ import {useEffect, useState} from "react";
 import ResetFiltersButton from "../components/ResetFiltersButton.tsx";
 import AiRecommendSidePanel from "../components/AiRecommendSidePanel.tsx";
 import AiResultModal from "../components/AiResultModal.tsx";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
+    const navigate = useNavigate();
     const search = useSearch();
     const { applyFilter, editingFilterId, setEditingFilterId } = search;
 
@@ -55,8 +57,8 @@ export default function Home() {
           xl:grid-cols-[360px_1fr_320px]
         "
             >
-                <aside className="md:sticky md:top-[72px] h-max">
-                    <div className="rounded-2xl border bg-white p-4 space-y-4">
+                <aside className="hidden md:block md:sticky md:top-[72px] h-max">
+                <div className="rounded-2xl border bg-white p-4 space-y-4">
                         <Filters />
 
                         {editingFilterId && (
@@ -88,9 +90,24 @@ export default function Home() {
                     </div>
                 </aside>
 
-                <section className="space-y-3">
+                <section>
+                    <div className="relative pt-14 md:pt-0">
+
+                        {/* 모바일 월 예상 비용 버튼 */}
+                        <div className="md:hidden absolute top-1 left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-md pointer-events-none">
+                            <button
+                                className=" pointer-events-auto w-full h-11 bg-lime-600 text-white text-sm
+                                font-semibold rounded-full shadow-lg active:scale-[0.98]"
+                                onClick={() => navigate("/cost-simulator")}
+                            >
+                                요양원 월 예상비용 계산하기
+                            </button>
+                        </div>
+                    </div>
+
                     <MapPanel />
                 </section>
+
 
                 <aside className="md:sticky md:top-[72px] h-max hidden xl:block">
                     <AiRecommendSidePanel />

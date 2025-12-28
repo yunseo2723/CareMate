@@ -1,5 +1,5 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useState, useRef, useEffect } from "react";
 
 type Facility = {
     instCode: string;
@@ -13,6 +13,23 @@ export default function FacilityQuickSearch() {
     const [results, setResults] = useState<Facility[]>([]);
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
+    const wrapperRef = useRef<HTMLDivElement | null>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (
+                wrapperRef.current &&
+                !wrapperRef.current.contains(event.target as Node)
+            ) {
+                setOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
 
     const search = async (value: string) => {
         setQuery(value);
@@ -35,8 +52,8 @@ export default function FacilityQuickSearch() {
     };
 
     return (
-        <div className="relative w-full max-w-md">
-            <input
+        <div ref={wrapperRef} className="relative w-full max-w-md">
+        <input
                 value={query}
                 onChange={(e) => search(e.target.value)}
                 placeholder="요양원 이름을 입력하세요"

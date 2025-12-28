@@ -1,7 +1,6 @@
 // src/pages/CostSimulator.tsx
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, {useCallback, useMemo, useState} from "react";
-import { Link } from "react-router-dom";
 
 type GradeHome =
     | "1등급"
@@ -469,9 +468,6 @@ export default function CostSimulator() {
                         실제 청구는 기관/이용방식/경감대상 등에 따라 달라질 수 있어요.
                     </div>
                 </div>
-                <Link to="/" className="px-3 py-2 border rounded hover:bg-gray-50 text-sm">
-                    홈으로
-                </Link>
             </div>
 
             {/* 공통 설정 */}
