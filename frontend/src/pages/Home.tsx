@@ -96,7 +96,7 @@ export default function Home() {
                         {/* 모바일 월 예상 비용 버튼 */}
                         <div className="md:hidden absolute top-1 left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-md pointer-events-none">
                             <button
-                                className=" pointer-events-auto w-full h-11 bg-orange-500 text-white text-sm
+                                className=" pointer-events-auto w-full h-11 bg-orange-400 text-white text-sm
                                 font-semibold rounded-full shadow-lg active:scale-[0.98]"
                                 onClick={() => navigate("/cost-simulator")}
                             >
