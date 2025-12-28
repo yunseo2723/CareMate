@@ -29,6 +29,7 @@ export default function MainLayout() {
                             <FacilityQuickSearch />
                         </div>
 
+
                         {/* 기존 우측 영역 그대로 */}
                         <div className="hidden md:flex flex-col items-end gap-2 min-w-[220px]">
                             {user ? (

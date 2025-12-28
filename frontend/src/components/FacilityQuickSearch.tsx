@@ -52,7 +52,11 @@ export default function FacilityQuickSearch() {
     };
 
     return (
-        <div ref={wrapperRef} className="relative w-full max-w-md">
+        <div
+            ref={wrapperRef}
+            className="relative w-full max-w-md mx-auto"
+        >
+
         <input
                 value={query}
                 onChange={(e) => search(e.target.value)}
