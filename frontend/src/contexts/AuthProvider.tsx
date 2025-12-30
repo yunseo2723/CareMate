@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, [refreshUser]);
 
     const value = useMemo(
-        () => ({ user, loading, tokens, login, logout, authFetch, refreshUser }),
+        () => ({ user, loading, tokens, isLoggedIn: !!user, login, logout, authFetch, refreshUser }),
         [user, loading, tokens, login, logout, authFetch, refreshUser]
     );
 

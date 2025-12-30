@@ -20,6 +20,7 @@ export type AuthContextValue = {
     user: User | null;
     loading: boolean;
     tokens: Tokens;
+    isLoggedIn: boolean;
     login: (user: User, tokens: Tokens) => void;
     logout: () => void;
     authFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;

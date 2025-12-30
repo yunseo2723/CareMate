@@ -20,11 +20,18 @@ import AdminFacilityPage from "./pages/mypage/AdminFacilityPage";
 import SavedFiltersPage from "./pages/mypage/SavedFiltersPage";
 import MyReviewsPage from "./pages/mypage/MyReviewsPage.tsx";
 import MyFavoritesPage from "./pages/mypage/MyFavoritesPage.tsx";
+import {ToastContainer} from "react-toastify";
 // import DocumentsPage from "./pages/mypage/DocumentsPage";
 // import InboxPage from "./pages/mypage/InboxPage";
 
 export default function App() {
     return (
+        <>
+            <ToastContainer
+                position="top-center"
+                autoClose={2000}
+                hideProgressBar
+            />
         <BrowserRouter>
             {/* MainLayout를 레이아웃 라우트로 사용 */}
             <Routes>
@@ -58,5 +65,6 @@ export default function App() {
                 </Route>
             </Routes>
         </BrowserRouter>
+        </>
     );
 }

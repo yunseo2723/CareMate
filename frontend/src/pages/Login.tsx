@@ -1,8 +1,11 @@
 // src/pages/Login.tsx
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
+type LocationState = {
+    from?: string;
+};
 const AUTH_CARD = "mx-auto w-full max-w-xl md:max-w-2xl rounded-2xl border bg-white p-8 shadow-sm";
 const INPUT = "w-full rounded-md border px-3 h-11 text-base";
 const PRIMARY_BTN = "w-full rounded-md bg-lime-600 h-11 text-base font-medium text-white hover:opacity-90 disabled:opacity-50";
@@ -12,6 +15,8 @@ export default function Login() {
     const { login /*, refreshUser*/ } = useAuth();
     const [email, setEmail] = useState("");
     const [pw, setPw] = useState("");
+    const location = useLocation();
+    const from = (location.state as LocationState | null)?.from || "/";
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -53,10 +58,8 @@ export default function Login() {
 
             login(u, { accessToken, refreshToken });
 
-            // (선택) 강하게 동기화하려면: await refreshUser?.();
-
             alert("로그인에 성공했습니다.");
-            nav("/");
+            nav(from, { replace: true });
         } catch (err) {
             console.error(err);
             alert("로그인 중 오류가 발생했습니다. 잠시 후 다시 시도하세요.");

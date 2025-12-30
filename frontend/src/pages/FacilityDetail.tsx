@@ -1,8 +1,10 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { useEffect, useRef, useState } from "react";
 import { fetchFacilityDetailByInst, type FacilityDetailDTO } from "../api/ltc";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { useLocation, useParams } from "react-router-dom";
 import FavoriteStar from "../components/FacilityDetailHeader.tsx";
+import { useRequireLogin } from "../hooks/useRequireLogin";
+import { useNavigate } from "react-router-dom";
 
 export default function FacilityDetail() {
     const { instCode: instCodeParam } = useParams();
@@ -42,15 +44,9 @@ export default function FacilityDetail() {
 
 /* ===================== 상단 ===================== */
 
-function TopSection({
-                        data,
-                        instCode,
-                        kindCode,
-                    }: {
-    data: FacilityDetailDTO;
-    instCode: string;
-    kindCode: string;
-}) {
+function TopSection({ data, instCode, kindCode }: any) {
+    const requireLogin = useRequireLogin();
+    const navigate = useNavigate();
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* 왼쪽 정보 */}
@@ -79,13 +75,19 @@ function TopSection({
                     )}
                 </div>
 
-                <Link
-                    to={`/facility/${instCode}/${kindCode}/community`}
+                <button
+                    onClick={() =>
+                        requireLogin(() => {
+                            navigate(
+                                `/facility/${instCode}/${kindCode}/community`
+                            );
+                        })
+                    }
                     className="inline-block w-fit rounded-md bg-lime-600 px-4 py-2
-                     text-white text-sm font-medium hover:bg-lime-500 transition"
+                 text-white text-sm font-medium hover:bg-lime-500 transition"
                 >
                     커뮤니티로 이동
-                </Link>
+                </button>
             </div>
 
             {/* 지도 */}
