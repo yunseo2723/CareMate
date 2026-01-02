@@ -18,7 +18,7 @@ public class RecommendController {
             @RequestParam(defaultValue = "10") int limit
     ) {
         return restTemplate.getForObject(
-                "http://localhost:8000/recommend/top?limit=" + limit,
+                "https://caremate-ml.onrender.com/recommend/top?limit=" + limit,
                 RecommendResponse.class
         );
     }
