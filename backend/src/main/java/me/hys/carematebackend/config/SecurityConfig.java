@@ -68,7 +68,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/actuator/health", "/users/register", "/users/login",
-                                "/signup/**", "/facilities/**", "/ltc/**").permitAll()
+                                "/signup/**", "/facilities/**", "/ltc/**", "/recommend/**").permitAll()
                         .requestMatchers("/users/me/**", "/admin/verify/**",
                                 "/contacts/**","/bookmarks/**", "/reviews/**", "/facility/**").authenticated()
                         .anyRequest().authenticated()
