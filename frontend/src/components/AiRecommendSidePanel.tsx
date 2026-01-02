@@ -2,12 +2,14 @@ import { useSearch } from "../hooks/useSearch";
 import { useAuth } from "../hooks/useAuth";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useRequireLogin } from "../hooks/useRequireLogin";
 
 export default function AiRecommendSidePanel() {
     const { authFetch } = useAuth();
     const navigate = useNavigate();
     const { aiPrompt, setAiPrompt, aiResult, setAiResult } = useSearch();
     const [loading, setLoading] = useState(false);
+    const requireLogin = useRequireLogin();
 
     const submit = async () => {
         if (!aiPrompt.trim()) return;
@@ -51,7 +53,11 @@ export default function AiRecommendSidePanel() {
 
             {/* 버튼 */}
             <button
-                onClick={submit}
+                onClick={() =>
+                    requireLogin(
+                        () => submit()   // ✅ submit 실행
+                    )
+                }
                 disabled={loading}
                 className="
           w-full

@@ -9,6 +9,7 @@ import ResetFiltersButton from "../components/ResetFiltersButton.tsx";
 import AiRecommendSidePanel from "../components/AiRecommendSidePanel.tsx";
 import AiResultModal from "../components/AiResultModal.tsx";
 import { useNavigate } from "react-router-dom";
+import RecommendTopSection from "../components/RecommendTopSection.tsx";
 
 export default function Home() {
     const navigate = useNavigate();
@@ -104,8 +105,10 @@ export default function Home() {
                             </button>
                         </div>
                     </div>
-
                     <MapPanel />
+                    <div className="mt-4">
+                        <RecommendTopSection />
+                    </div>
                 </section>
 
 

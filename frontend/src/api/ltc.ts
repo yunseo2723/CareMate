@@ -206,4 +206,31 @@ export async function fetchSimilarFacilities(
     }));
 }
 
+/** 추천 */
+// 🔥 리뷰 기반 Top 추천
+export type RecommendTopItem = {
+    instCode: string;
+    kindCode: string;
+    name: string;
+    address: string;
+    grade?: string;
+    avgRating: number;
+    reviewCount: number;
+    score: number;
+    reasons: {
+        sentence: string;
+        score: number;
+    }[];
+};
 
+export type RecommendTopResponse = {
+    results: RecommendTopItem[];
+};
+
+export async function fetchRecommendTop(limit = 10) {
+    const res = await fetch(
+        `http://localhost:8080/recommend/top?limit=${limit}`
+    );
+    if (!res.ok) throw new Error("recommend top failed");
+    return (await res.json()) as RecommendTopResponse;
+}
