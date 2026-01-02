@@ -25,7 +25,6 @@ export function Filters() {
         <div className="rounded-2xl border bg-white p-5 space-y-6 shadow-sm">
 
             {/* 상단 CTA */}
-            <div className="hidden md:block">
             <button
                 className="
           w-full
@@ -41,7 +40,6 @@ export function Filters() {
             >
                 요양원 월 예상 비용 계산하기
             </button>
-            </div>
 
             {/* 위치 검색 */}
             <section className="space-y-2">
