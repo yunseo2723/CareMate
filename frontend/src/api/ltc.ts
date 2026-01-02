@@ -229,7 +229,7 @@ export type RecommendTopResponse = {
 
 export async function fetchRecommendTop(limit = 10) {
     const res = await fetch(
-        `http://localhost:8080/recommend/top?limit=${limit}`
+        `https://caremate-ml.onrender.com/recommend/top?limit=${limit}`
     );
     if (!res.ok) throw new Error("recommend top failed");
     return (await res.json()) as RecommendTopResponse;
